@@ -1,0 +1,13 @@
+*~
+*.pyc
+doc/_build
+build
+dist
+openqml-sf.egg-info
+.idea
+*.ipynp
+*.ipynb_checkpoints
+*.egg-info*
+.coverage
+coverage_html_report/*
+notebooks/*
