@@ -39,7 +39,7 @@ class GaussianTests(BaseTest):
 
     def test_load_gaussian_device(self):
         """Test that the gaussian plugin loads correctly"""
-        log.info('test_load_gaussian_device')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.gaussian', wires=2)
         self.assertEqual(dev.wires, 2)
@@ -49,14 +49,14 @@ class GaussianTests(BaseTest):
 
     def test_gaussian_args(self):
         """Test that the gaussian plugin requires correct arguments"""
-        log.info('test_gaussian_args')
+        self.logTestName()
 
         with self.assertRaisesRegex(TypeError, "missing 1 required positional argument: 'wires'"):
             dev = qm.device('strawberryfields.gaussian')
 
     def test_unsupported_gates(self):
         """Test error is raised with unsupported gates"""
-        log.info('test_unsupported_ops')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.gaussian', wires=2)
         gates = set(dev._operator_map.keys())
@@ -87,7 +87,7 @@ class GaussianTests(BaseTest):
 
     def test_unsupported_observables(self):
         """Test error is raised with unsupported observables"""
-        log.info('test_unsupported_observables')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.gaussian', wires=2)
         obs = set(dev._observable_map.keys())
@@ -113,7 +113,7 @@ class GaussianTests(BaseTest):
 
     def test_gaussian_circuit(self):
         """Test that the gaussian plugin provides correct result for simple circuit"""
-        log.info('test_gaussian_circuit')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.gaussian', wires=1)
 
@@ -126,7 +126,7 @@ class GaussianTests(BaseTest):
 
     def test_nonzero_shots(self):
         """Test that the gaussian plugin provides correct result for high shot number"""
-        log.info('test_gaussian_circuit')
+        self.logTestName()
 
         shots = 10**2
         dev = qm.device('strawberryfields.gaussian', wires=1, shots=shots)
@@ -141,7 +141,7 @@ class GaussianTests(BaseTest):
 
     def test_supported_gaussian_gates(self):
         """Test that all supported gates work correctly"""
-        log.info('test_supported_gaussian_gates')
+        self.logTestName()
         a = 0.312
         b = 0.123
 
@@ -186,7 +186,7 @@ class GaussianTests(BaseTest):
 
     def test_supported_gaussian_observables(self):
         """Test that all supported observables work correctly"""
-        log.info('test_supported_gaussian_observables')
+        self.logTestName()
         a = 0.312
         a_array = np.eye(3)
 
