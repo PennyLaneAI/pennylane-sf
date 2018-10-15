@@ -49,7 +49,7 @@ class FockTests(BaseTest):
         self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=5)
-        self.assertEqual(dev.wires, 2)
+        self.assertEqual(dev.num_wires, 2)
         self.assertEqual(dev.cutoff, 5)
         self.assertEqual(dev.hbar, 2)
         self.assertEqual(dev.shots, 0)

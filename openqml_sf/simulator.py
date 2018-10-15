@@ -49,7 +49,7 @@ class StrawberryFieldsSimulator(Device):
     def execution_context(self):
         """Initialize the engine"""
         self.reset()
-        self.eng, self.q = sf.Engine(self.wires, hbar=self.hbar)
+        self.eng, self.q = sf.Engine(self.num_wires, hbar=self.hbar)
         return self.eng
 
     def apply(self, gate_name, wires, params):

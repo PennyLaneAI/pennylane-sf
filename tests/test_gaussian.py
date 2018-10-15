@@ -42,7 +42,7 @@ class GaussianTests(BaseTest):
         self.logTestName()
 
         dev = qm.device('strawberryfields.gaussian', wires=2)
-        self.assertEqual(dev.wires, 2)
+        self.assertEqual(dev.num_wires, 2)
         self.assertEqual(dev.hbar, 2)
         self.assertEqual(dev.shots, 0)
         self.assertEqual(dev.short_name, 'strawberryfields.gaussian')
