@@ -6,8 +6,7 @@ example of function fitting.
 
 import openqml as qm
 from openqml import numpy as np
-from openqml.optimize import NesterovMomentumOptimizer
-import matplotlib.pyplot as plt
+from openqml.optimize import AdamOptimizer
 
 dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10)
 
@@ -28,11 +27,11 @@ def layer(w):
 
 
 @qm.qfunc(dev)
-def quantum_neural_net(weights, x=None):
+def quantum_neural_net(weights, x):
     """The quantum neural net variational circuit."""
 
     # Encode input into quantum state
-    qm.Displacement(x[0], 0., [0])
+    qm.Displacement(x, 0., [0])
 
     # execute "layers"
     for i in range(6):  # TODO: back to multidim arrays
@@ -65,46 +64,29 @@ def regularizer(weights):
 
 def cost(weights, features, labels):
     """Cost (error) function to be minimized."""
-
     # Compute prediction for each input in data batch
-    predictions = [quantum_neural_net(weights, x=x) for x in features]
-
+    predictions = [quantum_neural_net(weights, x) for x in features]
     loss = square_loss(labels, predictions)
-    regularization = 0.5*regularizer(weights)
-
-    cost = loss + 0.0 * regularization
+    cost = loss #+ 0.0*regularizer(weights)
 
     return cost
 
 
 # load function data
 data = np.loadtxt("sine.txt")
-X = data[:, :-1]
-Y = data[:, -1]
+X = data[:, 0]
+Y = data[:, 1]
 
 # initialize weights
 num_layers = 6
-weights0 = 0.05*np.random.randn(num_layers*7)
+weights0 = 0.5*np.random.randn(num_layers*7)
+print("Initial cost: {:0.7f}".format(cost(weights0, X, Y)))
 
 # create optimizer
-o = NesterovMomentumOptimizer(0.1)
+o = AdamOptimizer(0.5)
 
 # train
 weights = weights0
-for it in range(15):
+for it in range(10):
     weights = o.step(lambda w: cost(w, X, Y), weights)
     print("Iter: {:5d} | Cost: {:0.7f}".format(it+1, cost(weights, X, Y)))
-
-# predict a range of values between -1 and 1
-x_axis = np.linspace(-1, 1, 50)
-predictions = [quantum_neural_net(weights, x=x) for x in x_axis]
-
-# plot the noisy data (red) and predictions (green)
-plt.figure()
-plt.plot(x_axis, predictions, color='#3f9b0b', marker='o', zorder=1)
-plt.scatter(X, Y, color='#fb2943', marker='o', zorder=2, s=75)
-plt.xlabel('Input', fontsize=18)
-plt.ylabel('Output', fontsize=18)
-plt.tick_params(axis='both', which='major', labelsize=16)
-plt.tick_params(axis='both', which='minor', labelsize=16)
-plt.show()

@@ -17,7 +17,7 @@ def circuit(weights):
     qm.FockState(1, [0])
     qm.Beamsplitter(weights[0], weights[1], [0, 1])
 
-    return qm.expectation.PhotonNumber(1)
+    return qm.expectation.PhotonNumber(0)
 
 
 def objective(weights):
@@ -25,18 +25,18 @@ def objective(weights):
     return circuit(weights)
 
 
-weights0 = np.array([0.1, 0.0])
+vars_init = np.array([0.01, 0.0])
 
 o = GradientDescentOptimizer(0.1)
-weights = o.step(objective, weights0)
+variables = o.step(objective, vars_init)
 
-
-weights = weights0
-for iteration in range(101):
-    weights = o.step(objective, weights)
+print("Initial cost {:0.7f}: ".format(objective(variables)))
+variables = vars_init
+for iteration in range(100):
+    variables = o.step(objective, variables)
     if iteration % 5 == 0:
         print('Cost after step {:3d}: {:0.7f}'
-              ''.format(iteration, objective(weights)))
+              ''.format(iteration, objective(variables)))
 
 
 
