@@ -65,24 +65,24 @@ class GaussianTests(BaseTest):
         for g in all_gates - gates:
             op = getattr(qm.ops, g)
 
-            if op.n_wires == 0:
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*x):
                 x = prep_par(x, op)
                 op(*x, wires=wires)
 
                 if issubclass(op, qm.operation.CV):
-                    return qm.expectation.X(0)
+                    return qm.expval.X(0)
                 else:
-                    return qm.expectation.PauliZ(0)
+                    return qm.expval.PauliZ(0)
 
             with self.assertRaisesRegex(qm.DeviceError,
                 "Gate {} not supported on device strawberryfields.gaussian".format(g)):
-                x = np.random.random([op.n_params])
+                x = np.random.random([op.num_params])
                 circuit(*x)
 
     def test_unsupported_observables(self):
@@ -91,24 +91,24 @@ class GaussianTests(BaseTest):
 
         dev = qm.device('strawberryfields.gaussian', wires=2)
         obs = set(dev._observable_map.keys())
-        all_obs = {m[0] for m in inspect.getmembers(qm.expectation, inspect.isclass)}
+        all_obs = {m[0] for m in inspect.getmembers(qm.expval, inspect.isclass)}
 
         for g in all_obs - obs:
-            op = getattr(qm.expectation, g)
+            op = getattr(qm.expval, g)
 
-            if op.n_wires == 0:
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*x):
                 x = prep_par(x, op)
                 return op(*x, wires=wires)
 
             with self.assertRaisesRegex(qm.DeviceError,
                 "Observable {} not supported on device strawberryfields.gaussian".format(g)):
-                x = np.random.random([op.n_params])
+                x = np.random.random([op.num_params])
                 circuit(*x)
 
     def test_gaussian_circuit(self):
@@ -117,10 +117,10 @@ class GaussianTests(BaseTest):
 
         dev = qm.device('strawberryfields.gaussian', wires=1)
 
-        @qm.qfunc(dev)
+        @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expectation.PhotonNumber(0)
+            return qm.expval.PhotonNumber(0)
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -131,10 +131,10 @@ class GaussianTests(BaseTest):
         shots = 10**2
         dev = qm.device('strawberryfields.gaussian', wires=1, shots=shots)
 
-        @qm.qfunc(dev)
+        @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expectation.PhotonNumber(0)
+            return qm.expval.PhotonNumber(0)
 
         expected_var = np.sqrt(1/shots)
         self.assertAlmostEqual(circuit(1), 1, delta=expected_var)
@@ -153,16 +153,16 @@ class GaussianTests(BaseTest):
             self.assertTrue(dev.supported(g))
 
             op = getattr(qm.ops, g)
-            if op.n_wires == 0:
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*x):
                 qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*x, wires=wires)
-                return qm.expectation.PhotonNumber(0), qm.expectation.PhotonNumber(1)
+                return qm.expval.PhotonNumber(0), qm.expval.PhotonNumber(1)
 
             # compare to reference SF engine
             def SF_reference(*x):
@@ -179,9 +179,9 @@ class GaussianTests(BaseTest):
                 r = np.array([0, 0])
                 V = np.array([[0.5, 0], [0, 2]])
                 self.assertAllEqual(circuit(V, r), SF_reference(V, r))
-            elif op.n_params == 1:
+            elif op.num_params == 1:
                 self.assertAllEqual(circuit(a), SF_reference(a))
-            elif op.n_params == 2:
+            elif op.num_params == 2:
                 self.assertAllEqual(circuit(a, b), SF_reference(a, b))
 
     def test_supported_gaussian_observables(self):
@@ -197,13 +197,13 @@ class GaussianTests(BaseTest):
             log.info('\tTesting observable {}...'.format(g))
             self.assertTrue(dev.supported(g))
 
-            op = getattr(qm.expectation, g)
-            if op.n_wires == 0:
+            op = getattr(qm.expval, g)
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*x):
                 qm.Displacement(0.1, 0, wires=0)
                 qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
@@ -220,11 +220,41 @@ class GaussianTests(BaseTest):
                 state = eng.run('gaussian')
                 return sfop(state, wires, x)[0]
 
-            if op.n_params == 0:
+            if op.num_params == 0:
                 self.assertAllEqual(circuit(), SF_reference())
-            elif op.n_params == 1:
+            elif op.num_params == 1:
                 p = a_array if op.par_domain == 'A' else a
                 self.assertAllEqual(circuit(p), SF_reference(p))
+
+    def test_polyxp(self):
+        """Test that PolyXP works as expected"""
+        self.logTestName()
+
+        a = 0.54321
+        nbar = 0.5234
+
+        hbar = 2
+        dev = qm.device('strawberryfields.gaussian', wires=1, hbar=hbar)
+        Q = np.array([0, 1, 0]) # x expectation
+
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.Displacement(x, 0, 0)
+            return qm.expval.PolyXP(Q, 0)
+
+        # test X expectation
+        self.assertAlmostEqual(circuit(a), hbar*a)
+
+        Q = np.diag([-0.5, 1/(2*hbar), 1/(2*hbar)]) # mean photon number
+
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.ThermalState(nbar, 0)
+            qm.Displacement(x, 0, 0)
+            return qm.expval.PolyXP(Q, 0)
+
+        # test X expectation
+        self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
 
 
 if __name__ == '__main__':

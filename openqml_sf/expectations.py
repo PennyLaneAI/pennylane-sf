@@ -16,7 +16,7 @@ from collections import Sequence
 
 import numpy as np
 
-import openqml.expectation
+import openqml.expval
 
 
 def PNR(state, wires, params):
@@ -81,7 +81,7 @@ def Order2Poly(state, wires, params):
     Q = params[0]
 
     # HACK, we need access to the Poly instance in order to expand the matrix!
-    op = openqml.expectation.PolyXP(Q, wires=wires, do_queue=False)
+    op = openqml.expval.PolyXP(Q, wires=wires, do_queue=False)
     Q = op.heisenberg_obs(state.num_modes)
 
     if Q.ndim == 1:

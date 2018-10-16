@@ -75,24 +75,24 @@ class FockTests(BaseTest):
         for g in all_gates - gates:
             op = getattr(qm.ops, g)
 
-            if op.n_wires == 0:
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*args):
                 args = prep_par(args, op)
                 op(*args, wires=wires)
 
                 if issubclass(op, qm.operation.CV):
-                    return qm.expectation.PhotonNumber(0)
+                    return qm.expval.PhotonNumber(0)
                 else:
-                    return qm.expectation.PauliZ(0)
+                    return qm.expval.PauliZ(0)
 
             with self.assertRaisesRegex(qm.DeviceError,
                 "Gate {} not supported on device strawberryfields.fock".format(g)):
-                args = np.random.random([op.n_params])
+                args = np.random.random([op.num_params])
                 circuit(*args)
 
     def test_unsupported_observables(self):
@@ -101,24 +101,24 @@ class FockTests(BaseTest):
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         obs = set(dev._observable_map.keys())
-        all_obs = {m[0] for m in inspect.getmembers(qm.expectation, inspect.isclass)}
+        all_obs = {m[0] for m in inspect.getmembers(qm.expval, inspect.isclass)}
 
         for g in all_obs - obs:
-            op = getattr(qm.expectation, g)
+            op = getattr(qm.expval, g)
 
-            if op.n_wires == 0:
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*args):
                 args = prep_par(args, op)
                 return op(*args, wires=wires)
 
             with self.assertRaisesRegex(qm.DeviceError,
                 "Observable {} not supported on device strawberryfields.fock".format(g)):
-                args = np.random.random([op.n_params])
+                args = np.random.random([op.num_params])
                 circuit(*args)
 
     def test_fock_circuit(self):
@@ -127,10 +127,10 @@ class FockTests(BaseTest):
 
         dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10)
 
-        @qm.qfunc(dev)
+        @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expectation.PhotonNumber(0)
+            return qm.expval.PhotonNumber(0)
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -141,10 +141,10 @@ class FockTests(BaseTest):
         shots = 10**2
         dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10, shots=shots)
 
-        @qm.qfunc(dev)
+        @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expectation.PhotonNumber(0)
+            return qm.expval.PhotonNumber(0)
 
         expected_var = np.sqrt(1/shots)
         self.assertAlmostEqual(circuit(1), 1, delta=expected_var)
@@ -164,16 +164,16 @@ class FockTests(BaseTest):
             self.assertTrue(dev.supported(g))
 
             op = getattr(qm.ops, g)
-            if op.n_wires == 0:
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*args):
                 qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*args, wires=wires)
-                return qm.expectation.PhotonNumber(0), qm.expectation.PhotonNumber(1)
+                return qm.expval.PhotonNumber(0), qm.expval.PhotonNumber(1)
 
             # compare to reference SF engine
             def SF_reference(*args):
@@ -197,9 +197,9 @@ class FockTests(BaseTest):
                 self.assertAllEqual(circuit(psi), SF_reference(psi))
             elif g == 'FockState':
                 self.assertAllEqual(circuit(1), SF_reference(1))
-            elif op.n_params == 1:
+            elif op.num_params == 1:
                 self.assertAllEqual(circuit(a), SF_reference(a))
-            elif op.n_params == 2:
+            elif op.num_params == 2:
                 self.assertAllEqual(circuit(a, b), SF_reference(a, b))
 
     def test_supported_fock_observables(self):
@@ -216,13 +216,13 @@ class FockTests(BaseTest):
             log.info('\tTesting observable {}...'.format(g))
             self.assertTrue(dev.supported(g))
 
-            op = getattr(qm.expectation, g)
-            if op.n_wires == 0:
+            op = getattr(qm.expval, g)
+            if op.num_wires == 0:
                 wires = [0]
             else:
-                wires = list(range(op.n_wires))
+                wires = list(range(op.num_wires))
 
-            @qm.qfunc(dev)
+            @qm.qnode(dev)
             def circuit(*args):
                 qm.Displacement(0.1, 0, wires=0)
                 qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
@@ -239,9 +239,9 @@ class FockTests(BaseTest):
                 state = eng.run('fock', cutoff_dim=cutoff_dim)
                 return sfop(state, wires, args)[0]
 
-            if op.n_params == 0:
+            if op.num_params == 0:
                 self.assertAllEqual(circuit(), SF_reference())
-            elif op.n_params == 1:
+            elif op.num_params == 1:
                 p = a_array if op.par_domain == 'A' else a
                 self.assertAllEqual(circuit(p), SF_reference(p))
 
