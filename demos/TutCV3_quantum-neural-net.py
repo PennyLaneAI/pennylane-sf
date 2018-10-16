@@ -1,7 +1,8 @@
-"""Continuous-variable quantum neural network.
+"""Continuous-variable quantum neural network example.
 
-In this demo we implement the cv-qnn of Ref XXX with the
-example of function fitting.
+In this demo we implement the photonic quantum neural net model
+from Killoran et al. (arXiv:1806.06871) with the example
+of function fitting.
 """
 
 import openqml as qm
@@ -12,7 +13,7 @@ dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10)
 
 
 def layer(w):
-    """ Single layer of the continuous-variable quantum neural net."""
+    """ Single layer of the quantum neural net."""
 
     # Bias
     qm.Displacement(w[0], w[1], [0])
@@ -22,22 +23,22 @@ def layer(w):
     qm.Squeezing(w[3], w[4], [0])
     qm.Rotation(w[5], [0])
 
-    # Element-wise nonlinear transformation
+    # Nonlinear transformation
     qm.Kerr(w[6], [0])
 
 
-@qm.qfunc(dev)
-def quantum_neural_net(weights, x):
+@qm.qnode(dev)
+def quantum_neural_net(weights, x=None):
     """The quantum neural net variational circuit."""
 
-    # Encode input into quantum state
+    # Encode input x into quantum state
     qm.Displacement(x, 0., [0])
 
     # execute "layers"
-    for i in range(6):  # TODO: back to multidim arrays
-        layer(weights[i*7: i*7+7])
+    for w in weights:
+        layer(w)
 
-    return qm.expectation.X(0)
+    return qm.expval.X(0)
 
 
 def square_loss(labels, predictions):
@@ -57,19 +58,15 @@ def square_loss(labels, predictions):
     return loss
 
 
-def regularizer(weights):
-    w_flat = weights.flatten()
-    return np.abs(np.sum(w_flat**2))
-
-
 def cost(weights, features, labels):
-    """Cost (error) function to be minimized."""
-    # Compute prediction for each input in data batch
-    predictions = [quantum_neural_net(weights, x) for x in features]
-    loss = square_loss(labels, predictions)
-    cost = loss #+ 0.0*regularizer(weights)
+    """Cost function to be minimized."""
 
-    return cost
+    # Compute prediction for each input in data batch
+    preds = [quantum_neural_net(weights, x=x) for x in features]
+
+    loss = square_loss(labels, preds)
+
+    return loss
 
 
 # load function data
@@ -78,15 +75,15 @@ X = data[:, 0]
 Y = data[:, 1]
 
 # initialize weights
-num_layers = 6
-weights0 = 0.5*np.random.randn(num_layers*7)
-print("Initial cost: {:0.7f}".format(cost(weights0, X, Y)))
+num_layers = 4
+vars_init = 0.05*np.random.randn(num_layers, 7)
 
 # create optimizer
-o = AdamOptimizer(0.5)
+o = AdamOptimizer(0.005, beta1=0.9, beta2=0.999)
 
 # train
-weights = weights0
-for it in range(10):
-    weights = o.step(lambda w: cost(w, X, Y), weights)
-    print("Iter: {:5d} | Cost: {:0.7f}".format(it+1, cost(weights, X, Y)))
+vars = vars_init
+for it in range(50):
+    vars = o.step(lambda v: cost(v, X, Y), vars)
+    print("Iter: {:5d} | Cost: {:0.7f} | Mean of abs vars: {:0.7f}"
+          .format(it+1, cost(vars, X, Y), np.mean(np.abs(vars))))

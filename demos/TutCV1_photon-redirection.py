@@ -5,38 +5,37 @@ to redirect a photon from the first to the second mode.
 """
 
 import openqml as qm
-from openqml import numpy as np
+import numpy as np
 from openqml.optimize import GradientDescentOptimizer
 
 dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
 
 
-@qm.qfunc(dev)
-def circuit(weights):
+@qm.qnode(dev)
+def circuit(vars):
     """Qnode"""
     qm.FockState(1, [0])
-    qm.Beamsplitter(weights[0], weights[1], [0, 1])
+    qm.Beamsplitter(vars[0], vars[1], [0, 1])
 
-    return qm.expectation.PhotonNumber(0)
+    return qm.expval.PhotonNumber(0)
 
 
-def objective(weights):
+def objective(vars):
     """Objective to minimize"""
-    return circuit(weights)
+
+    return circuit(vars)
 
 
-vars_init = np.array([0.01, 0.0])
+gd = GradientDescentOptimizer(stepsize=0.1)
 
-o = GradientDescentOptimizer(0.1)
-variables = o.step(objective, vars_init)
+vars = np.array([0.01, 0.01])
 
-print("Initial cost {:0.7f}: ".format(objective(variables)))
-variables = vars_init
 for iteration in range(100):
-    variables = o.step(objective, variables)
-    if iteration % 5 == 0:
-        print('Cost after step {:3d}: {:0.7f}'
-              ''.format(iteration, objective(variables)))
+    vars = gd.step(objective, vars)
+
+    if iteration % 10 == 0:
+        print('Cost after step {:3d}: {:0.7f} | Variables [{:0.7f}, {:0.7f}]'
+              ''.format(iteration, objective(vars), vars[0], vars[1]))
 
 
 
