@@ -46,10 +46,10 @@ class FockTests(BaseTest):
 
     def test_load_fock_device(self):
         """Test that the fock plugin loads correctly"""
-        log.info('test_load_fock_device')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=5)
-        self.assertEqual(dev.wires, 2)
+        self.assertEqual(dev.num_wires, 2)
         self.assertEqual(dev.cutoff, 5)
         self.assertEqual(dev.hbar, 2)
         self.assertEqual(dev.shots, 0)
@@ -57,7 +57,7 @@ class FockTests(BaseTest):
 
     def test_fock_args(self):
         """Test that the fock plugin requires correct arguments"""
-        log.info('test_fock_args')
+        self.logTestName()
 
         with self.assertRaisesRegex(TypeError, "missing 1 required positional argument: 'wires'"):
             dev = qm.device('strawberryfields.fock')
@@ -66,7 +66,7 @@ class FockTests(BaseTest):
 
     def test_unsupported_gates(self):
         """Test error is raised with unsupported gates"""
-        log.info('test_unsupported_ops')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         gates = set(dev._operator_map.keys())
@@ -97,7 +97,7 @@ class FockTests(BaseTest):
 
     def test_unsupported_observables(self):
         """Test error is raised with unsupported observables"""
-        log.info('test_unsupported_observables')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         obs = set(dev._observable_map.keys())
@@ -123,7 +123,7 @@ class FockTests(BaseTest):
 
     def test_fock_circuit(self):
         """Test that the fock plugin provides correct result for simple circuit"""
-        log.info('test_fock_circuit')
+        self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10)
 
@@ -136,7 +136,7 @@ class FockTests(BaseTest):
 
     def test_nonzero_shots(self):
         """Test that the fock plugin provides correct result for high shot number"""
-        log.info('test_fock_circuit')
+        self.logTestName()
 
         shots = 10**2
         dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10, shots=shots)
@@ -151,7 +151,7 @@ class FockTests(BaseTest):
 
     def test_supported_fock_gates(self):
         """Test that all supported gates work correctly"""
-        log.info('test_supported_fock_gates')
+        self.logTestName()
         cutoff_dim = 10
         a = 0.312
         b = 0.123
@@ -204,7 +204,7 @@ class FockTests(BaseTest):
 
     def test_supported_fock_observables(self):
         """Test that all supported observables work correctly"""
-        log.info('test_supported_fock_observables')
+        self.logTestName()
         cutoff_dim = 10
         a = 0.312
         a_array = np.eye(3)

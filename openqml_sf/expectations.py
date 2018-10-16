@@ -61,9 +61,9 @@ def Homodyne(phi=None):
             value and variance.
     """
     if phi is not None:
-        return lambda state, wires, params: state.quad_expectation(wires, phi)
+        return lambda state, wires, params: state.quad_expectation(wires[0], phi)
 
-    return lambda state, wires, params: state.quad_expectation(wires, *params)
+    return lambda state, wires, params: state.quad_expectation(wires[0], *params)
 
 
 def Order2Poly(state, wires, params):
