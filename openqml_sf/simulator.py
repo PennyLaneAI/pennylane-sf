@@ -37,7 +37,7 @@ class StrawberryFieldsSimulator(Device):
     author = 'Josh Izaac'
 
     short_name = 'strawberryfields'
-    _operator_map = None
+    _operation_map = None
 
     def __init__(self, wires, *, shots=0, hbar=2):
         super().__init__(self.short_name, wires, shots)
@@ -56,27 +56,27 @@ class StrawberryFieldsSimulator(Device):
         """Apply a quantum operation.
 
         Args:
-          gate_name (str): name of the operation
-          wires (Sequence[int]): subsystems the operation is applied on
-          par (tuple): parameters for the operation
+            gate_name (str): name of the operation
+            wires (Sequence[int]): subsystems the operation is applied on
+            par (tuple): parameters for the operation
         """
         gate = self._operator_map[gate_name](*params)
         gate | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
     @abc.abstractmethod
-    def pre_expectations(self):
+    def pre_expval(self):
         """Run the engine"""
         raise NotImplementedError
 
-    def expectation(self, observable, wires, params):
+    def expval(self, observable, wires, params):
         """Expectation value of an observable.
 
         Args:
-          observable (str): name of the observable
-          wires (Sequence[int]): subsystems the observable is measured on
-          params (tuple): parameters for the observable
+            observable (str): name of the observable
+            wires (Sequence[int]): subsystems the observable is measured on
+            params (tuple): parameters for the observable
         Returns:
-          float: expectation value
+            float: expectation value
         """
         ex, var = self._observable_map[observable](self.state, wires, params)
 

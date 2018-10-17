@@ -57,7 +57,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
     name = 'Strawberry Fields Fock OpenQML plugin'
     short_name = 'strawberryfields.fock'
 
-    _operator_map = {
+    _operation_map = {
         'CatState': Catstate,
         'CoherentState': Coherent,
         'FockDensityMatrix': DensityMatrix,
@@ -80,7 +80,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         'CubicPhase': Vgate
     }
 
-    _observable_map = {
+    _expectation_map = {
         'PhotonNumber': PNR,
         'X': Homodyne(0),
         'P': Homodyne(np.pi/2),
@@ -94,5 +94,5 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         super().__init__(wires, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
 
-    def pre_expectations(self):
+    def pre_expval(self):
         self.state = self.eng.run('fock', cutoff_dim=self.cutoff)
