@@ -40,7 +40,7 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
                                   Pgate, Rgate, S2gate, Sgate)
 
-from .expectations import *
+from .expectations import (PNR, Homodyne, Order2Poly)
 from .simulator import StrawberryFieldsSimulator
 
 

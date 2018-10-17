@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This module contains the expectation value operations."""
-from collections import Sequence
-
 import numpy as np
 
 import openqml.expval
@@ -89,8 +87,8 @@ def Order2Poly(state, wires, params):
         return state.poly_quad_expectation(None, d, Q[0])
 
     # convert to the (I, x1,x2,..., p1,p2...) ordering
-    M = np.vstack((Q[0:1,:], Q[1::2,:], Q[2::2,:]))
-    M = np.hstack((M[:,0:1], M[:,1::2], M[:,2::2]))
+    M = np.vstack((Q[0:1, :], Q[1::2, :], Q[2::2, :]))
+    M = np.hstack((M[:, 0:1], M[:, 1::2], M[:, 2::2]))
     d1 = M[1:, 0]
     d2 = M[0, 1:]
-    return state.poly_quad_expectation(M[1:,1:], d1+d2, M[0,0])
+    return state.poly_quad_expectation(M[1:, 1:], d1+d2, M[0, 0])

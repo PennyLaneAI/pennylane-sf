@@ -23,13 +23,14 @@ from ._version import __version__
 
 
 class StrawberryFieldsSimulator(Device):
-    """Abstract StrawberryFields simulator device for OpenQML.
+    r"""Abstract StrawberryFields simulator device for OpenQML.
 
     Args:
-      wires (int): the number of modes to initialize the device in.
-      shots (int): number of circuit evaluations/random samples used to estimate expectation values of expectations.
-        For simulator devices, 0 means the exact EV is returned.
-      hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
+        wires (int): the number of modes to initialize the device in.
+        shots (int): number of circuit evaluations/random samples used
+            to estimate expectation values of expectations.
+            For simulator devices, 0 means the exact EV is returned.
+        hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
     """
     name = 'Strawberry Fields Simulator OpenQML plugin'
     api_version = '0.1.0'
@@ -52,33 +53,33 @@ class StrawberryFieldsSimulator(Device):
         self.eng, self.q = sf.Engine(self.num_wires, hbar=self.hbar)
         return self.eng
 
-    def apply(self, gate_name, wires, params):
+    def apply(self, op_name, wires, par):
         """Apply a quantum operation.
 
         Args:
-            gate_name (str): name of the operation
+            op_name (str): name of the operation
             wires (Sequence[int]): subsystems the operation is applied on
             par (tuple): parameters for the operation
         """
-        gate = self._operation_map[gate_name](*params)
-        gate | [self.q[i] for i in wires] #pylint: disable=pointless-statement
+        op = self._operation_map[op_name](*par)
+        op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
     @abc.abstractmethod
     def pre_expval(self):
         """Run the engine"""
         raise NotImplementedError
 
-    def expval(self, expectation, wires, params):
+    def expval(self, expectation, wires, par):
         """Expectation value of an expectation.
 
         Args:
             expectation (str): name of the expectation
             wires (Sequence[int]): subsystems the expectation is measured on
-            params (tuple): parameters for the expectation
+            par (tuple): parameters for the expectation
         Returns:
             float: expectation value
         """
-        ex, var = self._expectation_map[expectation](self.state, wires, params)
+        ex, var = self._expectation_map[expectation](self.state, wires, par)
 
         if self.shots != 0:
             # estimate the expectation value

@@ -40,7 +40,7 @@ from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSq
 from strawberryfields.ops import (BSgate, CKgate, CXgate, CZgate, Dgate,
                                   Kgate, Pgate, Rgate, S2gate, Sgate, Vgate)
 
-from .expectations import *
+from .expectations import (PNR, Homodyne, Order2Poly)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -49,10 +49,12 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
 
     Args:
         wires (int): the number of modes to initialize the device in.
-        shots (int): number of circuit evaluations/random samples used to estimate expectation values of observables.
+        shots (int): number of circuit evaluations/random samples
+            used to estimate expectation values of observables.
             For simulator devices, 0 means the exact EV is returned.
         cutoff_dim (int): Fock space truncation dimension
-        hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
+        hbar (float): the convention chosen in the canonical commutation
+            relation :math:`[x, p] = i \hbar`
     """
     name = 'Strawberry Fields Fock OpenQML plugin'
     short_name = 'strawberryfields.fock'

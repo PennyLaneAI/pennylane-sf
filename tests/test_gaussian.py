@@ -136,8 +136,14 @@ class GaussianTests(BaseTest):
             qm.Displacement(x, 0, wires=0)
             return qm.expval.PhotonNumber(0)
 
+        x = 1
+
+        runs = []
+        for _ in range(100):
+            runs.append(circuit(x))
+
         expected_var = np.sqrt(1/shots)
-        self.assertAlmostEqual(circuit(1), 1, delta=expected_var)
+        self.assertAlmostEqual(np.mean(runs), x, delta=expected_var)
 
     def test_supported_gaussian_gates(self):
         """Test that all supported gates work correctly"""
