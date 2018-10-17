@@ -117,7 +117,7 @@ class FockTests(BaseTest):
                 return op(*args, wires=wires)
 
             with self.assertRaisesRegex(qm.DeviceError,
-                "Observable {} not supported on device strawberryfields.fock".format(g)):
+                "Expectation {} not supported on device strawberryfields.fock".format(g)):
                 args = np.random.random([op.num_params])
                 circuit(*args)
 

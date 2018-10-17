@@ -27,7 +27,7 @@ class StrawberryFieldsSimulator(Device):
 
     Args:
       wires (int): the number of modes to initialize the device in.
-      shots (int): number of circuit evaluations/random samples used to estimate expectation values of observables.
+      shots (int): number of circuit evaluations/random samples used to estimate expectation values of expectations.
         For simulator devices, 0 means the exact EV is returned.
       hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
     """
@@ -60,7 +60,7 @@ class StrawberryFieldsSimulator(Device):
             wires (Sequence[int]): subsystems the operation is applied on
             par (tuple): parameters for the operation
         """
-        gate = self._operator_map[gate_name](*params)
+        gate = self._operation_map[gate_name](*params)
         gate | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
     @abc.abstractmethod
@@ -68,17 +68,17 @@ class StrawberryFieldsSimulator(Device):
         """Run the engine"""
         raise NotImplementedError
 
-    def expval(self, observable, wires, params):
-        """Expectation value of an observable.
+    def expval(self, expectation, wires, params):
+        """Expectation value of an expectation.
 
         Args:
-            observable (str): name of the observable
-            wires (Sequence[int]): subsystems the observable is measured on
-            params (tuple): parameters for the observable
+            expectation (str): name of the expectation
+            wires (Sequence[int]): subsystems the expectation is measured on
+            params (tuple): parameters for the expectation
         Returns:
             float: expectation value
         """
-        ex, var = self._observable_map[observable](self.state, wires, params)
+        ex, var = self._expectation_map[expectation](self.state, wires, params)
 
         if self.shots != 0:
             # estimate the expectation value

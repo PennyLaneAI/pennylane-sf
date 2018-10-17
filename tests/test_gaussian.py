@@ -107,7 +107,7 @@ class GaussianTests(BaseTest):
                 return op(*x, wires=wires)
 
             with self.assertRaisesRegex(qm.DeviceError,
-                "Observable {} not supported on device strawberryfields.gaussian".format(g)):
+                "Expectation {} not supported on device strawberryfields.gaussian".format(g)):
                 x = np.random.random([op.num_params])
                 circuit(*x)
 
