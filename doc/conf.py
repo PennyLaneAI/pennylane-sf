@@ -40,7 +40,16 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinxcontrib.bibtex',
     'edit_on_github'
+    # 'nbsphinx'
 ]
+
+# nbsphinx settings
+
+exclude_patterns = ['_build', '**.ipynb_checkpoints', 'tutorials/.ipynb_checkpoints', '*-checkpoint.ipynb']
+nbsphinx_execute = 'never'
+nbsphinx_epilog = """
+.. note:: :download:`Click here <../{{env.docname}}.ipynb>` to download this gallery page as an interactive Jupyter notebook.
+"""
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates', 'xanadu_theme']
@@ -55,9 +64,11 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'OpenQML'
+project = 'OpenQML-StrawberryFields'
 copyright = "Copyright 2018, Xanadu Inc."
 author = 'Xanadu Inc.'
+
+add_module_names = False
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -213,7 +224,7 @@ html_sidebars = {
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'OpenQMLdoc'
+htmlhelp_basename = 'OpenQMLSFdoc'
 
 # # -- Xanadu theme ---------------------------------------------------------
 html_theme = 'xanadu_theme'
@@ -229,7 +240,7 @@ html_theme_options = {
     # "index_template": "special_index.html",
 
     # Set the name of the project to appear in the left sidebar.
-    "project_nav_name": "OpenQML",
+    "project_nav_name": "OpenQML-SF",
 
     # Set your Disqus short name to enable comments
     # "disqus_comments_shortname": "strawberryfields-1",
@@ -257,7 +268,7 @@ edit_on_github_branch = 'master/doc'
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'OpenQMLdoc'
+htmlhelp_basename = 'OpenQMLSFdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -286,7 +297,7 @@ latex_additional_files = ['macros.tex']
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'OpenQML.tex', 'OpenQML Documentation',
+    (master_doc, 'OpenQML.tex', 'OpenQML-StrawberryFields Documentation',
      'Xanadu Inc.', 'manual'),
 ]
 
@@ -296,7 +307,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'openqml', 'OpenQML Documentation',
+    (master_doc, 'openqml', 'OpenQML-StrawberryFields Documentation',
      [author], 1)
 ]
 
@@ -307,8 +318,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'OpenQML', 'OpenQML Documentation',
-     author, 'OpenQML', 'Xanadu quantum machine learning library.',
+    (master_doc, 'OpenQML-StrawberryFields', 'OpenQML-StrawberryFields Documentation',
+     author, 'OpenQML-StrawberryFields', 'Xanadu quantum machine learning library.',
      'Miscellaneous'),
 ]
 
