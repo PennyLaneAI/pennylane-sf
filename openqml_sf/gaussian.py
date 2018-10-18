@@ -40,7 +40,7 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
                                   Pgate, Rgate, S2gate, Sgate)
 
-from .expectations import *
+from .expectations import (PNR, Homodyne, Order2Poly)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -50,7 +50,7 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
     name = 'Strawberry Fields Gaussian OpenQML plugin'
     short_name = 'strawberryfields.gaussian'
 
-    _operator_map = {
+    _operation_map = {
         'CoherentState': Coherent,
         'DisplacedSqueezedState': DisplacedSqueezed,
         'SqueezedState': Squeezed,
@@ -66,7 +66,7 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
         'Squeezing': Sgate
     }
 
-    _observable_map = {
+    _expectation_map = {
         'PhotonNumber': PNR,
         'X': Homodyne(0),
         'P': Homodyne(np.pi/2),
@@ -76,5 +76,5 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
 
     _circuits = {}
 
-    def pre_expectations(self):
+    def pre_expval(self):
         self.state = self.eng.run('gaussian')

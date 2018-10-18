@@ -69,7 +69,7 @@ class FockTests(BaseTest):
         self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
-        gates = set(dev._operator_map.keys())
+        gates = set(dev._operation_map.keys())
         all_gates = {m[0] for m in inspect.getmembers(qm.ops, inspect.isclass)}
 
         for g in all_gates - gates:
@@ -95,12 +95,12 @@ class FockTests(BaseTest):
                 args = np.random.random([op.num_params])
                 circuit(*args)
 
-    def test_unsupported_observables(self):
-        """Test error is raised with unsupported observables"""
+    def test_unsupported_expectations(self):
+        """Test error is raised with unsupported expectations"""
         self.logTestName()
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
-        obs = set(dev._observable_map.keys())
+        obs = set(dev._expectation_map.keys())
         all_obs = {m[0] for m in inspect.getmembers(qm.expval, inspect.isclass)}
 
         for g in all_obs - obs:
@@ -117,7 +117,7 @@ class FockTests(BaseTest):
                 return op(*args, wires=wires)
 
             with self.assertRaisesRegex(qm.DeviceError,
-                "Observable {} not supported on device strawberryfields.fock".format(g)):
+                "Expectation {} not supported on device strawberryfields.fock".format(g)):
                 args = np.random.random([op.num_params])
                 circuit(*args)
 
@@ -146,8 +146,14 @@ class FockTests(BaseTest):
             qm.Displacement(x, 0, wires=0)
             return qm.expval.PhotonNumber(0)
 
+        x = 1
+
+        runs = []
+        for _ in range(100):
+            runs.append(circuit(x))
+
         expected_var = np.sqrt(1/shots)
-        self.assertAlmostEqual(circuit(1), 1, delta=expected_var)
+        self.assertAlmostEqual(np.mean(runs), x, delta=expected_var)
 
     def test_supported_fock_gates(self):
         """Test that all supported gates work correctly"""
@@ -158,7 +164,7 @@ class FockTests(BaseTest):
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
 
-        gates = list(dev._operator_map.items())
+        gates = list(dev._operation_map.items())
         for g, sfop in gates:
             log.info('\tTesting gate {}...'.format(g))
             self.assertTrue(dev.supported(g))
@@ -202,8 +208,8 @@ class FockTests(BaseTest):
             elif op.num_params == 2:
                 self.assertAllEqual(circuit(a, b), SF_reference(a, b))
 
-    def test_supported_fock_observables(self):
-        """Test that all supported observables work correctly"""
+    def test_supported_fock_expectations(self):
+        """Test that all supported expectations work correctly"""
         self.logTestName()
         cutoff_dim = 10
         a = 0.312
@@ -211,9 +217,9 @@ class FockTests(BaseTest):
 
         dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
 
-        observables = list(dev._observable_map.items())
-        for g, sfop in observables:
-            log.info('\tTesting observable {}...'.format(g))
+        expectations = list(dev._expectation_map.items())
+        for g, sfop in expectations:
+            log.info('\tTesting expectation {}...'.format(g))
             self.assertTrue(dev.supported(g))
 
             op = getattr(qm.expval, g)
