@@ -11,7 +11,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This module contains the Strawberry Fields abstract simulator device"""
+"""
+Base simulator class
+====================
+
+**Module name:** :mod:`openqml_sf.simulator`
+
+.. currentmodule:: openqml_sf.simulator
+
+A base class for constructing Strawberry Fields devices for OpenQML.
+This class provides all the boilerplate for supporting OpenQML;
+inheriting devices simply need to provide their engine run command
+in :meth:`~.StrawberryFieldsSimulator.pre_expval`, as well as defining their ``_operation_map``
+and ``_expectation_map``, mapping OpenQML operations to their
+Strawberry Fields counterparts.
+
+Classes
+-------
+
+.. autosummary::
+   StrawberryFieldsSimulator
+
+Code details
+~~~~~~~~~~~~
+"""
 import abc
 
 import numpy as np

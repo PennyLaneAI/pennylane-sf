@@ -1,76 +1,81 @@
-.. _installation:
+.. _usage:
 
-Installation and downloads
-#################################
+Plugin usage
+############
 
-.. .. include:: ../README.rst
-   :start-line: 6
+OpenQML-SF provides two Strawberry Fields simulator devices for OpenQML:
 
-Dependencies
-============
+* :class:`strawberryfields.fock <~StrawberryFieldsFock>`: provides an OpenQML device for the Strawberry Fields Fock simulator.
 
-.. highlight:: bash
-
-OpenQML requires the following libraries be installed: TODO FIXME
-
-* `Python <http://python.org/>`_ >=3.5
-
-as well as the following Python packages:
-
-* `NumPy <http://numpy.org/>`_  >=1.13.3
-* `SciPy <http://scipy.org/>`_  >=1.0.0
-* `NetworkX <http://networkx.github.io/>`_ >=2.0
-* `TensorFlow <https://www.tensorflow.org/>`_ >=1.3,<1.7
+* :class:`strawberryfields.gaussian <~StrawberryFieldsGaussian>`: provides an OpenQML device for the Strawberry Fields Gaussian simulator.
 
 
-If you currently do not have Python 3 installed, we recommend `Anaconda for Python 3 <https://www.anaconda.com/download/>`_, a distributed version of Python packaged for scientific computation.
+Using the devices
+=================
+
+Once the OpenQML-SF plugin is installed, the two provided Strawberry Fields devices can be accessed straight away in OpenQML.
+
+You can instantiate these devices for OpenQML as follows:
+
+>>> import openqml as qm
+>>> from openqml import numpy as np
+>>> dev_fock = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
+>>> dev_gaussian = qm.device('strawberryfields.gaussian', wires=2)
+
+These devices can then be used just like other devices for the definition and evaluation of QNodes within OpenQML. For example, a simple example includes a quantum function that first displaces the vacuum state, applies a beamsplitter, and then returns the photon number expectation:
 
 
-Installation
-============
+>>> @qm.qnode(dev_fock)
+>>> def quantum_function(x, theta):
+>>> 	qm.Displacement(x, 0, wires=0)
+>>> 	qm.Beamsplitter(theta, 0, wires=[0, 1])
+>>> 	return qm.expval.PhotonNumber(0)
 
-Installation of OpenQML, as well as all required Python packages mentioned above, can be installed via ``pip``:
-::
+Evaluating the QNode for a particular value of the circuit parameters:
 
-   	$ python -m pip install openqml
+>>> quantum_function(1., 0.543)
+0.7330132578095255
 
+We can also find the derivative with respect to the first parameter:
 
-Make sure you are using the Python 3 version of pip.
+>>> dqfunc = qm.grad(quantum_function)
+>>> dqfunc(1., 0.543)
+1.4660265156190515
 
-Alternatively, you can install OpenQML from the source code by navigating to the top directory and running
-::
+The continuous-variable Strawberry Fields based QNodes can also be combined with qubit-based QNodes and classical nodes to build up a hybrid computational model, and can then be used with the optimizers provided by OpenQML.
 
-	$ python setup.py install
-
-
-Software tests
+Device options
 ==============
 
-To ensure that OpenQML is working correctly after installation, the test suite can be run by navigating to the source code folder and running
-::
+The Strawberry Fields simulators accept additional arguments beyond the OpenQML default device arguments.
 
-	$ make test
+``cutoff_dim``
+	the Fock basis truncation to be applied when executing quantum functions (``strawberryfields.fock`` only).
+
+``hbar=2``
+	the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`. Default value is :math:`\hbar=2`.
+
+``shots=0``
+	the number of circuit evaluations/random samples used to estimate expectation values of expectations. The default value of 0 means that the exact expectation value is returned.
+
+	If shots is non-zero, the Strawberry Fields devices calculate the variance of the expectation value(s), and use the `Berry-Esseen theorem <https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem>`_ to estimate the sampled expectation value.
 
 
-Documentation
-=============
+Supported operations
+====================
 
-To build the documentation, the following additional packages are required:
 
-* `Sphinx <http://sphinx-doc.org/>`_ >=1.5
-* `graphviz <http://graphviz.org/>`_ >=2.38
-* `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/en/latest/>`_ >=0.3.6
+:class:`strawberryfields.fock <~StrawberryFieldsFock>`
+	The Strawberry Fields Fock device supports all continuous-variable (CV) operations and expectations provided by OpenQML, including both Gaussian and non-Gaussian operations:
 
-If using Ubuntu, they can be installed via a combination of ``apt`` and ``pip``:
-::
+	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``Kerr``, ``CrossKerr``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CubicPhase``, ``CatState``, ``CoherentState``, ``FockDensityMatrix``, ``DisplacedSqueezedState``, ``FockState``, ``FockStateVector``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	$ sudo apt install graphviz
-	$ pip install sphinx --user
-	$ pip install sphinxcontrib-bibtex --user
+	* **Supported expectations:** ``PhotonNumber``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
 
-To build the HTML documentation, go to the top-level directory and run
-::
 
-  $ make docs
+:class:`strawberryfields.gaussian <~StrawberryFieldsGaussian>`
+	The Strawberry Fields Gaussian device supports all *Gaussian* continuous-variable (CV) operations and expectations provided by OpenQML:
 
-The documentation can then be found in the :file:`doc/_build/html/` directory.
+	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CoherentState``, ``DisplacedSqueezedState``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
+
+	* **Supported expectations:** ``PhotonNumber``, ``X``, ``P``, ``Homodyne``, ``PolyXP``

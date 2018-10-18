@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields gaussian plugin
+Strawberry Fields Gaussian device
 =================================
 
 **Module name:** :mod:`openqml_sf.gaussian`
 
 .. currentmodule:: openqml_sf.gaussian
 
-The SF gaussian plugin implements all the :class:`~openqml.device.Device` methods
-and provides a gaussian simulation of a continuous variable quantum circuit architecture.
+The SF gaussian plugin implements all the :class:`~openqml.device.Device` methods,
+and provides a Gaussian simulation of a continuous variable quantum circuit architecture.
 
 Classes
 -------
@@ -28,7 +28,9 @@ Classes
 .. autosummary::
    StrawberryFieldsGaussian
 
-----
+
+Code details
+~~~~~~~~~~~~
 """
 
 import numpy as np

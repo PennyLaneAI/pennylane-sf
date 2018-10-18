@@ -1,26 +1,22 @@
 .. _installation:
 
-Installation and downloads
-#################################
+Installation
+############
 
-.. .. include:: ../README.rst
-   :start-line: 6
 
 Dependencies
 ============
 
 .. highlight:: bash
 
-OpenQML requires the following libraries be installed: TODO FIXME
+OpenQML-SF requires the following libraries be installed:
 
 * `Python <http://python.org/>`_ >=3.5
 
 as well as the following Python packages:
 
-* `NumPy <http://numpy.org/>`_  >=1.13.3
-* `SciPy <http://scipy.org/>`_  >=1.0.0
-* `NetworkX <http://networkx.github.io/>`_ >=2.0
-* `TensorFlow <https://www.tensorflow.org/>`_ >=1.3,<1.7
+* `OpenQML <http://networkx.github.io/>`_
+* `StrawberryFields <https://www.tensorflow.org/>`_
 
 
 If you currently do not have Python 3 installed, we recommend `Anaconda for Python 3 <https://www.anaconda.com/download/>`_, a distributed version of Python packaged for scientific computation.
@@ -32,7 +28,7 @@ Installation
 Installation of OpenQML, as well as all required Python packages mentioned above, can be installed via ``pip``:
 ::
 
-   	$ python -m pip install openqml
+   	$ python -m pip install openqml-sf
 
 
 Make sure you are using the Python 3 version of pip.
@@ -54,19 +50,6 @@ To ensure that OpenQML is working correctly after installation, the test suite c
 
 Documentation
 =============
-
-To build the documentation, the following additional packages are required:
-
-* `Sphinx <http://sphinx-doc.org/>`_ >=1.5
-* `graphviz <http://graphviz.org/>`_ >=2.38
-* `sphinxcontrib-bibtex <https://sphinxcontrib-bibtex.readthedocs.io/en/latest/>`_ >=0.3.6
-
-If using Ubuntu, they can be installed via a combination of ``apt`` and ``pip``:
-::
-
-	$ sudo apt install graphviz
-	$ pip install sphinx --user
-	$ pip install sphinxcontrib-bibtex --user
 
 To build the HTML documentation, go to the top-level directory and run
 ::

@@ -11,7 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This module contains the expectation value operations."""
+"""
+Auxillary expectation functions
+===============================
+
+**Module name:** :mod:`openqml_sf.expectations`
+
+.. currentmodule:: openqml_sf.expectations
+
+Contains auxillary functions which convert from OpenQML-style expectations,
+to the corresponding state methods in Strawberry Fields.
+
+..autosummary::
+    PNR
+    Homodyne
+    Order2Poly
+
+
+Code details
+~~~~~~~~~~~~
+"""
 import numpy as np
 
 import openqml.expval
@@ -55,8 +74,8 @@ def Homodyne(phi=None):
 
     Returns:
         function: A function that accepts a SF state, the wire to measure,
-            and phase space angle phi, and returns the quadrature expectation
-            value and variance.
+        and phase space angle phi, and returns the quadrature expectation
+        value and variance.
     """
     if phi is not None:
         return lambda state, wires, params: state.quad_expectation(wires[0], phi)

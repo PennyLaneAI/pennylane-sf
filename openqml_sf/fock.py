@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields Fock plugin
+Strawberry Fields Fock device
 =============================
 
 **Module name:** :mod:`openqml_sf.fock`
 
 .. currentmodule:: openqml_sf.fock
 
-The SF Fock plugin implements all the :class:`~openqml.device.Device` methods
+The SF Fock plugin implements all the :class:`~openqml.device.Device` methods,
 and provides a Fock space simulation of a continuous variable quantum circuit architecture.
 
 Classes
