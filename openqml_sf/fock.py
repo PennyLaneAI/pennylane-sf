@@ -19,8 +19,8 @@ Strawberry Fields Fock device
 
 .. currentmodule:: openqml_sf.fock
 
-The SF Fock plugin implements all the :class:`~openqml.device.Device` methods,
-and provides a Fock space simulation of a continuous variable quantum circuit architecture.
+The Strawberry Fields Fock plugin implements all the :class:`~openqml.device.Device` methods,
+and provides a Fock-space simulation of a continuous-variable quantum circuit.
 
 Classes
 -------
@@ -48,11 +48,11 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
     r"""StrawberryFields Fock device for OpenQML.
 
     Args:
-        wires (int): the number of modes to initialize the device in.
-        shots (int): number of circuit evaluations/random samples
+        wires (int): the number of modes to initialize the device in
+        shots (int): Number of circuit evaluations/random samples
             used to estimate expectation values of observables.
             For simulator devices, 0 means the exact EV is returned.
-        cutoff_dim (int): Fock space truncation dimension
+        cutoff_dim (int): Fock-space truncation dimension
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """

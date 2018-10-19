@@ -22,7 +22,7 @@ Auxillary expectation functions
 Contains auxillary functions which convert from OpenQML-style expectations,
 to the corresponding state methods in Strawberry Fields.
 
-..autosummary::
+.. autosummary::
     PNR
     Homodyne
     Order2Poly
@@ -37,22 +37,22 @@ import openqml.expval
 
 
 def PNR(state, wires, params):
-    """Computes the EV of the qm.Fock observable in Strawberry Fields.
+    """Computes the expectation value of the ``qm.Fock`` observable in Strawberry Fields.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
         wires (Sequence[int]): the measured mode
-        params (Sequence): sequence of parameters (not used).
+        params (Sequence): sequence of parameters (not used)
 
     Returns:
-        float, float: mean photon number and its variance.
+        float, float: mean photon number and its variance
     """
     # pylint: disable=unused-argument
     return state.mean_photon(wires[0])
 
 
 def Homodyne(phi=None):
-    """Function factory that returns the qm.Homodyne observable function for Strawberry Fields.
+    """Function factory that returns the ``qm.Homodyne`` expectation function for Strawberry Fields.
 
     ``Homodyne(phi)`` returns a function
 
@@ -60,8 +60,9 @@ def Homodyne(phi=None):
 
         homodyne_expectation(state, wires, phi)
 
-    that is used to determine the Homodyne expectation value of a wire within a SF state,
-    measured along a particular phase space angle ``phi``.
+    that is used to determine the homodyne expectation value of a wire within a
+    Strawberry Fields state object, measured along a particular phase-space
+    angle ``phi``.
 
     Note that:
 
@@ -70,12 +71,12 @@ def Homodyne(phi=None):
     * If ``phi`` the value of ``phi`` must be set when calling the returned function.
 
     Args:
-        phi (float): the default phase space axis to perform the Homodyne measurement.
+        phi (float): the default phase-space axis to perform the homodyne measurement on
 
     Returns:
-        function: A function that accepts a SF state, the wire to measure,
+        function: a function that accepts a SF state, the wire to measure,
         and phase space angle phi, and returns the quadrature expectation
-        value and variance.
+        value and variance
     """
     if phi is not None:
         return lambda state, wires, params: state.quad_expectation(wires[0], phi)
@@ -84,13 +85,13 @@ def Homodyne(phi=None):
 
 
 def Order2Poly(state, wires, params):
-    r"""Computes the EV of an observable that is a second-order polynomial in :math:\{x_i, p_i\}_i`.
+    r"""Computes the expectation value of an observable that is a second-order polynomial in :math:`\{\hat{x}_i, \hat{p}_i\}_i`.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
         wires (Sequence[int]): measured modes
         params (Sequence[array]): Q is a matrix or vector of coefficients
-            using the (I, x1,p1, x2,p2, ...) ordering
+            using the :math:`(\hat{\mathbb{1}}, \hat{x}_1,\hat{p}_1, \hat{x}_2,\hat{p}_2, \dots)` ordering
 
     Returns:
         float, float: expectation value, variance

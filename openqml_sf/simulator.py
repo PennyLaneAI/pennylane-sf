@@ -49,8 +49,8 @@ class StrawberryFieldsSimulator(Device):
     r"""Abstract StrawberryFields simulator device for OpenQML.
 
     Args:
-        wires (int): the number of modes to initialize the device in.
-        shots (int): number of circuit evaluations/random samples used
+        wires (int): the number of modes to initialize the device in
+        shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of expectations.
             For simulator devices, 0 means the exact EV is returned.
         hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
@@ -93,11 +93,11 @@ class StrawberryFieldsSimulator(Device):
         raise NotImplementedError
 
     def expval(self, expectation, wires, par):
-        """Expectation value of an expectation.
+        """Evaluate an expectation.
 
         Args:
             expectation (str): name of the expectation
-            wires (Sequence[int]): subsystems the expectation is measured on
+            wires (Sequence[int]): subsystems the expectation is evaluated on
             par (tuple): parameters for the expectation
         Returns:
             float: expectation value

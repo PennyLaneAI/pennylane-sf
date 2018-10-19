@@ -21,10 +21,10 @@ Features
 * Supports all core OpenQML operations and expectation values across the two devices.
 
 
-* Combine Strawberry Fields optimized simulator suite with OpenQML's automatic differentiation and optimization.
+* Combine Strawberry Fields' advanced quantum simulator suite with OpenQML's automatic differentiation and optimization.
 
 
-To get started with the OpenQML Strawberry Fields plugin, follow the :ref:`installation steps <installation>`, and then see the :ref:`usage <usage>` page.
+To get started with the OpenQML Strawberry Fields plugin, follow the :ref:`installation steps <installation>`, then see the :ref:`usage <usage>` page.
 
 
 Contents

@@ -19,8 +19,8 @@ Strawberry Fields Gaussian device
 
 .. currentmodule:: openqml_sf.gaussian
 
-The SF gaussian plugin implements all the :class:`~openqml.device.Device` methods,
-and provides a Gaussian simulation of a continuous variable quantum circuit architecture.
+The Strawberry Fields Gaussian plugin implements all the :class:`~openqml.device.Device` methods,
+and provides a Gaussian simulation of a continuous-variable quantum circuit.
 
 Classes
 -------

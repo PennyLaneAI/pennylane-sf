@@ -1,6 +1,6 @@
 .. _installation:
 
-Installation
+Setup
 ############
 
 
