@@ -229,7 +229,10 @@ class GaussianTests(BaseTest):
             if op.num_params == 0:
                 self.assertAllEqual(circuit(), SF_reference())
             elif op.num_params == 1:
-                p = a_array if op.par_domain == 'A' else a
+                if g == 'NumberState':
+                    p = np.array([1])
+                else:
+                    p = a_array if op.par_domain == 'A' else a
                 self.assertAllEqual(circuit(p), SF_reference(p))
 
     def test_polyxp(self):
@@ -261,6 +264,34 @@ class GaussianTests(BaseTest):
 
         # test X expectation
         self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
+
+    def test_number_state(self):
+        """Test that NumberState works as expected"""
+        self.logTestName()
+
+        a = 0.54321
+        r = 0.123
+
+        hbar = 2
+        dev = qm.device('strawberryfields.gaussian', wires=2, hbar=hbar)
+
+        # test correct number state expectation |<n|a>|^2
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.Displacement(x, 0, 0)
+            return qm.expval.NumberState(np.array([2]), wires=0)
+
+        expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
+        self.assertAlmostEqual(circuit(a), expected)
+
+        # test correct number state expectation |<n|S(r)>|^2
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.Squeezing(x, 0, 0)
+            return qm.expval.NumberState(np.array([2, 0]), wires=[0, 1])
+
+        expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
+        self.assertAlmostEqual(circuit(r), expected)
 
 
 if __name__ == '__main__':

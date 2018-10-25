@@ -23,9 +23,10 @@ Contains auxillary functions which convert from OpenQML-style expectations,
 to the corresponding state methods in Strawberry Fields.
 
 .. autosummary::
-    PNR
-    Homodyne
-    Order2Poly
+    mean_photon
+    number_state
+    homodyne
+    poly_xp
 
 
 Code details
@@ -33,11 +34,15 @@ Code details
 """
 import numpy as np
 
+from strawberryfields.backends.states import BaseFockState
+from strawberryfields.backends.gaussianbackend.states import GaussianState
+
 import openqml.expval
 
 
-def PNR(state, wires, params):
-    """Computes the expectation value of the ``qm.Fock`` observable in Strawberry Fields.
+def mean_photon(state, wires, params):
+    """Computes the expectation value of the ``qm.expval.MeanPhoton``
+    observable in Strawberry Fields.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
@@ -51,10 +56,66 @@ def PNR(state, wires, params):
     return state.mean_photon(wires[0])
 
 
-def Homodyne(phi=None):
-    """Function factory that returns the ``qm.Homodyne`` expectation function for Strawberry Fields.
+def number_state(state, wires, params):
+    """Computes the expectation value of the ``qm.expval.NumberState``
+    observable in Strawberry Fields.
 
-    ``Homodyne(phi)`` returns a function
+    Args:
+        state (strawberryfields.backends.states.BaseState): the quantum state
+        wires (Sequence[int]): the measured mode
+        params (Sequence): sequence of parameters
+
+    Returns:
+        float, float: Fock state probability and its variance
+    """
+    # pylint: disable=unused-argument
+    n = params[0]
+    N = state.num_modes
+
+    if N == len(wires):
+        # expectation value of the entire system
+        ex = state.fock_prob(n)
+        return ex, ex - ex**2
+
+    # otherwise, we must trace out remaining systems.
+    if isinstance(state, BaseFockState):
+        # fock state
+        dm = state.reduced_dm(modes=wires)
+        ex = dm[tuple([n[i//2] for i in range(len(n)*2)])].real
+
+    elif isinstance(state, GaussianState):
+        # Reduced Gaussian state
+        mu, cov = state.reduced_gaussian(modes=wires)
+
+        # calculate reduced Q
+        Q = state._gmode.qmat() # pylint: disable=protected-access
+        ind = np.concatenate([np.array(wires), N+np.array(wires)])
+        rows = ind.reshape((-1, 1))
+        cols = ind.reshape((1, -1))
+        Q = Q[rows, cols]
+
+        # calculate reduced Amat
+        M = Q.shape[0]//2
+        assert M == len(wires)
+
+        I = np.identity(M)
+        O = np.zeros_like(I)
+        X = np.block([[O, I], [I, O]])
+        A = X @ (np.identity(2*M)-np.linalg.inv(Q))
+
+        # create reduced Gaussian state
+        new_state = GaussianState((mu, cov), M, Q, A, hbar=state.hbar)
+        ex = new_state.fock_prob(n)
+
+    var = ex - ex**2
+    return ex, var
+
+
+def homodyne(phi=None):
+    """Function factory that returns the ``qm.expval.Homodyne`` expectation
+    function for Strawberry Fields.
+
+    ``homodyne(phi)`` returns a function
 
     .. code-block:: python
 
@@ -68,6 +129,7 @@ def Homodyne(phi=None):
 
     * If ``phi`` is not None, the returned function will be hardcoded to return the
       homodyne expectation value at angle ``phi`` in the phase space.
+
     * If ``phi`` the value of ``phi`` must be set when calling the returned function.
 
     Args:
@@ -84,8 +146,9 @@ def Homodyne(phi=None):
     return lambda state, wires, params: state.quad_expectation(wires[0], *params)
 
 
-def Order2Poly(state, wires, params):
-    r"""Computes the expectation value of an observable that is a second-order polynomial in :math:`\{\hat{x}_i, \hat{p}_i\}_i`.
+def poly_xp(state, wires, params):
+    r"""Computes the expectation value of an observable that is a second-order
+    polynomial in :math:`\{\hat{x}_i, \hat{p}_i\}_i`.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state

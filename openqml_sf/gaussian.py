@@ -42,7 +42,7 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
                                   Pgate, Rgate, S2gate, Sgate)
 
-from .expectations import (PNR, Homodyne, Order2Poly)
+from .expectations import (mean_photon, homodyne, number_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -69,11 +69,12 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
     }
 
     _expectation_map = {
-        'MeanPhoton': PNR,
-        'X': Homodyne(0),
-        'P': Homodyne(np.pi/2),
-        'Homodyne': Homodyne(),
-        'PolyXP': Order2Poly,
+        'MeanPhoton': mean_photon,
+        'X': homodyne(0),
+        'P': homodyne(np.pi/2),
+        'Homodyne': homodyne(),
+        'PolyXP': poly_xp,
+        'NumberState': number_state
     }
 
     _circuits = {}
