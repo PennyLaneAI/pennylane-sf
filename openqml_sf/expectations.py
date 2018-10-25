@@ -91,7 +91,7 @@ def Order2Poly(state, wires, params):
         state (strawberryfields.backends.states.BaseState): the quantum state
         wires (Sequence[int]): measured modes
         params (Sequence[array]): Q is a matrix or vector of coefficients
-            using the :math:`(\hat{\mathbb{1}}, \hat{x}_1,\hat{p}_1, \hat{x}_2,\hat{p}_2, \dots)` ordering
+            using the :math:`(\I, \x_1,\p_1, \x_2,\p_2, \dots)` ordering
 
     Returns:
         float, float: expectation value, variance
