@@ -120,7 +120,7 @@ class GaussianTests(BaseTest):
         @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expval.PhotonNumber(0)
+            return qm.expval.MeanPhoton(0)
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -134,7 +134,7 @@ class GaussianTests(BaseTest):
         @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expval.PhotonNumber(0)
+            return qm.expval.MeanPhoton(0)
 
         x = 1
 
@@ -168,7 +168,7 @@ class GaussianTests(BaseTest):
             def circuit(*x):
                 qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*x, wires=wires)
-                return qm.expval.PhotonNumber(0), qm.expval.PhotonNumber(1)
+                return qm.expval.MeanPhoton(0), qm.expval.MeanPhoton(1)
 
             # compare to reference SF engine
             def SF_reference(*x):

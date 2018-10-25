@@ -83,7 +83,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
     }
 
     _expectation_map = {
-        'PhotonNumber': PNR,
+        'MeanPhoton': PNR,
         'X': Homodyne(0),
         'P': Homodyne(np.pi/2),
         'Homodyne': Homodyne(),
