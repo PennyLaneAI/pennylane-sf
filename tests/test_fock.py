@@ -86,7 +86,7 @@ class FockTests(BaseTest):
                 op(*args, wires=wires)
 
                 if issubclass(op, qm.operation.CV):
-                    return qm.expval.PhotonNumber(0)
+                    return qm.expval.MeanPhoton(0)
                 else:
                     return qm.expval.PauliZ(0)
 
@@ -130,7 +130,7 @@ class FockTests(BaseTest):
         @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expval.PhotonNumber(0)
+            return qm.expval.MeanPhoton(0)
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -144,7 +144,7 @@ class FockTests(BaseTest):
         @qm.qnode(dev)
         def circuit(x):
             qm.Displacement(x, 0, wires=0)
-            return qm.expval.PhotonNumber(0)
+            return qm.expval.MeanPhoton(0)
 
         x = 1
 
@@ -179,7 +179,7 @@ class FockTests(BaseTest):
             def circuit(*args):
                 qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*args, wires=wires)
-                return qm.expval.PhotonNumber(0), qm.expval.PhotonNumber(1)
+                return qm.expval.MeanPhoton(0), qm.expval.MeanPhoton(1)
 
             # compare to reference SF engine
             def SF_reference(*args):
@@ -248,8 +248,71 @@ class FockTests(BaseTest):
             if op.num_params == 0:
                 self.assertAllEqual(circuit(), SF_reference())
             elif op.num_params == 1:
-                p = a_array if op.par_domain == 'A' else a
+                if g == 'NumberState':
+                    p = np.array([1])
+                else:
+                    p = a_array if op.par_domain == 'A' else a
                 self.assertAllEqual(circuit(p), SF_reference(p))
+
+    def test_polyxp(self):
+        """Test that PolyXP works as expected"""
+        self.logTestName()
+
+        cutoff_dim = 12
+        a = 0.14321
+        nbar = 0.2234
+
+        hbar = 2
+        dev = qm.device('strawberryfields.fock', wires=1, hbar=hbar, cutoff_dim=cutoff_dim)
+        Q = np.array([0, 1, 0]) # x expectation
+
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.Displacement(x, 0, 0)
+            return qm.expval.PolyXP(Q, 0)
+
+        # test X expectation
+        self.assertAlmostEqual(circuit(a), hbar*a)
+
+        Q = np.diag([-0.5, 1/(2*hbar), 1/(2*hbar)]) # mean photon number
+
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.ThermalState(nbar, 0)
+            qm.Displacement(x, 0, 0)
+            return qm.expval.PolyXP(Q, 0)
+
+        # test X expectation
+        self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
+
+    def test_number_state(self):
+        """Test that NumberState works as expected"""
+        self.logTestName()
+
+        cutoff_dim = 12
+        a = 0.54321
+        r = 0.123
+
+        hbar = 2
+        dev = qm.device('strawberryfields.fock', wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+
+        # test correct number state expectation |<n|a>|^2
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.Displacement(x, 0, 0)
+            return qm.expval.NumberState(np.array([2]), wires=0)
+
+        expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
+        self.assertAlmostEqual(circuit(a), expected)
+
+        # test correct number state expectation |<n|S(r)>|^2
+        @qm.qnode(dev)
+        def circuit(x):
+            qm.Squeezing(x, 0, 0)
+            return qm.expval.NumberState(np.array([2, 0]), wires=[0, 1])
+
+        expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
+        self.assertAlmostEqual(circuit(r), expected)
 
 
 if __name__ == '__main__':

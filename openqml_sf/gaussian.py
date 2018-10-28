@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields gaussian plugin
+Strawberry Fields Gaussian device
 =================================
 
 **Module name:** :mod:`openqml_sf.gaussian`
 
 .. currentmodule:: openqml_sf.gaussian
 
-The SF gaussian plugin implements all the :class:`~openqml.device.Device` methods
-and provides a gaussian simulation of a continuous variable quantum circuit architecture.
+The Strawberry Fields Gaussian plugin implements all the :class:`~openqml.device.Device` methods,
+and provides a Gaussian simulation of a continuous-variable quantum circuit.
 
 Classes
 -------
@@ -28,7 +28,9 @@ Classes
 .. autosummary::
    StrawberryFieldsGaussian
 
-----
+
+Code details
+~~~~~~~~~~~~
 """
 
 import numpy as np
@@ -40,7 +42,7 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
                                   Pgate, Rgate, S2gate, Sgate)
 
-from .expectations import (PNR, Homodyne, Order2Poly)
+from .expectations import (mean_photon, homodyne, number_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -67,11 +69,12 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
     }
 
     _expectation_map = {
-        'PhotonNumber': PNR,
-        'X': Homodyne(0),
-        'P': Homodyne(np.pi/2),
-        'Homodyne': Homodyne(),
-        'PolyXP': Order2Poly,
+        'MeanPhoton': mean_photon,
+        'X': homodyne(0),
+        'P': homodyne(np.pi/2),
+        'Homodyne': homodyne(),
+        'PolyXP': poly_xp,
+        'NumberState': number_state
     }
 
     _circuits = {}

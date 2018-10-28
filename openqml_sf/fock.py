@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields Fock plugin
+Strawberry Fields Fock device
 =============================
 
 **Module name:** :mod:`openqml_sf.fock`
 
 .. currentmodule:: openqml_sf.fock
 
-The SF Fock plugin implements all the :class:`~openqml.device.Device` methods
-and provides a Fock space simulation of a continuous variable quantum circuit architecture.
+The Strawberry Fields Fock plugin implements all the :class:`~openqml.device.Device` methods,
+and provides a Fock-space simulation of a continuous-variable quantum circuit.
 
 Classes
 -------
@@ -40,7 +40,7 @@ from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSq
 from strawberryfields.ops import (BSgate, CKgate, CXgate, CZgate, Dgate,
                                   Kgate, Pgate, Rgate, S2gate, Sgate, Vgate)
 
-from .expectations import (PNR, Homodyne, Order2Poly)
+from .expectations import (mean_photon, homodyne, number_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -48,11 +48,11 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
     r"""StrawberryFields Fock device for OpenQML.
 
     Args:
-        wires (int): the number of modes to initialize the device in.
-        shots (int): number of circuit evaluations/random samples
+        wires (int): the number of modes to initialize the device in
+        shots (int): Number of circuit evaluations/random samples
             used to estimate expectation values of observables.
             For simulator devices, 0 means the exact EV is returned.
-        cutoff_dim (int): Fock space truncation dimension
+        cutoff_dim (int): Fock-space truncation dimension
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
@@ -83,11 +83,12 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
     }
 
     _expectation_map = {
-        'PhotonNumber': PNR,
-        'X': Homodyne(0),
-        'P': Homodyne(np.pi/2),
-        'Homodyne': Homodyne(),
-        'PolyXP': Order2Poly,
+        'MeanPhoton': mean_photon,
+        'X': homodyne(0),
+        'P': homodyne(np.pi/2),
+        'Homodyne': homodyne(),
+        'PolyXP': poly_xp,
+        'NumberState': number_state
     }
 
     _circuits = {}

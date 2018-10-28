@@ -11,7 +11,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""This module contains the Strawberry Fields abstract simulator device"""
+"""
+Base simulator class
+====================
+
+**Module name:** :mod:`openqml_sf.simulator`
+
+.. currentmodule:: openqml_sf.simulator
+
+A base class for constructing Strawberry Fields devices for OpenQML.
+This class provides all the boilerplate for supporting OpenQML;
+inheriting devices simply need to provide their engine run command
+in :meth:`~.StrawberryFieldsSimulator.pre_expval`, as well as defining their ``_operation_map``
+and ``_expectation_map``, mapping OpenQML operations to their
+Strawberry Fields counterparts.
+
+Classes
+-------
+
+.. autosummary::
+   StrawberryFieldsSimulator
+
+Code details
+~~~~~~~~~~~~
+"""
 import abc
 
 import numpy as np
@@ -26,8 +49,8 @@ class StrawberryFieldsSimulator(Device):
     r"""Abstract StrawberryFields simulator device for OpenQML.
 
     Args:
-        wires (int): the number of modes to initialize the device in.
-        shots (int): number of circuit evaluations/random samples used
+        wires (int): the number of modes to initialize the device in
+        shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of expectations.
             For simulator devices, 0 means the exact EV is returned.
         hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
@@ -70,11 +93,11 @@ class StrawberryFieldsSimulator(Device):
         raise NotImplementedError
 
     def expval(self, expectation, wires, par):
-        """Expectation value of an expectation.
+        """Evaluate an expectation.
 
         Args:
             expectation (str): name of the expectation
-            wires (Sequence[int]): subsystems the expectation is measured on
+            wires (Sequence[int]): subsystems the expectation is evaluated on
             par (tuple): parameters for the expectation
         Returns:
             float: expectation value

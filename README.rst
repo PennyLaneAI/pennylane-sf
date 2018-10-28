@@ -1,7 +1,5 @@
-.. image:: doc/_static/strawberry-fields-text.png
-    :alt: Strawberry Fields
-
-##################################################
+OpenQML Strawberry Fields Plugin
+################################
 
 .. image:: https://img.shields.io/travis/XanaduAI/strawberryfields/master.svg?style=for-the-badge
     :alt: Travis
@@ -27,75 +25,67 @@
     :alt: PyPI - Python Version
     :target: https://pypi.org/project/StrawberryFields
 
-`Strawberry Fields <https://strawberryfields.readthedocs.io>`_ is a full-stack Python library for designing,
-simulating, and optimizing continuous variable quantum
-optical circuits.
+
+This OpenQML plugin allows the Strawberry Fields simulators to be used as OpenQML devices.
+
+`Strawberry Fields <https://strawberryfields.readthedocs.io>`_ is a full-stack Python library for designing, simulating, and optimizing continuous variable (CV) quantum optical circuits.
+
+`OpenQML <https://openqml.readthedocs.io>`_ is a machine learning library for optimization and automatic differentiation of hybrid quantum-classical computations.
 
 
 Features
 ========
 
-* An open-source software architecture for **photonic quantum computing**
+* Provides two devices to be used with OpenQML: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
-* A **full-stack** quantum software platform, implemented in Python specifically targeted to the CV model
+* Supports all core OpenQML operations and expectation values across the two devices.
 
-* Quantum circuits are written using the easy-to-use and intuitive **Blackbird quantum programming language**
-
-* Includes a suite of CV **quantum computer simulators** implemented using **NumPy** and **TensorFlow** - these built-in quantum compiler tools convert and optimize Blackbird code for classical simulation
-
-* Future releases will aim to target experimental backends, including **photonic quantum computing chips**
+* Combine Strawberry Fields optimized simulator suite with OpenQML's automatic differentiation and optimization.
 
 
 Installation
 ============
 
-Strawberry Fields requires Python version 3.5 and above. Installation of Strawberry Fields, as well as all dependencies, can be done using pip:
+OpenQML-SF requires both OpenQML and Strawberry Fields. It can be installed via ``pip``:
 
 .. code-block:: bash
 
-    $ python -m pip install strawberryfields
-
-
-If you are using the ``tensorflow-gpu`` module for TensorFlow GPU support, you can install the following package for GPU support in Strawberry Fields:
-
-.. code-block:: bash
-
-    $ python -m pip install strawberryfields-gpu
+    $ python -m pip install openqml-sf
 
 
 Getting started
 ===============
 
-To see Strawberry Fields in action immediately, try out our `Strawberry Fields Interactive <https://strawberryfields.ai>`_ web application. Prepare your initial states, drag and drop gates, and watch your simulation run in real time right in your web browser.
+Once the OpenQML-SF plugin is installed, the two provided Strawberry Fields devices can be accessed straight away in OpenQML.
 
-For getting started with writing your own Strawberry Fields code, check out our `quantum teleportation <https://strawberryfields.readthedocs.io/en/latest/tutorials/tutorial_teleportation.html>`_, `boson sampling <https://strawberryfields.readthedocs.io/en/latest/tutorials/tutorial_boson_sampling.html>`_, and `machine learning <https://strawberryfields.readthedocs.io/en/latest/tutorials/tutorial_machine_learning.html>`_ tutorials.
+You can instantiate these devices for OpenQML as follows:
 
-Our documentation is also a great starting point to familiarize yourself with the framework of `continuous-variable quantum computation <https://strawberryfields.readthedocs.io/en/latest/introduction.html>`_, and check out some important and interesting continuous-variable `quantum algorithms <https://strawberryfields.readthedocs.io/en/latest/quantum_algorithms.html>`_.
+.. code-block:: python
 
-Finally, detailed documentation on the `Strawberry fields API <https://strawberryfields.readthedocs.io/en/latest/code/code.html>`_ is provided, for full details on available quantum operations, arguments, and backends.
+    import openqml as qm
+    dev_fock = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
+    dev_gaussian = qm.device('strawberryfields.gaussian', wires=2)
+
+These devices can then be used just like other devices for the definition and evaluation of QNodes within OpenQML. For more details, see :ref:`usage` and refer to the OpenQML documentation.
 
 
-Contributing to Strawberry Fields
-=================================
+Contributing
+============
 
-We welcome contributions - simply fork the Strawberry Fields repository, and then make a
-`pull request <https://help.github.com/articles/about-pull-requests/>`_ containing your contribution.  All contributers to Strawberry Fields will be listed as authors on the releases.
+We welcome contributions - simply fork the OpenQML-SF repository, and then make a
+`pull request <https://help.github.com/articles/about-pull-requests/>`_ containing your contribution.  All contributers to OpenQML-SF will be listed as authors on the releases.
 
-We also encourage bug reports, suggestions for new features and enhancements, and even links to cool projects or applications built on Strawberry Fields. If your contribution becomes part of Strawberry Fields, or is highlighted in our Gallery, we will send you some exclusive Xanadu Swag™ - including t-shirts, stickers, and more.
+We also encourage bug reports, suggestions for new features and enhancements, and even links to cool projects or applications built on OpenQML and Strawberry Fields.
 
-.. raw:: html
-
-    <img src="https://i.imgur.com/xSFMt3g.jpg" width="300px"  align="left"> <img src="https://i.imgur.com/dC0U1xG.jpg" width="300px"  align="left">
-
-See our `contributions page <https://github.com/XanaduAI/strawberryfields/blob/master/.github/CONTRIBUTING.md>`_
-for more details, and then check out some of the Strawberry Fields `challenges <https://github.com/XanaduAI/strawberryfields/blob/master/.github/CHALLENGES.md>`_ for some inspiration.
-
-|
 
 Authors
 =======
 
-Nathan Killoran, Josh Izaac, Nicolás Quesada, Ville Bergholm, Matthew Amy, and Christian Weedbrook.
+Josh Izaac, Ville Bergholm, Christian Gogolin, Maria Schuld, and Nathan Killoran.
+
+If you are doing research using OpenQML, please cite our whitepaper:
+
+.. todo:: insert OpenQML whitepaper citation.
 
 If you are doing research using Strawberry Fields, please cite `our whitepaper <https://arxiv.org/abs/1804.03159>`_:
 
@@ -105,8 +95,8 @@ If you are doing research using Strawberry Fields, please cite `our whitepaper <
 Support
 =======
 
-- **Source Code:** https://github.com/XanaduAI/strawberryfields
-- **Issue Tracker:** https://github.com/XanaduAI/strawberryfields/issues
+- **Source Code:** https://github.com/XanaduAI/openqml-sf
+- **Issue Tracker:** https://github.com/XanaduAI/openqml-sf/issues
 
 If you are having issues, please let us know by posting the issue on our Github issue tracker.
 
@@ -117,4 +107,4 @@ come join the discussion and chat with our Strawberry Fields team.
 License
 =======
 
-Strawberry Fields is **free** and **open source**, released under the Apache License, Version 2.0.
+OpenQML-SF is **free** and **open source**, released under the Apache License, Version 2.0.

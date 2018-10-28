@@ -1,59 +1,52 @@
-OpenQML-StrawberryFields
-########################
+OpenQML Strawberry Fields Plugin
+################################
 
 :Release: |release|
 :Date: |today|
 
 
-Getting started
-===============
+This OpenQML plugin allows the Strawberry Fields simulators to be used as OpenQML devices.
+
+`Strawberry Fields <https://strawberryfields.readthedocs.io>`_ is a full-stack Python library for designing, simulating, and optimizing continuous variable (CV) quantum optical circuits.
+
+`OpenQML <https://openqml.readthedocs.io>`_ is a machine learning library for optimization and automatic differentiation of hybrid quantum-classical computations.
 
 
-How to cite
-===========
+Features
+========
 
-If you are doing research using OpenQML, please cite
+* Provides two devices to be used with OpenQML: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
-Support
-=======
 
-- **Source Code:** https://github.com/XanaduAI/openQML
-- **Issue Tracker:** https://github.com/XanaduAI/openQML/issues
+* Supports all core OpenQML operations and expectation values across the two devices.
 
-If you are having issues, please let us know by posting the issue on our Github issue tracker.
 
-For more details on contributing or performing research with OpenQML, please see
-:ref:`research`.
+* Combine Strawberry Fields' advanced quantum simulator suite with OpenQML's automatic differentiation and optimization.
 
-License
-=======
 
-OpenQML is **free** and **open source**, released under the Apache License, Version 2.0.
+To get started with the OpenQML Strawberry Fields plugin, follow the :ref:`installation steps <installation>`, then see the :ref:`usage <usage>` page.
 
+
+Contents
+========
+
+.. rst-class:: contents local topic
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Getting started
-   :hidden:
 
    installing
    usage
 
+.. rst-class:: contents local topic
+
 .. toctree::
    :maxdepth: 1
-   :caption: Library details
-   :hidden:
+   :caption: Code details
 
-   code/init
    code/simulator
    code/fock
    code/gaussian
    code/expectations
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

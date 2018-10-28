@@ -898,7 +898,7 @@ p.topic-title {
 /* -- contents-------------------------------------------------------------- */
 
 div.topic.contents {
-    /*display: inline-block;*/
+    display: inline-grid;
     border-radius: 3px;
     padding: 24px 36px 18px 36px;
 }
@@ -906,10 +906,15 @@ div.topic.contents {
 div.topic.contents > ul {
     padding-left: 20px;
     padding-left: 20px;
-    max-height: 100px;
+    /*max-height: 100px;*/
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
+}
+
+div.topic.contents > .caption {
+    font-style: italic;
+    font-weight: bold;
 }
 
 /* -- admonitions ----------------------------------------------------------- */
