@@ -32,8 +32,8 @@ def layer(w):
 def featuremap(x):
     """Encode input x into a squeezed state."""
 
-    qm.Squeezing(1.5, x[0], [0])
-    qm.Squeezing(1.5, x[1], [0])
+    qm.Squeezing(0., x[0], [0])
+    qm.Squeezing(0., x[1], [0])
 
 
 @qm.qnode(dev)
@@ -47,7 +47,7 @@ def qclassifier(weights, x=None):
     for w in weights:
         layer(w)
 
-    return qm.expval.PhotonNumber(0)
+    return qm.expval.PhotonNumber(0), qm.expval.PhotonNumber(1)
 
 
 def square_loss(labels, predictions):
@@ -100,6 +100,8 @@ def cost(weights, X, Y):
 data = np.loadtxt("moons.txt")
 X = data[:, 0:2]
 Y = data[:, -1]
+Y = Y*2 - np.ones(len(Y))  # shift from {0, 1} to {-1, 1}
+
 
 # split into training and validation set
 num_data = len(Y)
