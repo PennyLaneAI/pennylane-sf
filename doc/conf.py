@@ -297,7 +297,7 @@ latex_additional_files = ['macros.tex']
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PennyLane.tex', 'PennyLane-StrawberryFields Documentation',
+    (master_doc, 'PennyLane-SF.tex', 'PennyLane-StrawberryFields Documentation',
      'Xanadu Inc.', 'manual'),
 ]
 
