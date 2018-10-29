@@ -262,7 +262,7 @@ html_theme_options = {
     # "projectlink": "http://myproject.url",
 }
 
-edit_on_github_project = 'XanaduAI/pennylane'
+edit_on_github_project = 'XanaduAI/pennylane-sf'
 edit_on_github_branch = 'master/doc'
 
 # -- Options for HTMLHelp output ------------------------------------------
