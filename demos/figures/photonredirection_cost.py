@@ -4,19 +4,19 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib import cm
 
 
-import openqml as qm
-from openqml import numpy as np
-from openqml._optimize import GradientDescentOptimizer
+import pennylane as qml
+from pennylane import numpy as np
+from pennylane._optimize import GradientDescentOptimizer
 
-dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
+dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=10)
 
-@qm.qfunc(dev)
+@qml.qfunc(dev)
 def func(x, y):
 
-    qm.FockState(1, [0])
-    qm.Beamsplitter(x, y, [0, 1])
+    qml.FockState(1, [0])
+    qml.Beamsplitter(x, y, [0, 1])
 
-    return qm.expectation.Fock(1)
+    return qml.expectation.Fock(1)
 
 
 fig = plt.figure(figsize = (5, 3))

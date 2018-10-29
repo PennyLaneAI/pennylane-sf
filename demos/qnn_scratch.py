@@ -1,9 +1,9 @@
-import openqml as qm
-from openqml import numpy as np
-from openqml._optimize import GradientDescentOptimizer
+import pennylane as qml
+from pennylane import numpy as np
+from pennylane._optimize import GradientDescentOptimizer
 import matplotlib.pyplot as plt
 
-dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
+dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=10)
 
 
 def square_loss(labels, predictions):
@@ -29,29 +29,29 @@ def layer(W, b):
     U, d, V = np.linalg.grad_svd(W)
 
     # Matrix multiplication of input layer
-    qm.Interferometer(U, [0, 1])
-    qm.Squeezing(-np.log(d[0]), [0])
-    qm.Interferometer(V, [0, 1])
+    qml.Interferometer(U, [0, 1])
+    qml.Squeezing(-np.log(d[0]), [0])
+    qml.Interferometer(V, [0, 1])
 
     # Bias
-    qm.Displacement(b[0], [0])
+    qml.Displacement(b[0], [0])
 
     # Element-wise nonlinear transformation
-    qm.Kerr(0.1, [0])
+    qml.Kerr(0.1, [0])
 
 
-@qm.qfunc(dev)
+@qml.qfunc(dev)
 def quantum_neural_net(weights, x=None):
     """The quantum neural net variational circuit."""
 
     # Encode 2-d input into quantum state
-    qm.Displacement(x[0], [0])
+    qml.Displacement(x[0], [0])
 
     # execute "layers"
     for W, b in weights:
         layer(W, b)
 
-    return qm.expectation.Homodyne()
+    return qml.expectation.Homodyne()
 
 
 def cost(weights, features, labels):

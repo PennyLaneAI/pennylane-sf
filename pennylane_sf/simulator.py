@@ -15,15 +15,15 @@
 Base simulator class
 ====================
 
-**Module name:** :mod:`openqml_sf.simulator`
+**Module name:** :mod:`pennylane_sf.simulator`
 
-.. currentmodule:: openqml_sf.simulator
+.. currentmodule:: pennylane_sf.simulator
 
-A base class for constructing Strawberry Fields devices for OpenQML.
-This class provides all the boilerplate for supporting OpenQML;
+A base class for constructing Strawberry Fields devices for PennyLane.
+This class provides all the boilerplate for supporting PennyLane;
 inheriting devices simply need to provide their engine run command
 in :meth:`~.StrawberryFieldsSimulator.pre_expval`, as well as defining their ``_operation_map``
-and ``_expectation_map``, mapping OpenQML operations to their
+and ``_expectation_map``, mapping PennyLane operations to their
 Strawberry Fields counterparts.
 
 Classes
@@ -39,14 +39,14 @@ import abc
 
 import numpy as np
 
-from openqml import Device
+from pennylane import Device
 import strawberryfields as sf
 
 from ._version import __version__
 
 
 class StrawberryFieldsSimulator(Device):
-    r"""Abstract StrawberryFields simulator device for OpenQML.
+    r"""Abstract StrawberryFields simulator device for PennyLane.
 
     Args:
         wires (int): the number of modes to initialize the device in
@@ -55,7 +55,7 @@ class StrawberryFieldsSimulator(Device):
             For simulator devices, 0 means the exact EV is returned.
         hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
     """
-    name = 'Strawberry Fields Simulator OpenQML plugin'
+    name = 'Strawberry Fields Simulator PennyLane plugin'
     api_version = '0.1.0'
     version = __version__
     author = 'Josh Izaac'

@@ -15,11 +15,11 @@
 Strawberry Fields Fock device
 =============================
 
-**Module name:** :mod:`openqml_sf.fock`
+**Module name:** :mod:`pennylane_sf.fock`
 
-.. currentmodule:: openqml_sf.fock
+.. currentmodule:: pennylane_sf.fock
 
-The Strawberry Fields Fock plugin implements all the :class:`~openqml.device.Device` methods,
+The Strawberry Fields Fock plugin implements all the :class:`~pennylane.device.Device` methods,
 and provides a Fock-space simulation of a continuous-variable quantum circuit.
 
 Classes
@@ -45,7 +45,7 @@ from .simulator import StrawberryFieldsSimulator
 
 
 class StrawberryFieldsFock(StrawberryFieldsSimulator):
-    r"""StrawberryFields Fock device for OpenQML.
+    r"""StrawberryFields Fock device for PennyLane.
 
     Args:
         wires (int): the number of modes to initialize the device in
@@ -56,7 +56,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
-    name = 'Strawberry Fields Fock OpenQML plugin'
+    name = 'Strawberry Fields Fock PennyLane plugin'
     short_name = 'strawberryfields.fock'
 
     _operation_map = {

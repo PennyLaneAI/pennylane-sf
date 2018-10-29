@@ -15,11 +15,11 @@
 Auxillary expectation functions
 ===============================
 
-**Module name:** :mod:`openqml_sf.expectations`
+**Module name:** :mod:`pennylane_sf.expectations`
 
-.. currentmodule:: openqml_sf.expectations
+.. currentmodule:: pennylane_sf.expectations
 
-Contains auxillary functions which convert from OpenQML-style expectations,
+Contains auxillary functions which convert from PennyLane-style expectations,
 to the corresponding state methods in Strawberry Fields.
 
 .. autosummary::
@@ -37,11 +37,11 @@ import numpy as np
 from strawberryfields.backends.states import BaseFockState
 from strawberryfields.backends.gaussianbackend.states import GaussianState
 
-import openqml.expval
+import pennylane.expval
 
 
 def mean_photon(state, wires, params):
-    """Computes the expectation value of the ``qm.expval.MeanPhoton``
+    """Computes the expectation value of the ``qml.expval.MeanPhoton``
     observable in Strawberry Fields.
 
     Args:
@@ -57,7 +57,7 @@ def mean_photon(state, wires, params):
 
 
 def number_state(state, wires, params):
-    """Computes the expectation value of the ``qm.expval.NumberState``
+    """Computes the expectation value of the ``qml.expval.NumberState``
     observable in Strawberry Fields.
 
     Args:
@@ -112,7 +112,7 @@ def number_state(state, wires, params):
 
 
 def homodyne(phi=None):
-    """Function factory that returns the ``qm.expval.Homodyne`` expectation
+    """Function factory that returns the ``qml.expval.Homodyne`` expectation
     function for Strawberry Fields.
 
     ``homodyne(phi)`` returns a function
@@ -162,7 +162,7 @@ def poly_xp(state, wires, params):
     Q = params[0]
 
     # HACK, we need access to the Poly instance in order to expand the matrix!
-    op = openqml.expval.PolyXP(Q, wires=wires, do_queue=False)
+    op = pennylane.expval.PolyXP(Q, wires=wires, do_queue=False)
     Q = op.heisenberg_obs(state.num_modes)
 
     if Q.ndim == 1:

@@ -21,10 +21,10 @@ log.getLogger()
 
 import strawberryfields as sf
 
-import openqml as qm
-from openqml import numpy as np
+import pennylane as qml
+from pennylane import numpy as np
 
-from defaults import openqml_sf as qmsf, BaseTest
+from defaults import BaseTest
 
 
 psi = np.array([ 0.08820314+0.14909648j,  0.32826940+0.32956027j,
@@ -48,7 +48,7 @@ class FockTests(BaseTest):
         """Test that the fock plugin loads correctly"""
         self.logTestName()
 
-        dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=5)
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=5)
         self.assertEqual(dev.num_wires, 2)
         self.assertEqual(dev.cutoff, 5)
         self.assertEqual(dev.hbar, 2)
@@ -60,37 +60,37 @@ class FockTests(BaseTest):
         self.logTestName()
 
         with self.assertRaisesRegex(TypeError, "missing 1 required positional argument: 'wires'"):
-            dev = qm.device('strawberryfields.fock')
+            dev = qml.device('strawberryfields.fock')
         with self.assertRaisesRegex(TypeError, "missing 1 required keyword-only argument: 'cutoff_dim'"):
-            dev = qm.device('strawberryfields.fock', wires=1)
+            dev = qml.device('strawberryfields.fock', wires=1)
 
     def test_unsupported_gates(self):
         """Test error is raised with unsupported gates"""
         self.logTestName()
 
-        dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         gates = set(dev._operation_map.keys())
-        all_gates = {m[0] for m in inspect.getmembers(qm.ops, inspect.isclass)}
+        all_gates = {m[0] for m in inspect.getmembers(qml.ops, inspect.isclass)}
 
         for g in all_gates - gates:
-            op = getattr(qm.ops, g)
+            op = getattr(qml.ops, g)
 
             if op.num_wires == 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
 
-            @qm.qnode(dev)
+            @qml.qnode(dev)
             def circuit(*args):
                 args = prep_par(args, op)
                 op(*args, wires=wires)
 
-                if issubclass(op, qm.operation.CV):
-                    return qm.expval.MeanPhoton(0)
+                if issubclass(op, qml.operation.CV):
+                    return qml.expval.MeanPhoton(0)
                 else:
-                    return qm.expval.PauliZ(0)
+                    return qml.expval.PauliZ(0)
 
-            with self.assertRaisesRegex(qm.DeviceError,
+            with self.assertRaisesRegex(qml.DeviceError,
                 "Gate {} not supported on device strawberryfields.fock".format(g)):
                 args = np.random.random([op.num_params])
                 circuit(*args)
@@ -99,24 +99,24 @@ class FockTests(BaseTest):
         """Test error is raised with unsupported expectations"""
         self.logTestName()
 
-        dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=2)
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         obs = set(dev._expectation_map.keys())
-        all_obs = {m[0] for m in inspect.getmembers(qm.expval, inspect.isclass)}
+        all_obs = {m[0] for m in inspect.getmembers(qml.expval, inspect.isclass)}
 
         for g in all_obs - obs:
-            op = getattr(qm.expval, g)
+            op = getattr(qml.expval, g)
 
             if op.num_wires == 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
 
-            @qm.qnode(dev)
+            @qml.qnode(dev)
             def circuit(*args):
                 args = prep_par(args, op)
                 return op(*args, wires=wires)
 
-            with self.assertRaisesRegex(qm.DeviceError,
+            with self.assertRaisesRegex(qml.DeviceError,
                 "Expectation {} not supported on device strawberryfields.fock".format(g)):
                 args = np.random.random([op.num_params])
                 circuit(*args)
@@ -125,12 +125,12 @@ class FockTests(BaseTest):
         """Test that the fock plugin provides correct result for simple circuit"""
         self.logTestName()
 
-        dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10)
+        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=10)
 
-        @qm.qnode(dev)
+        @qml.qnode(dev)
         def circuit(x):
-            qm.Displacement(x, 0, wires=0)
-            return qm.expval.MeanPhoton(0)
+            qml.Displacement(x, 0, wires=0)
+            return qml.expval.MeanPhoton(0)
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -139,12 +139,12 @@ class FockTests(BaseTest):
         self.logTestName()
 
         shots = 10**2
-        dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10, shots=shots)
+        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=10, shots=shots)
 
-        @qm.qnode(dev)
+        @qml.qnode(dev)
         def circuit(x):
-            qm.Displacement(x, 0, wires=0)
-            return qm.expval.MeanPhoton(0)
+            qml.Displacement(x, 0, wires=0)
+            return qml.expval.MeanPhoton(0)
 
         x = 1
 
@@ -162,24 +162,24 @@ class FockTests(BaseTest):
         a = 0.312
         b = 0.123
 
-        dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
 
         gates = list(dev._operation_map.items())
         for g, sfop in gates:
             log.info('\tTesting gate {}...'.format(g))
             self.assertTrue(dev.supported(g))
 
-            op = getattr(qm.ops, g)
+            op = getattr(qml.ops, g)
             if op.num_wires == 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
 
-            @qm.qnode(dev)
+            @qml.qnode(dev)
             def circuit(*args):
-                qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+                qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*args, wires=wires)
-                return qm.expval.MeanPhoton(0), qm.expval.MeanPhoton(1)
+                return qml.expval.MeanPhoton(0), qml.expval.MeanPhoton(1)
 
             # compare to reference SF engine
             def SF_reference(*args):
@@ -215,23 +215,23 @@ class FockTests(BaseTest):
         a = 0.312
         a_array = np.eye(3)
 
-        dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
 
         expectations = list(dev._expectation_map.items())
         for g, sfop in expectations:
             log.info('\tTesting expectation {}...'.format(g))
             self.assertTrue(dev.supported(g))
 
-            op = getattr(qm.expval, g)
+            op = getattr(qml.expval, g)
             if op.num_wires == 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
 
-            @qm.qnode(dev)
+            @qml.qnode(dev)
             def circuit(*args):
-                qm.Displacement(0.1, 0, wires=0)
-                qm.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+                qml.Displacement(0.1, 0, wires=0)
+                qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 return op(*args, wires=wires)
 
             # compare to reference SF engine
@@ -263,24 +263,24 @@ class FockTests(BaseTest):
         nbar = 0.2234
 
         hbar = 2
-        dev = qm.device('strawberryfields.fock', wires=1, hbar=hbar, cutoff_dim=cutoff_dim)
+        dev = qml.device('strawberryfields.fock', wires=1, hbar=hbar, cutoff_dim=cutoff_dim)
         Q = np.array([0, 1, 0]) # x expectation
 
-        @qm.qnode(dev)
+        @qml.qnode(dev)
         def circuit(x):
-            qm.Displacement(x, 0, 0)
-            return qm.expval.PolyXP(Q, 0)
+            qml.Displacement(x, 0, 0)
+            return qml.expval.PolyXP(Q, 0)
 
         # test X expectation
         self.assertAlmostEqual(circuit(a), hbar*a)
 
         Q = np.diag([-0.5, 1/(2*hbar), 1/(2*hbar)]) # mean photon number
 
-        @qm.qnode(dev)
+        @qml.qnode(dev)
         def circuit(x):
-            qm.ThermalState(nbar, 0)
-            qm.Displacement(x, 0, 0)
-            return qm.expval.PolyXP(Q, 0)
+            qml.ThermalState(nbar, 0)
+            qml.Displacement(x, 0, 0)
+            return qml.expval.PolyXP(Q, 0)
 
         # test X expectation
         self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
@@ -294,22 +294,22 @@ class FockTests(BaseTest):
         r = 0.123
 
         hbar = 2
-        dev = qm.device('strawberryfields.fock', wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+        dev = qml.device('strawberryfields.fock', wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
 
         # test correct number state expectation |<n|a>|^2
-        @qm.qnode(dev)
+        @qml.qnode(dev)
         def circuit(x):
-            qm.Displacement(x, 0, 0)
-            return qm.expval.NumberState(np.array([2]), wires=0)
+            qml.Displacement(x, 0, 0)
+            return qml.expval.NumberState(np.array([2]), wires=0)
 
         expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
         self.assertAlmostEqual(circuit(a), expected)
 
         # test correct number state expectation |<n|S(r)>|^2
-        @qm.qnode(dev)
+        @qml.qnode(dev)
         def circuit(x):
-            qm.Squeezing(x, 0, 0)
-            return qm.expval.NumberState(np.array([2, 0]), wires=[0, 1])
+            qml.Squeezing(x, 0, 0)
+            return qml.expval.NumberState(np.array([2, 0]), wires=[0, 1])
 
         expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
         self.assertAlmostEqual(circuit(r), expected)

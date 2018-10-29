@@ -4,41 +4,41 @@ In this demo we implement the cv-qnn of Ref XXX with the
 example of function fitting.
 """
 
-import openqml as qm
-from openqml import numpy as np
-from openqml.optimize import NesterovMomentumOptimizer
+import pennylane as qml
+from pennylane import numpy as np
+from pennylane.optimize import NesterovMomentumOptimizer
 import matplotlib.pyplot as plt
 
-dev = qm.device('strawberryfields.fock', wires=1, cutoff_dim=10)
+dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=10)
 
 
 def layer(w):
     """ Single layer of the continuous-variable quantum neural net."""
 
     # Bias
-    qm.Displacement(w[0], w[1], [0])
+    qml.Displacement(w[0], w[1], [0])
 
     # Matrix multiplication of input layer
-    qm.Rotation(w[2], [0])
-    qm.Squeezing(w[3], w[4], [0])
-    qm.Rotation(w[5], [0])
+    qml.Rotation(w[2], [0])
+    qml.Squeezing(w[3], w[4], [0])
+    qml.Rotation(w[5], [0])
 
     # Element-wise nonlinear transformation
-    qm.Kerr(w[6], [0])
+    qml.Kerr(w[6], [0])
 
 
-@qm.qfunc(dev)
+@qml.qfunc(dev)
 def quantum_neural_net(weights, x=None):
     """The quantum neural net variational circuit."""
 
     # Encode input into quantum state
-    qm.Displacement(x[0], 0., [0])
+    qml.Displacement(x[0], 0., [0])
 
     # execute "layers"
     for i in range(6):  # TODO: back to multidim arrays
         layer(weights[i*7: i*7+7])
 
-    return qm.expectation.X(0)
+    return qml.expectation.X(0)
 
 
 def square_loss(labels, predictions):

@@ -2,15 +2,14 @@ PYTHON3 := $(shell which python3 2>/dev/null)
 COVERAGE3 := $(shell which coverage3 2>/dev/null)
 
 PYTHON := python3
-COVERAGE := coverage3
-COPTS := run --append
-TESTRUNNER := -m unittest discover tests
+COVERAGE := --cov=pennylane_sf --cov-report term-missing --cov-report=html:coverage_html_report
+TESTRUNNER := -m pytest tests
 
 .PHONY: help
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  install            to install OpenQML-SF"
-	@echo "  wheel              to build the OpenQML-SF wheel"
+	@echo "  install            to install PennyLane-SF"
+	@echo "  wheel              to build the PennyLane-SF wheel"
 	@echo "  dist               to package the source distribution"
 	@echo "  clean              to delete all temporary, cache, and build files"
 	@echo "  clean-docs         to delete all built documentation"
@@ -20,7 +19,7 @@ help:
 .PHONY: install
 install:
 ifndef PYTHON3
-	@echo "To install OpenQML-SF you need to have Python 3 installed"
+	@echo "To install PennyLane-SF you need to have Python 3 installed"
 endif
 	$(PYTHON) setup.py install
 
@@ -34,17 +33,11 @@ dist:
 
 .PHONY : clean
 clean:
-	rm -rf qmlt/__pycache__
-	rm -rf qmlt/numeric/__pycache__
-	rm -rf qmlt/tf/__pycache__
+	rm -rf pennylane_sf/__pycache__
 	rm -rf tests/__pycache__
-	rm -rf logsNUM logsAUTO
-	rm -rf tests/logsNUM
-	rm -rf tests/logsAUTO
-	rm -rf examples/logsNUM
-	rm -rf examples/logsAUTO
 	rm -rf dist
 	rm -rf build
+	rm -rf .pytest_cache
 	rm -rf .coverage coverage_html_report/
 
 docs:
@@ -60,6 +53,4 @@ test:
 
 coverage:
 	@echo "Generating coverage report..."
-	$(COVERAGE) $(COPTS) $(TESTRUNNER)
-	$(COVERAGE) report
-	$(COVERAGE) html
+	$(PYTHON) $(TESTRUNNER) $(COVERAGE)

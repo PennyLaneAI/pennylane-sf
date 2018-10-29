@@ -1,4 +1,4 @@
-.. automodule:: openqml_sf.fock
+.. automodule:: pennylane_sf.fock
    :members:
    :private-members:
    :inherited-members:

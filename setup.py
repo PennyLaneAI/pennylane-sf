@@ -17,34 +17,34 @@ import sys
 import os
 from setuptools import setup
 
-with open("openqml_sf/_version.py") as f:
+with open("pennylane_sf/_version.py") as f:
 	version = f.readlines()[-1].split()[-1].strip("\"'")
 
 
 requirements = [
     "strawberryfields",
-    "openqml"
+    "pennylane"
 ]
 
 info = {
-    'name': 'OpenQML-SF',
+    'name': 'PennyLane-SF',
     'version': version,
     'maintainer': 'Xanadu Inc.',
     'maintainer_email': 'nathan@xanadu.ai',
     'url': 'http://xanadu.ai',
     'license': 'Apache License 2.0',
     'packages': [
-                    'openqml_sf'
+                    'pennylane_sf'
                 ],
     'entry_points': {
-        'openqml.plugins': [
-            'strawberryfields.fock = openqml_sf:StrawberryFieldsFock',
-            'strawberryfields.gaussian = openqml_sf:StrawberryFieldsGaussian'
+        'pennylane.plugins': [
+            'strawberryfields.fock = pennylane_sf:StrawberryFieldsFock',
+            'strawberryfields.gaussian = pennylane_sf:StrawberryFieldsGaussian'
             ],
         },
     'description': 'Open source library for continuous-variable quantum computation',
     'long_description': open('README.rst').read(),
-    'provides': ["openqml_sf"],
+    'provides': ["pennylane_sf"],
     'install_requires': requirements,
     # 'extras_require': extra_requirements,
     'command_options': {

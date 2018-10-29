@@ -15,11 +15,11 @@
 Strawberry Fields Gaussian device
 =================================
 
-**Module name:** :mod:`openqml_sf.gaussian`
+**Module name:** :mod:`pennylane_sf.gaussian`
 
-.. currentmodule:: openqml_sf.gaussian
+.. currentmodule:: pennylane_sf.gaussian
 
-The Strawberry Fields Gaussian plugin implements all the :class:`~openqml.device.Device` methods,
+The Strawberry Fields Gaussian plugin implements all the :class:`~pennylane.device.Device` methods,
 and provides a Gaussian simulation of a continuous-variable quantum circuit.
 
 Classes
@@ -47,9 +47,9 @@ from .simulator import StrawberryFieldsSimulator
 
 
 class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
-    """StrawberryFields Gaussian device for OpenQML.
+    """StrawberryFields Gaussian device for PennyLane.
     """
-    name = 'Strawberry Fields Gaussian OpenQML plugin'
+    name = 'Strawberry Fields Gaussian PennyLane plugin'
     short_name = 'strawberryfields.gaussian'
 
     _operation_map = {
