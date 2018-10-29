@@ -307,7 +307,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pennylane', 'PennyLane-StrawberryFields Documentation',
+    (master_doc, 'pennylane-sf', 'PennyLane-StrawberryFields Documentation',
      [author], 1)
 ]
 
@@ -319,7 +319,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'PennyLane-StrawberryFields', 'PennyLane-StrawberryFields Documentation',
-     author, 'PennyLane-StrawberryFields', 'Xanadu quantum machine learning library.',
+     author, 'PennyLane-StrawberryFields', 'Strawberry Fields plugin for the PennyLane quantum machine learning library.',
      'Miscellaneous'),
 ]
 

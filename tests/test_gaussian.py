@@ -24,7 +24,7 @@ import strawberryfields as sf
 import pennylane as qml
 from pennylane import numpy as np
 
-from defaults import pennylane_sf as qmlsf, BaseTest
+from defaults import BaseTest
 
 
 def prep_par(par, op):

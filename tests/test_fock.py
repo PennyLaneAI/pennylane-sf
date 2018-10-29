@@ -24,7 +24,7 @@ import strawberryfields as sf
 import pennylane as qml
 from pennylane import numpy as np
 
-from defaults import pennylane_sf as qmlsf, BaseTest
+from defaults import BaseTest
 
 
 psi = np.array([ 0.08820314+0.14909648j,  0.32826940+0.32956027j,
