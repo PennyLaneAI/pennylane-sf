@@ -12,30 +12,44 @@ dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
 
 
 @qm.qnode(dev)
-def circuit(vars):
-    """Qnode"""
+def circuit(var):
+    """Variational circuit.
+
+    Args:
+        var (array[float]): array containing the variables
+
+    Returns:
+        mean photon number of Mode 0
+    """
     qm.FockState(1, [0])
-    qm.Beamsplitter(vars[0], vars[1], [0, 1])
+    qm.Beamsplitter(var[0], var[1], [0, 1])
 
-    return qm.expval.PhotonNumber(0)
+    return qm.expval.MeanPhoton(0)
 
 
-def objective(vars):
-    """Objective to minimize"""
+def objective(var):
+    """Objective to minimize.
 
-    return circuit(vars)
+    Args:
+        var (array[float]): array containing the variables
+
+    Returns:
+        output of the variational circuit
+    """
+
+    return circuit(var)
 
 
 gd = GradientDescentOptimizer(stepsize=0.1)
 
-vars = np.array([0.01, 0.01])
+var = np.array([0.01, 0.01])
 
 for iteration in range(100):
-    vars = gd.step(objective, vars)
+    var = gd.step(objective, var)
 
     if iteration % 10 == 0:
         print('Cost after step {:3d}: {:0.7f} | Variables [{:0.7f}, {:0.7f}]'
-              ''.format(iteration, objective(vars), vars[0], vars[1]))
+              ''.format(iteration, objective(var), var[0], var[1]))
 
 
 
