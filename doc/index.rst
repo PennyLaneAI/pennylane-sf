@@ -1,5 +1,5 @@
 PennyLane Strawberry Fields Plugin
-################################
+##################################
 
 :Release: |release|
 :Date: |today|
