@@ -1,2 +1,2 @@
 strawberryfields
-openqml
+pennylane

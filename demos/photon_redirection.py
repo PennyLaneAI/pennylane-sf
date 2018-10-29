@@ -4,20 +4,20 @@ In this demo we optimize a beam splitter
 to redirect a photon from the first to the second mode.
 """
 
-import openqml as qm
-from openqml import numpy as np
-from openqml.optimize import GradientDescentOptimizer
+import pennylane as qml
+from pennylane import numpy as np
+from pennylane.optimize import GradientDescentOptimizer
 
-dev = qm.device('strawberryfields.fock', wires=2, cutoff_dim=10)
+dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=10)
 
 
-@qm.qfunc(dev)
+@qml.qfunc(dev)
 def circuit(weights):
     """Qnode"""
-    qm.FockState(1, [0])
-    qm.Beamsplitter(weights[0], weights[1], [0, 1])
+    qml.FockState(1, [0])
+    qml.Beamsplitter(weights[0], weights[1], [0, 1])
 
-    return qm.expectation.PhotonNumber(1)
+    return qml.expectation.PhotonNumber(1)
 
 
 def objective(weights):

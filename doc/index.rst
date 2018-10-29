@@ -1,30 +1,30 @@
-OpenQML Strawberry Fields Plugin
+PennyLane Strawberry Fields Plugin
 ################################
 
 :Release: |release|
 :Date: |today|
 
 
-This OpenQML plugin allows the Strawberry Fields simulators to be used as OpenQML devices.
+This PennyLane plugin allows the Strawberry Fields simulators to be used as PennyLane devices.
 
 `Strawberry Fields <https://strawberryfields.readthedocs.io>`_ is a full-stack Python library for designing, simulating, and optimizing continuous variable (CV) quantum optical circuits.
 
-`OpenQML <https://openqml.readthedocs.io>`_ is a machine learning library for optimization and automatic differentiation of hybrid quantum-classical computations.
+`PennyLane <https://pennylane.readthedocs.io>`_ is a machine learning library for optimization and automatic differentiation of hybrid quantum-classical computations.
 
 
 Features
 ========
 
-* Provides two devices to be used with OpenQML: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
+* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
 
-* Supports all core OpenQML operations and expectation values across the two devices.
+* Supports all core PennyLane operations and expectation values across the two devices.
 
 
-* Combine Strawberry Fields' advanced quantum simulator suite with OpenQML's automatic differentiation and optimization.
+* Combine Strawberry Fields' advanced quantum simulator suite with PennyLane's automatic differentiation and optimization.
 
 
-To get started with the OpenQML Strawberry Fields plugin, follow the :ref:`installation steps <installation>`, then see the :ref:`usage <usage>` page.
+To get started with the PennyLane Strawberry Fields plugin, follow the :ref:`installation steps <installation>`, then see the :ref:`usage <usage>` page.
 
 
 Contents

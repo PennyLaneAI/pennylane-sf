@@ -1,6 +1,6 @@
 # .coveragerc to control coverage.py
 [run]
-source = openqml_sf
+source = pennylane_sf
 
 [report]
 # Regexes for lines to exclude from consideration
