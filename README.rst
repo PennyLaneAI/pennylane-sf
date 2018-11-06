@@ -66,7 +66,7 @@ You can instantiate these devices for PennyLane as follows:
     dev_fock = qml.device('strawberryfields.fock', wires=2, cutoff_dim=10)
     dev_gaussian = qml.device('strawberryfields.gaussian', wires=2)
 
-These devices can then be used just like other devices for the definition and evaluation of QNodes within PennyLane. For more details, see :ref:`usage` and refer to the PennyLane documentation.
+These devices can then be used just like other devices for the definition and evaluation of QNodes within PennyLane. For more details, see the `plugin usage guide <https://pennylane-sf.readthedocs.io/en/latest/usage.html>`_ and refer to the PennyLane documentation.
 
 
 Contributing
