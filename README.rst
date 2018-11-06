@@ -1,29 +1,29 @@
 PennyLane Strawberry Fields Plugin
-################################
+##################################
 
-.. image:: https://img.shields.io/travis/XanaduAI/strawberryfields/master.svg?style=for-the-badge
+.. image:: https://img.shields.io/travis/XanaduAI/pennylane-sf/master.svg?style=for-the-badge
     :alt: Travis
-    :target: https://travis-ci.org/XanaduAI/strawberryfields
+    :target: https://travis-ci.org/XanaduAI/pennylane-sf
 
-.. image:: https://img.shields.io/codecov/c/github/xanaduai/strawberryfields/master.svg?style=for-the-badge
+.. image:: https://img.shields.io/codecov/c/github/xanaduai/pennylane-sf/master.svg?style=for-the-badge
     :alt: Codecov coverage
-    :target: https://codecov.io/gh/XanaduAI/strawberryfields
+    :target: https://codecov.io/gh/XanaduAI/pennylane-sf
 
 .. image:: https://img.shields.io/codacy/grade/bd14437d17494f16ada064d8026498dd.svg?style=for-the-badge
     :alt: Codacy grade
-    :target: https://app.codacy.com/app/XanaduAI/strawberryfields?utm_source=github.com&utm_medium=referral&utm_content=XanaduAI/strawberryfields&utm_campaign=badger
+    :target: https://app.codacy.com/app/XanaduAI/pennylane-sf?utm_source=github.com&utm_medium=referral&utm_content=XanaduAI/pennylane-sf&utm_campaign=badger
 
-.. image:: https://img.shields.io/readthedocs/strawberryfields.svg?style=for-the-badge
+.. image:: https://img.shields.io/readthedocs/pennylane-sf.svg?style=for-the-badge
     :alt: Read the Docs
-    :target: https://strawberryfields.readthedocs.io
+    :target: https://pennylane-sf.readthedocs.io
 
-.. image:: https://img.shields.io/pypi/v/StrawberryFields.svg?style=for-the-badge
+.. image:: https://img.shields.io/pypi/v/PennyLane-SF.svg?style=for-the-badge
     :alt: PyPI
-    :target: https://pypi.org/project/StrawberryFields
+    :target: https://pypi.org/project/PennyLane-SF
 
-.. image:: https://img.shields.io/pypi/pyversions/StrawberryFields.svg?style=for-the-badge
+.. image:: https://img.shields.io/pypi/pyversions/PennyLane-SF.svg?style=for-the-badge
     :alt: PyPI - Python Version
-    :target: https://pypi.org/project/StrawberryFields
+    :target: https://pypi.org/project/PennyLane-SF
 
 
 This PennyLane plugin allows the Strawberry Fields simulators to be used as PennyLane devices.
@@ -81,7 +81,7 @@ We also encourage bug reports, suggestions for new features and enhancements, an
 Authors
 =======
 
-Josh Izaac, Ville Bergholm, Christian Gogolin, Maria Schuld, and Nathan Killoran.
+Josh Izaac, Ville Bergholm, Maria Schuld, Nathan Killoran and Christian Gogolin
 
 If you are doing research using PennyLane, please cite our whitepaper:
 
