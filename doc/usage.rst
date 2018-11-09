@@ -41,11 +41,10 @@ We can evaluate the QNode for arbitrary values of the circuit parameters:
 >>> quantum_function(1., 0.543)
 0.7330132578095255
 
-We can also evaluate the derivative with respect to the first parameter:
+We can also evaluate the derivative with respect to any parameter(s):
 
-.. todo:: what about the other parameter?
 
->>> dqfunc = qml.grad(quantum_function)
+>>> dqfunc = qml.grad(quantum_function, argnum=0)
 >>> dqfunc(1., 0.543)
 1.4660265156190515
 
