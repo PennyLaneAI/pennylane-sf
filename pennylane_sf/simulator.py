@@ -76,15 +76,15 @@ class StrawberryFieldsSimulator(Device):
         self.eng, self.q = sf.Engine(self.num_wires, hbar=self.hbar)
         return self.eng
 
-    def apply(self, op_name, wires, par):
+    def apply(self, operation, wires, par):
         """Apply a quantum operation.
 
         Args:
-            op_name (str): name of the operation
+            operation (str): name of the operation
             wires (Sequence[int]): subsystems the operation is applied on
             par (tuple): parameters for the operation
         """
-        op = self._operation_map[op_name](*par)
+        op = self._operation_map[operation](*par)
         op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
     @abc.abstractmethod
