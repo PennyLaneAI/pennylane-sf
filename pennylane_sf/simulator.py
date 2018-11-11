@@ -61,7 +61,8 @@ class StrawberryFieldsSimulator(Device):
     author = 'Josh Izaac'
 
     short_name = 'strawberryfields'
-    _operation_map = None
+    _operation_map = {}
+    _expectation_map = {}
 
     def __init__(self, wires, *, shots=0, hbar=2):
         super().__init__(self.short_name, wires, shots)
@@ -121,3 +122,21 @@ class StrawberryFieldsSimulator(Device):
             self.state = None
         if self.q is not None:
             self.q = None
+
+    @property
+    def operations(self):
+        """Get the supported set of operations.
+
+        Returns:
+            set[str]: the set of PennyLane operation names the device supports
+        """
+        return set(self._operation_map.keys())
+
+    @property
+    def expectations(self):
+        """Get the supported set of expectations.
+
+        Returns:
+            set[str]: the set of PennyLane expectation names the device supports
+        """
+        return set(self._expectation_map.keys())
