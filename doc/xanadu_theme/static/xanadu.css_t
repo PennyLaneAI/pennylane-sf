@@ -883,10 +883,10 @@ img.align-center, .figure.align-center, object.align-center {
 /* -- topics ---------------------------------------------------------------- */
 
 div.topic {
-  border: 1px solid #e8e8e8;
+  /*border: 1px solid #e8e8e8;*/
   padding: 7px 7px 0 7px;
   margin: 10px 0 10px 0;
-  background-color: #f8f8f8;
+  /*background-color: #f8f8f8;*/
 }
 
 p.topic-title {
@@ -898,7 +898,7 @@ p.topic-title {
 /* -- contents-------------------------------------------------------------- */
 
 div.topic.contents {
-    display: inline-grid;
+    display: table-cell;
     border-radius: 3px;
     padding: 24px 36px 18px 36px;
 }

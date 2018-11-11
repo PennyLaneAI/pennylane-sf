@@ -39,6 +39,16 @@ Contents
    installing
    usage
 
+
+.. rst-class:: contents local topic
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials (external links)
+
+   Photon redirection <https://pennylane.readthedocs.io/en/latest/tutorials/plugins_hybrid.html>
+   Notebook downloads <https://pennylane.readthedocs.io/en/latest/tutorials/notebooks.html>
+
 .. rst-class:: contents local topic
 
 .. toctree::
