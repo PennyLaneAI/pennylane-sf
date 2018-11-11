@@ -22,7 +22,7 @@ with open("pennylane_sf/_version.py") as f:
 
 
 requirements = [
-    "strawberryfields",
+    "strawberryfields>=0.9",
     "pennylane"
 ]
 
