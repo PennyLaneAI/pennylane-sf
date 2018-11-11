@@ -93,7 +93,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
 
     _circuits = {}
 
-    def __init__(self, wires, *, shots=0, cutoff_dim, hbar=2):
+    def __init__(self, wires, *, cutoff_dim, shots=0, hbar=2):
         super().__init__(wires, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
 

@@ -65,7 +65,7 @@ class StrawberryFieldsSimulator(Device):
     _expectation_map = {}
 
     def __init__(self, wires, *, shots=0, hbar=2):
-        super().__init__(self.short_name, wires, shots)
+        super().__init__(wires, shots)
         self.hbar = hbar
         self.eng = None
         self.q = None
