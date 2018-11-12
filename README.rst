@@ -1,7 +1,7 @@
 PennyLane Strawberry Fields Plugin
 ##################################
 
-.. image:: https://img.shields.io/travis/XanaduAI/pennylane-sf/master.svg?style=for-the-badge
+.. image:: https://img.shields.io/travis/com/XanaduAI/pennylane-sf/master.svg?style=for-the-badge
     :alt: Travis
     :target: https://travis-ci.org/XanaduAI/pennylane-sf
 
@@ -9,7 +9,7 @@ PennyLane Strawberry Fields Plugin
     :alt: Codecov coverage
     :target: https://codecov.io/gh/XanaduAI/pennylane-sf
 
-.. image:: https://img.shields.io/codacy/grade/bd14437d17494f16ada064d8026498dd.svg?style=for-the-badge
+.. image:: https://img.shields.io/codacy/grade/33d12f7d2d0644968087e33966ed904e.svg?style=for-the-badge
     :alt: Codacy grade
     :target: https://app.codacy.com/app/XanaduAI/pennylane-sf?utm_source=github.com&utm_medium=referral&utm_content=XanaduAI/pennylane-sf&utm_campaign=badger
 
