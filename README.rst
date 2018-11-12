@@ -3,7 +3,7 @@ PennyLane Strawberry Fields Plugin
 
 .. image:: https://img.shields.io/travis/com/XanaduAI/pennylane-sf/master.svg?style=for-the-badge
     :alt: Travis
-    :target: https://travis-ci.org/XanaduAI/pennylane-sf
+    :target: https://travis-ci.com/XanaduAI/pennylane-sf
 
 .. image:: https://img.shields.io/codecov/c/github/xanaduai/pennylane-sf/master.svg?style=for-the-badge
     :alt: Codecov coverage
