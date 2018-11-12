@@ -56,7 +56,7 @@ class StrawberryFieldsSimulator(Device):
         hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
     """
     name = 'Strawberry Fields Simulator PennyLane plugin'
-    api_version = '0.1.0'
+    pennylane_requires = '0.1.0'
     version = __version__
     author = 'Josh Izaac'
 
