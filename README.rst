@@ -83,13 +83,15 @@ Authors
 
 Josh Izaac, Ville Bergholm, Maria Schuld, Nathan Killoran and Christian Gogolin
 
-If you are doing research using PennyLane, please cite our whitepaper:
+If you are doing research using PennyLane and StrawberryFields, please cite our papers:
 
-.. todo:: insert PennyLane whitepaper citation.
+    Ville Bergholm, Josh Izaac, Maria Schuld, Christian Gogolin, and Nathan Killoran.
+    *PennyLane: Automatic differentiation of hybrid quantum-classical computations.* 2018.
+    `arXiv:1811.04968 <https://arxiv.org/abs/1811.04968>`_
 
-If you are doing research using Strawberry Fields, please cite `our whitepaper <https://arxiv.org/abs/1804.03159>`_:
-
-  Nathan Killoran, Josh Izaac, Nicolás Quesada, Ville Bergholm, Matthew Amy, and Christian Weedbrook. Strawberry Fields: A Software Platform for Photonic Quantum Computing. *arXiv*, 2018. arXiv:1804.03159
+    Nathan Killoran, Josh Izaac, Nicolás Quesada, Ville Bergholm, Matthew Amy, and Christian Weedbrook.
+    *Strawberry Fields: A Software Platform for Photonic Quantum Computing.* 2018.
+    `arXiv:1804.03159  <https://arxiv.org/abs/1804.03159>`_
 
 
 Support

@@ -27,6 +27,22 @@ Features
 To get started with the PennyLane Strawberry Fields plugin, follow the :ref:`installation steps <installation>`, then see the :ref:`usage <usage>` page.
 
 
+Authors
+=======
+
+Josh Izaac, Ville Bergholm, Maria Schuld, Nathan Killoran and Christian Gogolin
+
+If you are doing research using PennyLane and StrawberryFields, please cite our papers:
+
+    Ville Bergholm, Josh Izaac, Maria Schuld, Christian Gogolin, and Nathan Killoran.
+    *PennyLane: Automatic differentiation of hybrid quantum-classical computations.* 2018.
+    `arXiv:1811.04968 <https://arxiv.org/abs/1811.04968>`_
+
+    Nathan Killoran, Josh Izaac, Nicolás Quesada, Ville Bergholm, Matthew Amy, and Christian Weedbrook.
+    *Strawberry Fields: A Software Platform for Photonic Quantum Computing.* 2018.
+    `arXiv:1804.03159  <https://arxiv.org/abs/1804.03159>`_
+
+
 Contents
 ========
 
