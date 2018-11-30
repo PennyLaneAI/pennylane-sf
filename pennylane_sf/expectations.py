@@ -23,6 +23,7 @@ Contains auxillary functions which convert from PennyLane-style expectations,
 to the corresponding state methods in Strawberry Fields.
 
 .. autosummary::
+    identity
     mean_photon
     number_state
     homodyne
