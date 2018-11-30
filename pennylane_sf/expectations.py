@@ -40,6 +40,42 @@ from strawberryfields.backends.gaussianbackend.states import GaussianState
 import pennylane.expval
 
 
+def identity(state, wires, params):
+    """Computes the expectation value of the ``qml.expval.Identity``
+    observable in Strawberry Fields, corresponding to the trace.
+
+    Args:
+        state (strawberryfields.backends.states.BaseState): the quantum state
+        wires (Sequence[int]): the measured mode
+        params (Sequence): sequence of parameters (not used)
+
+    Returns:
+        float, float: trace and its variance
+    """
+    # pylint: disable=unused-argument
+    if isinstance(state, GaussianState):
+        # Gaussian state representation will always have trace of 1
+        return 1, 0
+
+    N = state.num_modes
+    D = state.cutoff_dim
+
+    if N == len(wires):
+        # trace of the entire system
+        tr = state.trace()
+        return tr, tr - tr**2
+
+    # get the reduced density matrix
+    N = len(wires)
+    dm = state.reduced_dm(modes=wires)
+
+    # construct the standard 2D density matrix, and take the trace
+    new_ax = np.arange(2*N).reshape([N, 2]).T.flatten()
+    tr = np.trace(dm.transpose(new_ax).reshape([D**N, D**N])).real
+
+    return tr, tr - tr**2
+
+
 def mean_photon(state, wires, params):
     """Computes the expectation value of the ``qml.expval.MeanPhoton``
     observable in Strawberry Fields.
