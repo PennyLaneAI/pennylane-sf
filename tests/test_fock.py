@@ -101,7 +101,7 @@ class FockTests(BaseTest):
 
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         obs = set(dev._expectation_map.keys())
-        all_obs = {m[0] for m in inspect.getmembers(qml.expval, inspect.isclass)}
+        all_obs = set(qml.expval.__all__)
 
         for g in all_obs - obs:
             op = getattr(qml.expval, g)
@@ -313,6 +313,38 @@ class FockTests(BaseTest):
 
         expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
         self.assertAlmostEqual(circuit(r), expected)
+
+    def test_trace(self):
+        """Test that Identity expectation works as expected"""
+        self.logTestName()
+
+        cutoff_dim = 5
+        r1 = 0.5
+        r2 = 0.7
+
+        hbar = 2
+        dev = qml.device('strawberryfields.fock', wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+
+        @qml.qnode(dev)
+        def circuit(x, y):
+            qml.Squeezing(x, 0, 0)
+            qml.Squeezing(y, 0, 1)
+            return qml.expval.Identity(wires=[0, 1])
+
+        # reference SF circuit
+        def SF_reference_trace(x, y):
+            """SF reference circuit"""
+            eng, q = sf.Engine(2)
+            with eng:
+                sf.ops.Sgate(x) | q[0]
+                sf.ops.Sgate(y) | q[1]
+
+            state = eng.run('fock', cutoff_dim=cutoff_dim)
+            return state.trace()
+
+        # test trace < 1 for high squeezing
+        expected = SF_reference_trace(r1, r2)
+        self.assertAlmostEqual(circuit(r1, r2), expected)
 
 
 if __name__ == '__main__':

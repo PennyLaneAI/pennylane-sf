@@ -6,6 +6,7 @@ python:
 env:
   - LOGGING=info
 install:
+  - pip install -e git+https://github.com/XanaduAI/pennylane.git#egg=pennylane
   - pip install -r requirements.txt
   - pip install pytest pytest-cov wheel codecov
   - python3 setup.py bdist_wheel

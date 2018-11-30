@@ -91,7 +91,7 @@ class GaussianTests(BaseTest):
 
         dev = qml.device('strawberryfields.gaussian', wires=2)
         obs = set(dev._expectation_map.keys())
-        all_obs = {m[0] for m in inspect.getmembers(qml.expval, inspect.isclass)}
+        all_obs = set(qml.expval.__all__)
 
         for g in all_obs - obs:
             op = getattr(qml.expval, g)
