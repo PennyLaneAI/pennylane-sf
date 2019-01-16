@@ -150,6 +150,8 @@ class GaussianTests(BaseTest):
         self.logTestName()
         a = 0.312
         b = 0.123
+        c = 0.532
+        d = 0.124
 
         dev = qml.device('strawberryfields.gaussian', wires=2)
 
@@ -185,6 +187,9 @@ class GaussianTests(BaseTest):
                 r = np.array([0, 0])
                 V = np.array([[0.5, 0], [0, 2]])
                 self.assertAllEqual(circuit(V, r), SF_reference(V, r))
+            elif g == "DisplacedSqueezedState":
+                self.assertAllEqual(circuit(a, b, c, d),
+                                    SF_reference(a*np.exp(1j*b), c, d))
             elif op.num_params == 1:
                 self.assertAllEqual(circuit(a), SF_reference(a))
             elif op.num_params == 2:

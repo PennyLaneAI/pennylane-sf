@@ -161,6 +161,8 @@ class FockTests(BaseTest):
         cutoff_dim = 10
         a = 0.312
         b = 0.123
+        c = 0.532
+        d = 0.124
 
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
 
@@ -203,6 +205,12 @@ class FockTests(BaseTest):
                 self.assertAllEqual(circuit(psi), SF_reference(psi))
             elif g == 'FockState':
                 self.assertAllEqual(circuit(1), SF_reference(1))
+            elif g == "DisplacedSqueezedState":
+                self.assertAllEqual(circuit(a, b, c, d),
+                                    SF_reference(a*np.exp(1j*b), c, d))
+            elif g == "CatState":
+                self.assertAllEqual(circuit(a, b, c),
+                                    SF_reference(a*np.exp(1j*b), c))
             elif op.num_params == 1:
                 self.assertAllEqual(circuit(a), SF_reference(a))
             elif op.num_params == 2:
