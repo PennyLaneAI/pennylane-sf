@@ -8,7 +8,7 @@ env:
 install:
   - pip install -e git+https://github.com/XanaduAI/pennylane.git#egg=pennylane
   - pip install -r requirements.txt
-  - pip install pytest pytest-cov wheel codecov
+  - pip install pytest pytest-cov wheel codecov --upgrade
   - python3 setup.py bdist_wheel
   - pip install dist/PennyLane_SF*.whl
 script:
