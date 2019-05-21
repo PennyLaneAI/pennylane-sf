@@ -122,6 +122,20 @@ class StrawberryFieldsSimulator(Device):
 
         return ex
 
+    def var(self, expectation, wires, par):
+        """Evaluate an variance.
+
+        Args:
+            observable (str): name of the observable
+            wires (Sequence[int]): subsystems the expectation is evaluated on
+            par (tuple): parameters for the expectation
+
+        Returns:
+            float: expectation value
+        """
+        _, var = self._expectation_map[expectation](self.state, wires, par)
+        return var
+
     def reset(self):
         """Reset the device"""
         if self.eng is not None:

@@ -19,6 +19,8 @@ import unittest
 import logging as log
 log.getLogger()
 
+from scipy.special import factorial as fac
+
 import strawberryfields as sf
 
 import pennylane as qml
@@ -253,7 +255,7 @@ class GaussianTests(BaseTest):
 
         @qml.qnode(dev)
         def circuit(x):
-            qml.Displacement(x, 0, 0)
+            qml.Displacement(x, 0, wires=0)
             return qml.expval.PolyXP(Q, 0)
 
         # test X expectation
@@ -263,8 +265,8 @@ class GaussianTests(BaseTest):
 
         @qml.qnode(dev)
         def circuit(x):
-            qml.ThermalState(nbar, 0)
-            qml.Displacement(x, 0, 0)
+            qml.ThermalState(nbar, wires=0)
+            qml.Displacement(x, 0, wires=0)
             return qml.expval.PolyXP(Q, 0)
 
         # test X expectation
@@ -283,7 +285,7 @@ class GaussianTests(BaseTest):
         # test correct number state expectation |<n|a>|^2
         @qml.qnode(dev)
         def circuit(x):
-            qml.Displacement(x, 0, 0)
+            qml.Displacement(x, 0, wires=0)
             return qml.expval.NumberState(np.array([2]), wires=0)
 
         expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
@@ -292,11 +294,75 @@ class GaussianTests(BaseTest):
         # test correct number state expectation |<n|S(r)>|^2
         @qml.qnode(dev)
         def circuit(x):
-            qml.Squeezing(x, 0, 0)
+            qml.Squeezing(x, 0, wires=0)
             return qml.expval.NumberState(np.array([2, 0]), wires=[0, 1])
 
         expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
         self.assertAlmostEqual(circuit(r), expected)
+
+    def test_variance(self):
+        """Test that variance values are calculated correctly"""
+        self.logTestName()
+
+        hbar = 2
+        dev = qml.device('strawberryfields.gaussian', wires=1, hbar=hbar)
+
+        # test correct variance for <n> of a displaced thermal state
+        nbar = 0.5431
+        alpha = 0.324
+
+        @qml.qnode(dev)
+        def circuit():
+            qml.ThermalState(nbar, wires=0)
+            qml.Displacement(alpha, 0, wires=0)
+            return qml.var.MeanPhoton(0)
+
+        var = circuit()
+        self.assertAlmostEqual(var, nbar**2+nbar+np.abs(alpha)**2*(1+2*nbar), delta=self.tol)
+
+        # test correct variance for Homodyne P measurement
+        @qml.qnode(dev)
+        def circuit():
+            qml.CoherentState(alpha, 0, wires=0)
+            return qml.var.P(0)
+
+        var = circuit()
+        self.assertAlmostEqual(var, hbar/2, delta=self.tol)
+
+        # test correct mean and variance for Homodyne measurement
+        @qml.qnode(dev)
+        def circuit():
+            qml.CoherentState(alpha, 0, wires=0)
+            return qml.var.Homodyne(np.pi/2, 0)
+
+        var = circuit()
+        self.assertAlmostEqual(var, hbar/2, delta=self.tol)
+
+        # test correct mean and variance for number state expectation |<n|alpha>|^2
+        # on a coherent state
+        @qml.qnode(dev)
+        def circuit(n):
+            qml.CoherentState(alpha, 0, wires=0)
+            return qml.var.NumberState(np.array([n]), 0)
+
+        for n in range(3):
+            var = circuit(n)
+            mean = np.abs(np.exp(-np.abs(alpha)**2/2)*alpha**n/np.sqrt(fac(n)))**2
+            self.assertAlmostEqual(var, mean*(1-mean), delta=self.tol)
+
+        # test correct variance for number state expectation |<n|S(r)>|^2
+        # on a squeezed state
+        n = 1
+        r = 0.4523
+
+        @qml.qnode(dev)
+        def circuit(n):
+            qml.SqueezedState(r, 0, wires=0)
+            return qml.var.NumberState(np.array([2*n]), 0)
+
+        var = circuit(n)
+        mean = np.abs(np.sqrt(fac(2*n))/(2**n*fac(n))*(-np.tanh(r))**n/np.sqrt(np.cosh(r)))**2
+        self.assertAlmostEqual(var, mean*(1-mean), delta=self.tol)
 
 
 if __name__ == '__main__':
