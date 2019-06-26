@@ -14,6 +14,7 @@
 """
 Unit tests for the Fock plugin.
 """
+import pytest
 import unittest
 import logging as log
 log.getLogger()
@@ -354,11 +355,54 @@ class FockTests(BaseTest):
         self.assertAlmostEqual(circuit(r1, r2), expected)
 
 
-if __name__ == '__main__':
-    # run the tests in this file
-    suite = unittest.TestSuite()
-    for t in (FockTests,):
-        ttt = unittest.TestLoader().loadTestsFromTestCase(t)
-        suite.addTests(ttt)
+class TestVariance:
+    """Test for the device variance"""
 
-    unittest.TextTestRunner().run(suite)
+    def test_first_order_cv(self):
+        """Test variance of a first order CV expectation value"""
+        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=15)
+
+        @qml.qnode(dev)
+        def circuit(r, phi):
+            qml.Squeezing(r, 0, wires=0)
+            qml.Rotation(phi, wires=0)
+            return qml.var(qml.X(0))
+
+        r = 0.543
+        phi = -0.654
+
+        var = circuit(r, phi)
+        expected = np.exp(2*r)*np.sin(phi)**2 + np.exp(-2*r)*np.cos(phi)**2
+        assert np.allclose(var, expected, atol=1e-3, rtol=0)
+
+        # circuit jacobians
+        gradA = circuit.jacobian([r, phi], method='A')
+        gradF = circuit.jacobian([r, phi], method='F')
+        expected = np.array([
+            2*np.exp(2*r)*np.sin(phi)**2 - 2*np.exp(-2*r)*np.cos(phi)**2,
+            2*np.sinh(2*r)*np.sin(2*phi)
+        ])
+        assert np.allclose(gradA, expected, atol=1e-3, rtol=0)
+        assert np.allclose(gradF, expected, atol=0.05, rtol=0)
+
+    def test_second_order_cv(self):
+        """Test variance of a second order CV expectation value"""
+        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=15)
+
+        @qml.qnode(dev)
+        def circuit(n, a):
+            qml.ThermalState(n, wires=0)
+            qml.Displacement(a, 0, wires=0)
+            return qml.var(qml.MeanPhoton(0))
+
+        n = 0.12
+        a = 0.765
+
+        var = circuit(n, a)
+        expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
+        assert np.allclose(var, expected, atol=1e-3, rtol=0)
+
+        # circuit jacobians
+        gradF = circuit.jacobian([n, a], method='F')
+        expected = np.array([2*a**2+2*n+1, 2*a*(2*n+1)])
+        assert np.allclose(gradF, expected, atol=1e-3, rtol=0)
