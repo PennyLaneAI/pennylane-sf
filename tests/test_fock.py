@@ -358,7 +358,7 @@ class FockTests(BaseTest):
 class TestVariance:
     """Test for the device variance"""
 
-    def test_first_order_cv(self):
+    def test_first_order_cv(self, tol):
         """Test variance of a first order CV expectation value"""
         dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=15)
 
@@ -368,12 +368,12 @@ class TestVariance:
             qml.Rotation(phi, wires=0)
             return qml.var(qml.X(0))
 
-        r = 0.543
+        r = 0.105
         phi = -0.654
 
         var = circuit(r, phi)
         expected = np.exp(2*r)*np.sin(phi)**2 + np.exp(-2*r)*np.cos(phi)**2
-        assert np.allclose(var, expected, atol=1e-3, rtol=0)
+        assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
         gradA = circuit.jacobian([r, phi], method='A')
@@ -382,10 +382,10 @@ class TestVariance:
             2*np.exp(2*r)*np.sin(phi)**2 - 2*np.exp(-2*r)*np.cos(phi)**2,
             2*np.sinh(2*r)*np.sin(2*phi)
         ])
-        assert np.allclose(gradA, expected, atol=1e-3, rtol=0)
-        assert np.allclose(gradF, expected, atol=0.05, rtol=0)
+        assert np.allclose(gradA, expected, atol=tol, rtol=0)
+        assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
-    def test_second_order_cv(self):
+    def test_second_order_cv(self, tol):
         """Test variance of a second order CV expectation value"""
         dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=15)
 
@@ -396,13 +396,13 @@ class TestVariance:
             return qml.var(qml.MeanPhoton(0))
 
         n = 0.12
-        a = 0.765
+        a = 0.105
 
         var = circuit(n, a)
         expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
-        assert np.allclose(var, expected, atol=1e-3, rtol=0)
+        assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
         gradF = circuit.jacobian([n, a], method='F')
         expected = np.array([2*a**2+2*n+1, 2*a*(2*n+1)])
-        assert np.allclose(gradF, expected, atol=1e-3, rtol=0)
+        assert np.allclose(gradF, expected, atol=tol, rtol=0)
