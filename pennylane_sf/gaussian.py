@@ -68,7 +68,7 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
         'Squeezing': Sgate
     }
 
-    _expectation_map = {
+    _observable_map = {
         'MeanPhoton': mean_photon,
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
@@ -80,5 +80,5 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
 
     _circuits = {}
 
-    def pre_expval(self):
+    def pre_measure(self):
         self.state = self.eng.run('gaussian')

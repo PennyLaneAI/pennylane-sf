@@ -22,8 +22,8 @@ Base simulator class
 A base class for constructing Strawberry Fields devices for PennyLane.
 This class provides all the boilerplate for supporting PennyLane;
 inheriting devices simply need to provide their engine run command
-in :meth:`~.StrawberryFieldsSimulator.pre_expval`, as well as defining their ``_operation_map``
-and ``_expectation_map``, mapping PennyLane operations to their
+in :meth:`~.StrawberryFieldsSimulator.pre_measure`, as well as defining their ``_operation_map``
+and ``_observable_map``, mapping PennyLane operations to their
 Strawberry Fields counterparts.
 
 Classes
@@ -51,18 +51,18 @@ class StrawberryFieldsSimulator(Device):
     Args:
         wires (int): the number of modes to initialize the device in
         shots (int): Number of circuit evaluations/random samples used
-            to estimate expectation values of expectations.
+            to estimate expectation values of observables.
             For simulator devices, 0 means the exact EV is returned.
         hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
     """
     name = 'Strawberry Fields Simulator PennyLane plugin'
-    pennylane_requires = '>=0.2.0'
+    pennylane_requires = '>=0.4.0'
     version = __version__
     author = 'Josh Izaac'
 
     short_name = 'strawberryfields'
     _operation_map = {}
-    _expectation_map = {}
+    _observable_map = {}
 
     def __init__(self, wires, *, shots=0, hbar=2):
         super().__init__(wires, shots)
@@ -98,21 +98,22 @@ class StrawberryFieldsSimulator(Device):
         op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
     @abc.abstractmethod
-    def pre_expval(self):
+    def pre_measure(self):
         """Run the engine"""
         raise NotImplementedError
 
-    def expval(self, expectation, wires, par):
-        """Evaluate an expectation.
+    def expval(self, observable, wires, par):
+        """Evaluate the expectation of an observable.
 
         Args:
-            expectation (str): name of the expectation
-            wires (Sequence[int]): subsystems the expectation is evaluated on
-            par (tuple): parameters for the expectation
+            observable (str): name of the observable
+            wires (Sequence[int]): subsystems the observable is evaluated on
+            par (tuple): parameters for the observable
+
         Returns:
             float: expectation value
         """
-        ex, var = self._expectation_map[expectation](self.state, wires, par)
+        ex, var = self._observable_map[observable](self.state, wires, par)
 
         if self.shots != 0:
             # estimate the expectation value
@@ -121,6 +122,20 @@ class StrawberryFieldsSimulator(Device):
             ex = np.random.normal(ex, np.sqrt(var / self.shots))
 
         return ex
+
+    def var(self, observable, wires, par):
+        """Evaluate the variance of an observable.
+
+        Args:
+            observable (str): name of the observable
+            wires (Sequence[int]): subsystems the observable is evaluated on
+            par (tuple): parameters for the observable
+
+        Returns:
+            float: variance value
+        """
+        _, var = self._observable_map[observable](self.state, wires, par)
+        return var
 
     def reset(self):
         """Reset the device"""
@@ -142,10 +157,10 @@ class StrawberryFieldsSimulator(Device):
         return set(self._operation_map.keys())
 
     @property
-    def expectations(self):
-        """Get the supported set of expectations.
+    def observables(self):
+        """Get the supported set of observables.
 
         Returns:
-            set[str]: the set of PennyLane expectation names the device supports
+            set[str]: the set of PennyLane observable names the device supports
         """
-        return set(self._expectation_map.keys())
+        return set(self._observable_map.keys())
