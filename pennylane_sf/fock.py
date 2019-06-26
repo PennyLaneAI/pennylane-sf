@@ -82,7 +82,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         'CubicPhase': Vgate
     }
 
-    _expectation_map = {
+    _observable_map = {
         'MeanPhoton': mean_photon,
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
@@ -98,5 +98,5 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         super().__init__(wires, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
 
-    def pre_expval(self):
+    def pre_measure(self):
         self.state = self.eng.run('fock', cutoff_dim=self.cutoff)

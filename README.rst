@@ -38,7 +38,7 @@ Features
 
 * Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
-* Supports all core PennyLane operations and expectation values across the two devices.
+* Supports all core PennyLane operations and observables across the two devices.
 
 * Combine Strawberry Fields optimized simulator suite with PennyLane's automatic differentiation and optimization.
 

@@ -14,7 +14,6 @@
 """
 Unit tests for the Fock plugin.
 """
-import inspect
 import unittest
 import logging as log
 log.getLogger()
@@ -70,7 +69,7 @@ class FockTests(BaseTest):
 
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
         gates = set(dev._operation_map.keys())
-        all_gates = {m[0] for m in inspect.getmembers(qml.ops, inspect.isclass)}
+        all_gates = qml.ops._cv__ops__
 
         for g in all_gates - gates:
             op = getattr(qml.ops, g)
@@ -86,9 +85,9 @@ class FockTests(BaseTest):
                 op(*args, wires=wires)
 
                 if issubclass(op, qml.operation.CV):
-                    return qml.expval.MeanPhoton(0)
+                    return qml.expval(qml.MeanPhoton(0))
                 else:
-                    return qml.expval.PauliZ(0)
+                    return qml.expval(qml.PauliZ(0))
 
             with self.assertRaisesRegex(qml.DeviceError,
                 "Gate {} not supported on device strawberryfields.fock".format(g)):
@@ -100,11 +99,11 @@ class FockTests(BaseTest):
         self.logTestName()
 
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
-        obs = set(dev._expectation_map.keys())
-        all_obs = set(qml.expval.__all__)
+        obs = set(dev._observable_map.keys())
+        all_obs = set(qml.ops._cv__obs__)
 
         for g in all_obs - obs:
-            op = getattr(qml.expval, g)
+            op = getattr(qml.ops, g)
 
             if op.num_wires == 0:
                 wires = [0]
@@ -114,7 +113,7 @@ class FockTests(BaseTest):
             @qml.qnode(dev)
             def circuit(*args):
                 args = prep_par(args, op)
-                return op(*args, wires=wires)
+                return qml.expval(op(*args, wires=wires))
 
             with self.assertRaisesRegex(qml.DeviceError,
                 "Expectation {} not supported on device strawberryfields.fock".format(g)):
@@ -130,7 +129,7 @@ class FockTests(BaseTest):
         @qml.qnode(dev)
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
-            return qml.expval.MeanPhoton(0)
+            return qml.expval(qml.MeanPhoton(0))
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -144,7 +143,7 @@ class FockTests(BaseTest):
         @qml.qnode(dev)
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
-            return qml.expval.MeanPhoton(0)
+            return qml.expval(qml.MeanPhoton(0))
 
         x = 1
 
@@ -181,7 +180,7 @@ class FockTests(BaseTest):
             def circuit(*args):
                 qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*args, wires=wires)
-                return qml.expval.MeanPhoton(0), qml.expval.MeanPhoton(1)
+                return qml.expval(qml.MeanPhoton(0)), qml.expval(qml.MeanPhoton(1))
 
             # compare to reference SF engine
             def SF_reference(*args):
@@ -225,12 +224,12 @@ class FockTests(BaseTest):
 
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
 
-        expectations = list(dev._expectation_map.items())
+        expectations = list(dev._observable_map.items())
         for g, sfop in expectations:
             log.info('\tTesting expectation {}...'.format(g))
             self.assertTrue(dev.supported(g))
 
-            op = getattr(qml.expval, g)
+            op = getattr(qml.ops, g)
             if op.num_wires == 0:
                 wires = [0]
             else:
@@ -240,7 +239,7 @@ class FockTests(BaseTest):
             def circuit(*args):
                 qml.Displacement(0.1, 0, wires=0)
                 qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
-                return op(*args, wires=wires)
+                return qml.expval(op(*args, wires=wires))
 
             # compare to reference SF engine
             def SF_reference(*args):
@@ -276,8 +275,8 @@ class FockTests(BaseTest):
 
         @qml.qnode(dev)
         def circuit(x):
-            qml.Displacement(x, 0, 0)
-            return qml.expval.PolyXP(Q, 0)
+            qml.Displacement(x, 0, wires=0)
+            return qml.expval(qml.PolyXP(Q, 0))
 
         # test X expectation
         self.assertAlmostEqual(circuit(a), hbar*a)
@@ -286,9 +285,9 @@ class FockTests(BaseTest):
 
         @qml.qnode(dev)
         def circuit(x):
-            qml.ThermalState(nbar, 0)
-            qml.Displacement(x, 0, 0)
-            return qml.expval.PolyXP(Q, 0)
+            qml.ThermalState(nbar, wires=0)
+            qml.Displacement(x, 0, wires=0)
+            return qml.expval(qml.PolyXP(Q, 0))
 
         # test X expectation
         self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
@@ -307,8 +306,8 @@ class FockTests(BaseTest):
         # test correct number state expectation |<n|a>|^2
         @qml.qnode(dev)
         def circuit(x):
-            qml.Displacement(x, 0, 0)
-            return qml.expval.NumberState(np.array([2]), wires=0)
+            qml.Displacement(x, 0, wires=0)
+            return qml.expval(qml.NumberState(np.array([2]), wires=0))
 
         expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
         self.assertAlmostEqual(circuit(a), expected)
@@ -316,8 +315,8 @@ class FockTests(BaseTest):
         # test correct number state expectation |<n|S(r)>|^2
         @qml.qnode(dev)
         def circuit(x):
-            qml.Squeezing(x, 0, 0)
-            return qml.expval.NumberState(np.array([2, 0]), wires=[0, 1])
+            qml.Squeezing(x, 0, wires=0)
+            return qml.expval(qml.NumberState(np.array([2, 0]), wires=[0, 1]))
 
         expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
         self.assertAlmostEqual(circuit(r), expected)
@@ -335,9 +334,9 @@ class FockTests(BaseTest):
 
         @qml.qnode(dev)
         def circuit(x, y):
-            qml.Squeezing(x, 0, 0)
-            qml.Squeezing(y, 0, 1)
-            return qml.expval.Identity(wires=[0, 1])
+            qml.Squeezing(x, 0, wires=0)
+            qml.Squeezing(y, 0, wires=1)
+            return qml.expval(qml.Identity(wires=[0, 1]))
 
         # reference SF circuit
         def SF_reference_trace(x, y):

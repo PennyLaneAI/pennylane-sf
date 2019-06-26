@@ -38,11 +38,11 @@ import numpy as np
 from strawberryfields.backends.states import BaseFockState
 from strawberryfields.backends.gaussianbackend.states import GaussianState
 
-import pennylane.expval
+import pennylane.ops
 
 
 def identity(state, wires, params):
-    """Computes the expectation value of the ``qml.expval.Identity``
+    """Computes the expectation value of ``qml.Identity``
     observable in Strawberry Fields, corresponding to the trace.
 
     Args:
@@ -78,7 +78,7 @@ def identity(state, wires, params):
 
 
 def mean_photon(state, wires, params):
-    """Computes the expectation value of the ``qml.expval.MeanPhoton``
+    """Computes the expectation value of the ``qml.MeanPhoton``
     observable in Strawberry Fields.
 
     Args:
@@ -94,7 +94,7 @@ def mean_photon(state, wires, params):
 
 
 def number_state(state, wires, params):
-    """Computes the expectation value of the ``qml.expval.NumberState``
+    """Computes the expectation value of the ``qml.NumberState``
     observable in Strawberry Fields.
 
     Args:
@@ -149,7 +149,7 @@ def number_state(state, wires, params):
 
 
 def homodyne(phi=None):
-    """Function factory that returns the ``qml.expval.Homodyne`` expectation
+    """Function factory that returns the ``qml.Homodyne`` expectation
     function for Strawberry Fields.
 
     ``homodyne(phi)`` returns a function
@@ -199,7 +199,7 @@ def poly_xp(state, wires, params):
     Q = params[0]
 
     # HACK, we need access to the Poly instance in order to expand the matrix!
-    op = pennylane.expval.PolyXP(Q, wires=wires, do_queue=False)
+    op = pennylane.ops.PolyXP(Q, wires=wires, do_queue=False)
     Q = op.heisenberg_obs(state.num_modes)
 
     if Q.ndim == 1:

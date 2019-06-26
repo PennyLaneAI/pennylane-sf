@@ -34,7 +34,7 @@ This function is then converted into a QNode which is placed on the :code:`straw
 >>> def quantum_function(x, theta):
 >>> 	qml.Displacement(x, 0, wires=0)
 >>> 	qml.Beamsplitter(theta, 0, wires=[0, 1])
->>> 	return qml.expval.MeanPhoton(0)
+>>> 	return qml.expval(qml.MeanPhoton(0))
 
 We can evaluate the QNode for arbitrary values of the circuit parameters:
 
@@ -65,7 +65,7 @@ The Strawberry Fields simulators accept additional arguments beyond the PennyLan
 	Default value is :math:`\hbar=2`.
 
 ``shots=0``
-	The number of circuit evaluations/random samples used to estimate expectation values of expectations.
+	The number of circuit evaluations/random samples used to estimate expectation values of observables.
 	The default value of 0 means that the exact expectation value is returned.
 
 	If shots is non-zero, the Strawberry Fields devices calculate the variance of the expectation value(s),
@@ -78,18 +78,18 @@ Supported operations
 
 
 :class:`strawberryfields.fock <~StrawberryFieldsFock>`
-	The Strawberry Fields Fock device supports all continuous-variable (CV) operations and expectations
+	The Strawberry Fields Fock device supports all continuous-variable (CV) operations and observables
 	provided by PennyLane, including both Gaussian and non-Gaussian operations:
 
 	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``Kerr``, ``CrossKerr``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CubicPhase``, ``CatState``, ``CoherentState``, ``FockDensityMatrix``, ``DisplacedSqueezedState``, ``FockState``, ``FockStateVector``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	* **Supported expectations:** ``Identity``, ``MeanPhoton``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
+	* **Supported observables:** ``Identity``, ``MeanPhoton``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
 
 
 :class:`strawberryfields.gaussian <~StrawberryFieldsGaussian>`
 	The Strawberry Fields Gaussian device supports all *Gaussian* continuous-variable (CV) operations and
-	expectations provided by PennyLane:
+	observables provided by PennyLane:
 
 	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CoherentState``, ``DisplacedSqueezedState``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	* **Supported expectations:** ``Identity``, ``MeanPhoton``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
+	* **Supported observables:** ``Identity``, ``MeanPhoton``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
