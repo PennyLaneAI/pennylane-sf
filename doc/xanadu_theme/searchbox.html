@@ -1,11 +1,10 @@
 {%- if pagename != "search" %}
 <div class="sidebar-block search-block">
   <div class="sidebar-wrapper">
-  <!-- <div id="project-name">{{ theme_project_nav_name or shorttitle }}</div> -->
     <a href="{{ homepage() }}">
       <div id="project-name">
-        <img src="{{ pathto('_static/pennylane.png', 1) }}" width=100% style="margin-bottom:12px;"></img>
-        <p style="font-size:18px;margin:0;padding:0;line-height:1;text-transform:none!important">Strawberry Fields Plugin</p>
+        <img src="{{ pathto(theme_project_logo, 1) }}" width=100%></img>
+        <p style="font-size:16px;margin:0;padding:0;line-height:1;text-transform:none!important;font-variant: small-caps;margin-top:10px;">{{ theme_project_nav_name or shorttitle }}</p>
       </div>
     </a>
     <div id="main-search">

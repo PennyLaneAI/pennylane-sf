@@ -235,31 +235,19 @@ html_theme_path = ['.']
 
 # xanadu theme options (see theme.conf for more information)
 html_theme_options = {
-
     # Set the path to a special layout to include for the homepage
-    # "index_template": "special_index.html",
+    # "homepage": "special_index.html",
 
     # Set the name of the project to appear in the left sidebar.
-    "project_nav_name": "PennyLane-SF",
+    "project_nav_name": "Strawberry Fields Plugin",
+    "project_logo": "_static/pennylane.png",
+    "touch_icon": "_static/xanadu_logo.png",
+    "touch_icon_small": "_static/xanadu_logo_small.png",
+    "large_toc": False,
 
-    # Set your Disqus short name to enable comments
-    # "disqus_comments_shortname": "pennylane-sf-1",
-
-    # Set you GA account ID to enable tracking
-    # "google_analytics_account": "UA-116279123-2",
-
-    # Path to a touch icon
-    "touch_icon": "logo_new.png",
-
-    # Specify a base_url used to generate sitemap.xml links. If not
-    # specified, then no sitemap will be built.
-    # "base_url": ""
-
-    # Allow a separate homepage from the master_doc
-    # "homepage": "index",
-
-    # Allow the project link to be overriden to a custom URL.
-    # "projectlink": "http://myproject.url",
+    # gallery options
+    "github_repo": "XanaduAI/PennyLane-SF",
+    # "gallery_dirs": sphinx_gallery_conf['gallery_dirs']
 }
 
 edit_on_github_project = 'XanaduAI/pennylane-sf'
