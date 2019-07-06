@@ -35,6 +35,7 @@ Code details
 """
 import numpy as np
 
+import strawberryfields as sf
 from strawberryfields.backends.states import BaseFockState
 from strawberryfields.backends.gaussianbackend.states import GaussianState
 
@@ -125,7 +126,7 @@ def number_state(state, wires, params):
         mu, cov = state.reduced_gaussian(modes=wires)
 
         # calculate reduced Q
-        Q = state._gmode.qmat() # pylint: disable=protected-access
+        Q = state.qmat # pylint: disable=protected-access
         ind = np.concatenate([np.array(wires), N+np.array(wires)])
         rows = ind.reshape((-1, 1))
         cols = ind.reshape((1, -1))
@@ -140,8 +141,12 @@ def number_state(state, wires, params):
         X = np.block([[O, I], [I, O]])
         A = X @ (np.identity(2*M)-np.linalg.inv(Q))
 
+        # scale so that hbar = 2
+        mu /= np.sqrt(sf.hbar/2)
+        cov /= sf.hbar/2
+
         # create reduced Gaussian state
-        new_state = GaussianState((mu, cov), M, Q, A, hbar=state.hbar)
+        new_state = GaussianState((mu, cov), M, Q, A)
         ex = new_state.fock_prob(n)
 
     var = ex - ex**2

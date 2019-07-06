@@ -33,6 +33,8 @@ Classes
 
 import numpy as np
 
+import strawberryfields as sf
+
 #import state preparations
 from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSqueezed,
                                   Fock, Ket, Squeezed, Thermal, Gaussian)
@@ -99,4 +101,8 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         self.cutoff = cutoff_dim
 
     def pre_measure(self):
-        self.state = self.eng.run('fock', cutoff_dim=self.cutoff)
+        self.eng = sf.Engine("fock", backend_options={"cutoff_dim": self.cutoff})
+        results = self.eng.run(self.prog)
+
+        self.state = results.state
+        self.samples = results.samples

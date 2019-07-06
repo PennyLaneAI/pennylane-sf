@@ -67,15 +67,18 @@ class StrawberryFieldsSimulator(Device):
     def __init__(self, wires, *, shots=0, hbar=2):
         super().__init__(wires, shots)
         self.hbar = hbar
+        self.prog = None
         self.eng = None
         self.q = None
         self.state = None
+        self.samples = None
 
     def execution_context(self):
         """Initialize the engine"""
         self.reset()
-        self.eng, self.q = sf.Engine(self.num_wires, hbar=self.hbar)
-        return self.eng
+        self.prog = sf.Program(self.num_wires)
+        self.q = self.prog.register
+        return self.prog
 
     def apply(self, operation, wires, par):
         """Apply a quantum operation.
@@ -139,13 +142,23 @@ class StrawberryFieldsSimulator(Device):
 
     def reset(self):
         """Reset the device"""
+        sf.hbar = self.hbar
+
         if self.eng is not None:
             self.eng.reset()
             self.eng = None
+
         if self.state is not None:
             self.state = None
+
         if self.q is not None:
             self.q = None
+
+        if self.prog is not None:
+            self.prog = None
+
+        if self.samples is not None:
+            self.samples = None
 
     @property
     def operations(self):

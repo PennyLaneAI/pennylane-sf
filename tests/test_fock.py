@@ -186,12 +186,13 @@ class FockTests(BaseTest):
             # compare to reference SF engine
             def SF_reference(*args):
                 """SF reference circuit"""
-                eng, q = sf.Engine(2)
-                with eng:
+                eng = sf.Engine("fock", backend_options={"cutoff_dim": cutoff_dim})
+                prog = sf.Program(2)
+                with prog.context as q:
                     sf.ops.S2gate(0.1) | q
                     sfop(*args) | [q[i] for i in wires]
 
-                state = eng.run('fock', cutoff_dim=cutoff_dim)
+                state = eng.run(prog).state
                 return state.mean_photon(0)[0], state.mean_photon(1)[0]
 
             if g == 'GaussianState':
@@ -245,12 +246,13 @@ class FockTests(BaseTest):
             # compare to reference SF engine
             def SF_reference(*args):
                 """SF reference circuit"""
-                eng, q = sf.Engine(2)
-                with eng:
+                eng = sf.Engine("fock", backend_options={"cutoff_dim": cutoff_dim})
+                prog = sf.Program(2)
+                with prog.context as q:
                     sf.ops.Xgate(0.2) | q[0]
                     sf.ops.S2gate(0.1) | q
 
-                state = eng.run('fock', cutoff_dim=cutoff_dim)
+                state = eng.run(prog).state
                 return sfop(state, wires, args)[0]
 
             if op.num_params == 0:
@@ -342,12 +344,13 @@ class FockTests(BaseTest):
         # reference SF circuit
         def SF_reference_trace(x, y):
             """SF reference circuit"""
-            eng, q = sf.Engine(2)
-            with eng:
+            eng = sf.Engine("fock", backend_options={"cutoff_dim": cutoff_dim})
+            prog = sf.Program(2)
+            with prog.context as q:
                 sf.ops.Sgate(x) | q[0]
                 sf.ops.Sgate(y) | q[1]
 
-            state = eng.run('fock', cutoff_dim=cutoff_dim)
+            state = eng.run(prog).state
             return state.trace()
 
         # test trace < 1 for high squeezing
