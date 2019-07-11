@@ -2,6 +2,3 @@ sphinxcontrib-bibtex
 ipykernel
 nbsphinx
 pygments-github-lexers
-strawberryfields>=0.11
-pennylane>=0.4
-tensorflow==1.3
