@@ -35,6 +35,8 @@ Code details
 
 import numpy as np
 
+import strawberryfields as sf
+
 #import state preparations
 from strawberryfields.ops import (Coherent, DisplacedSqueezed,
                                   Squeezed, Thermal, Gaussian)
@@ -81,4 +83,8 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
     _circuits = {}
 
     def pre_measure(self):
-        self.state = self.eng.run('gaussian')
+        self.eng = sf.Engine("gaussian")
+        results = self.eng.run(self.prog)
+
+        self.state = results.state
+        self.samples = results.samples

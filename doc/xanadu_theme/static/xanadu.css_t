@@ -10,6 +10,8 @@ body {
   font-size: 15px;
   color: #333;
   line-height: 1.4;
+  width: 100%;
+  min-height: calc(100vh - 90px);
 }
 
 .css-transitions-only-after-page-load * {
@@ -29,15 +31,19 @@ body {
   width: 300px;
   overflow: hidden;
   /*background: #fafafa;*/
-  background: #333;
+  background: #efefef;
 }
 
 #right-column {
-  padding: 20px 0;
+  position: relative;
+  padding: 20px 0px 100px 0px;
   margin-left: 300px;
   background-color: #fff;
   max-width: 900px;
   float: left;
+  width: 100%;
+  min-height: calc(100vh - 90px);
+  height: auto;
 }
 
 a.headerlink {
@@ -214,7 +220,7 @@ blockquote {
 
 .btn-xanadu {
   color: #ffffff;
-  background-color: #19B37B;
+  background-color: {{ theme_navigation_button }};
   border: none;
 }
 
@@ -224,7 +230,7 @@ blockquote {
 .btn-xanadu.active,
 .open .dropdown-toggle.btn-xanadu {
   color: #ffffff;
-  background-color: #0E714D;
+  background-color: {{ theme_navigation_button_hover }};
   border: none;
 }
 
@@ -321,7 +327,7 @@ div.sphinxsidebar h4 {
 
 div.sphinxsidebar p {
   padding: 0px 21px;
-  color: #666;
+  color: {{ theme_toc_caption }};
   text-transform: uppercase;
   font-size: 12px;
   font-weight: bold;
@@ -330,10 +336,14 @@ div.sphinxsidebar p {
   /*text-align: center;*/
 }
 
+div.sphinxsidebar a:hover {
+  text-decoration: none;
+}
+
 .sidebar-toc {
   font-size: 15px;
   position: absolute;
-  background-color: #333;
+  background-color: #efefef;
   width: 300px;
 }
 
@@ -346,7 +356,7 @@ div.sphinxsidebar .sidebar-toc ul {
 div.sphinxsidebar .sidebar-toc a {
   font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
   /*color: #444;*/
-  color: #ddd;
+  color: #606060;
   text-decoration: none;
 }
 
@@ -361,8 +371,7 @@ div.sphinxsidebar .sidebar-toc a {
 }
 
 .sidebar-toc ul li a:hover {
-  /*background-color: #428bca;*/
-  background-color: #119a68;
+  background-color: {{ theme_toc_hover }};
   color: #fff;
 }
 
@@ -389,7 +398,7 @@ div.sphinxsidebar .sidebar-toc a {
 }
 
 .sidebar-toc ul li.toctree-l2 {
-  background-color: #494949;
+  background-color: #f9f9f9;
 }
 
 .sidebar-toc ul li.toctree-l3 a {
@@ -462,15 +471,13 @@ div.sphinxsidebar input {
   font-family: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
   margin: 0 0 20px 0;
   font-weight: bold;
-  background-color: #eee;
-  /*background-color: #daf0e9;*/
-  /*border-bottom: 1px solid #fff;*/
   -o-transition:.5s;
   -ms-transition:.5s;
   -moz-transition:.5s;
   -webkit-transition:.5s;
   outline: 1px solid transparent;
   transition:.5s;
+  background-color: #efefef;
 }
 
 .text-logo.active {
@@ -513,15 +520,7 @@ div.sphinxsidebar input {
 
 .text-logo:hover {
   color: #333;
-  /*background-color: #daf0e9;*/
-  background-color: #f0dae2;
-  text-decoration: none;
-}
-
-.text-logo:hover {
-  color: #333;
-  /*background-color: #daf0e9;*/
-  background-color: #f0dae2;
+  background: {{ theme_logo_hover_bg }};
   text-decoration: none;
 }
 
@@ -679,11 +678,14 @@ td {
 -------------------------------------------------- */
 
 .footer-relations {
-  display: relative;
+  position: absolute;
   border-top: 1px solid #ccc;
-  padding: 12px 45px;
+  padding: 12px 25px;
   margin-top: 30px;
   font-size: 24px;
+  max-width: 900px;
+  width: 100%;
+  bottom: 0;
 }
 
 .rel-spacer {
@@ -1037,6 +1039,14 @@ div.seealso {
   border: 1px solid #ff6;
 }
 
+
+.admonition.see {
+    font-style: italic;
+    margin: -15px 0px 10px 0px;
+    padding: 5px;
+    border-color: #ddd white white white;
+}
+
 div.admonition tt.xref, div.admonition a tt {
   border-bottom: 1px solid #fafafa;
 }
@@ -1057,7 +1067,7 @@ div.admonition p.last {
 
 .docstable th:first-child,
 .docstable td:first-child {
-  text-align: center;
+  text-align: center !important;
 }
 
 .docstable tr.row-even th,
@@ -1066,7 +1076,7 @@ div.admonition p.last {
   vertical-align: top;
   border-top: 1px solid #fff;
   border-right: 1px solid #fff;
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
 }
 
@@ -1076,7 +1086,7 @@ div.admonition p.last {
   vertical-align: top;
   border-top: 1px solid #fff;
   border-right: 1px solid #eee;
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
 }
 
@@ -1087,9 +1097,10 @@ div.admonition p.last {
 
 .docstable thead th {
   vertical-align: bottom;
-  border-bottom: 2px solid #119a68 !important;
-  border-right: 1px solid #edf7f4 !important;
-  background-color: #edf7f4;
+  border-bottom: 2px solid {{ theme_table_header_border }} !important;
+  border-right: 1px solid {{ theme_table_header_bg }} !important;
+  background-color: {{ theme_table_header_bg }};
+  text-align: center !important;
 }
 
 .docstable tbody + tbody {
@@ -1485,13 +1496,14 @@ span.eqno {
   }
 
   .footer-relations {
-    padding: 12px 0;
+    padding: 12px 10px 12px 10px;
+    left: 0;
   }
 
   #right-column {
     margin-left: 0;
     margin-top: 0;
-    padding: 50px 20px 8px 20px;
+    padding: 50px 20px 80px 20px;
     width: 100%;
     float: none;
   }
@@ -1571,6 +1583,59 @@ span.eqno {
     padding-left: 20px;
     padding-right: 20px;
   }
+}
+
+/* Sphinx gallery
+-----------------------------------------*/
+
+
+#tutorial-type {
+  display: none;
+}
+
+.xanadu-call-to-action-links {
+  padding-top: 25px;
+  display: flex;
+/*   justify-content: center; */
+}
+
+@media (min-width: 1100px) and (max-width: 1239px) {
+  .xanadu-call-to-action-links {
+    padding-top: rem(40px);
+  }
+ }
+
+.xanadu-call-to-action-links #tutorial-type {
+    display: none;
+  }
+
+.xanadu-call-to-action-links a {
+    padding-right: 20px;
+    color: #000;
+    cursor: pointer;
+}
+
+.xanadu-call-to-action-links a:hover {
+  color: #fdb104;
+  text-decoration: none;
+}
+
+#download-python-link,
+#download-notebook-link,
+#github-view-link {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #c3c3c3;
+  padding-right: 40px;
+  display: flex;
+  align-items: center;
+  color: #747474;
+}
+
+#download-python-link:hover,
+#download-notebook-link:hover,
+#github-view-link:hover {
+  border-bottom-color: {{ theme_download_button }};
+  color: {{ theme_download_button }};
 }
 
 

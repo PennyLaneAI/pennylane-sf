@@ -175,12 +175,13 @@ class GaussianTests(BaseTest):
             # compare to reference SF engine
             def SF_reference(*x):
                 """SF reference circuit"""
-                eng, q = sf.Engine(2)
-                with eng:
+                eng = sf.Engine("gaussian")
+                prog = sf.Program(2)
+                with prog.context as q:
                     sf.ops.S2gate(0.1) | q
                     sfop(*x) | [q[i] for i in wires]
 
-                state = eng.run('gaussian')
+                state = eng.run(prog).state
                 return state.mean_photon(0)[0], state.mean_photon(1)[0]
 
             if g == 'GaussianState':
@@ -223,12 +224,13 @@ class GaussianTests(BaseTest):
             # compare to reference SF engine
             def SF_reference(*x):
                 """SF reference circuit"""
-                eng, q = sf.Engine(2)
-                with eng:
+                eng = sf.Engine("gaussian")
+                prog = sf.Program(2)
+                with prog.context as q:
                     sf.ops.Xgate(0.2) | q[0]
                     sf.ops.S2gate(0.1) | q
 
-                state = eng.run('gaussian')
+                state = eng.run(prog).state
                 return sfop(state, wires, x)[0]
 
             if op.num_params == 0:
