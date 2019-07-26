@@ -272,7 +272,7 @@ class GaussianTests(BaseTest):
         # test X expectation
         self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
 
-    def test_number_state(self):
+    def test_fock_state(self):
         """Test that FockStateProjector works as expected"""
         self.logTestName()
 
