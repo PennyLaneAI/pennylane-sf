@@ -71,7 +71,7 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
     }
 
     _observable_map = {
-        'MeanPhoton': mean_photon,
+        'NumberOperator': mean_photon,
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
         'Homodyne': homodyne(),

@@ -79,7 +79,7 @@ def identity(state, wires, params):
 
 
 def mean_photon(state, wires, params):
-    """Computes the expectation value of the ``qml.MeanPhoton``
+    """Computes the expectation value of the ``qml.NumberOperator``
     observable in Strawberry Fields.
 
     Args:
