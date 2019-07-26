@@ -88,7 +88,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         'NumberOperator': mean_photon,
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
-        'Homodyne': homodyne(),
+        'QuadOperator': homodyne(),
         'PolyXP': poly_xp,
         'NumberState': number_state,
         'Identity': identity

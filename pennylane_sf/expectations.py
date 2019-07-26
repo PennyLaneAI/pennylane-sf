@@ -154,7 +154,7 @@ def number_state(state, wires, params):
 
 
 def homodyne(phi=None):
-    """Function factory that returns the ``qml.Homodyne`` expectation
+    """Function factory that returns the ``qml.QuadOperator`` expectation
     function for Strawberry Fields.
 
     ``homodyne(phi)`` returns a function

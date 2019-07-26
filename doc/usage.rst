@@ -83,7 +83,7 @@ Supported operations
 
 	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``Kerr``, ``CrossKerr``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CubicPhase``, ``CatState``, ``CoherentState``, ``FockDensityMatrix``, ``DisplacedSqueezedState``, ``FockState``, ``FockStateVector``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
+	* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``QuadOperator``, ``PolyXP``
 
 
 :class:`strawberryfields.gaussian <~StrawberryFieldsGaussian>`
@@ -92,4 +92,4 @@ Supported operations
 
 	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CoherentState``, ``DisplacedSqueezedState``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
+	* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``QuadOperator``, ``PolyXP``
