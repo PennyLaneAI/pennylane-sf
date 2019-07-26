@@ -25,7 +25,7 @@ to the corresponding state methods in Strawberry Fields.
 .. autosummary::
     identity
     mean_photon
-    number_state
+    fock_state
     homodyne
     poly_xp
 
@@ -79,7 +79,7 @@ def identity(state, wires, params):
 
 
 def mean_photon(state, wires, params):
-    """Computes the expectation value of the ``qml.MeanPhoton``
+    """Computes the expectation value of the ``qml.NumberOperator``
     observable in Strawberry Fields.
 
     Args:
@@ -94,8 +94,8 @@ def mean_photon(state, wires, params):
     return state.mean_photon(wires[0])
 
 
-def number_state(state, wires, params):
-    """Computes the expectation value of the ``qml.NumberState``
+def fock_state(state, wires, params):
+    """Computes the expectation value of the ``qml.FockStateProjector``
     observable in Strawberry Fields.
 
     Args:
@@ -154,7 +154,7 @@ def number_state(state, wires, params):
 
 
 def homodyne(phi=None):
-    """Function factory that returns the ``qml.Homodyne`` expectation
+    """Function factory that returns the ``qml.QuadOperator`` expectation
     function for Strawberry Fields.
 
     ``homodyne(phi)`` returns a function

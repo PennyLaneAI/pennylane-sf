@@ -86,7 +86,7 @@ class FockTests(BaseTest):
                 op(*args, wires=wires)
 
                 if issubclass(op, qml.operation.CV):
-                    return qml.expval(qml.MeanPhoton(0))
+                    return qml.expval(qml.NumberOperator(0))
                 else:
                     return qml.expval(qml.PauliZ(0))
 
@@ -130,7 +130,7 @@ class FockTests(BaseTest):
         @qml.qnode(dev)
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
-            return qml.expval(qml.MeanPhoton(0))
+            return qml.expval(qml.NumberOperator(0))
 
         self.assertAlmostEqual(circuit(1), 1, delta=self.tol)
 
@@ -144,7 +144,7 @@ class FockTests(BaseTest):
         @qml.qnode(dev)
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
-            return qml.expval(qml.MeanPhoton(0))
+            return qml.expval(qml.NumberOperator(0))
 
         x = 1
 
@@ -181,7 +181,7 @@ class FockTests(BaseTest):
             def circuit(*args):
                 qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
                 op(*args, wires=wires)
-                return qml.expval(qml.MeanPhoton(0)), qml.expval(qml.MeanPhoton(1))
+                return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
             # compare to reference SF engine
             def SF_reference(*args):
@@ -258,7 +258,7 @@ class FockTests(BaseTest):
             if op.num_params == 0:
                 self.assertAllEqual(circuit(), SF_reference())
             elif op.num_params == 1:
-                if g == 'NumberState':
+                if g == 'FockStateProjector':
                     p = np.array([1])
                 else:
                     p = a_array if op.par_domain == 'A' else a
@@ -295,8 +295,8 @@ class FockTests(BaseTest):
         # test X expectation
         self.assertAlmostEqual(circuit(a), nbar+np.abs(a)**2)
 
-    def test_number_state(self):
-        """Test that NumberState works as expected"""
+    def test_fock_state(self):
+        """Test that FockStateProjector works as expected"""
         self.logTestName()
 
         cutoff_dim = 12
@@ -310,7 +310,7 @@ class FockTests(BaseTest):
         @qml.qnode(dev)
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
-            return qml.expval(qml.NumberState(np.array([2]), wires=0))
+            return qml.expval(qml.FockStateProjector(np.array([2]), wires=0))
 
         expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
         self.assertAlmostEqual(circuit(a), expected)
@@ -319,7 +319,7 @@ class FockTests(BaseTest):
         @qml.qnode(dev)
         def circuit(x):
             qml.Squeezing(x, 0, wires=0)
-            return qml.expval(qml.NumberState(np.array([2, 0]), wires=[0, 1]))
+            return qml.expval(qml.FockStateProjector(np.array([2, 0]), wires=[0, 1]))
 
         expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
         self.assertAlmostEqual(circuit(r), expected)
@@ -396,7 +396,7 @@ class TestVariance:
         def circuit(n, a):
             qml.ThermalState(n, wires=0)
             qml.Displacement(a, 0, wires=0)
-            return qml.var(qml.MeanPhoton(0))
+            return qml.var(qml.NumberOperator(0))
 
         n = 0.12
         a = 0.105

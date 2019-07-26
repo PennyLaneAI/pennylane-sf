@@ -34,7 +34,7 @@ This function is then converted into a QNode which is placed on the :code:`straw
 >>> def quantum_function(x, theta):
 >>> 	qml.Displacement(x, 0, wires=0)
 >>> 	qml.Beamsplitter(theta, 0, wires=[0, 1])
->>> 	return qml.expval(qml.MeanPhoton(0))
+>>> 	return qml.expval(qml.NumberOperator(0))
 
 We can evaluate the QNode for arbitrary values of the circuit parameters:
 
@@ -83,7 +83,7 @@ Supported operations
 
 	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``Kerr``, ``CrossKerr``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CubicPhase``, ``CatState``, ``CoherentState``, ``FockDensityMatrix``, ``DisplacedSqueezedState``, ``FockState``, ``FockStateVector``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	* **Supported observables:** ``Identity``, ``MeanPhoton``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
+	* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``QuadOperator``, ``PolyXP``
 
 
 :class:`strawberryfields.gaussian <~StrawberryFieldsGaussian>`
@@ -92,4 +92,4 @@ Supported operations
 
 	* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``, ``Displacement``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``, ``CoherentState``, ``DisplacedSqueezedState``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
 
-	* **Supported observables:** ``Identity``, ``MeanPhoton``, ``X``, ``P``, ``Homodyne``, ``PolyXP``
+	* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``QuadOperator``, ``PolyXP``
