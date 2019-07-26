@@ -90,7 +90,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         'P': homodyne(np.pi/2),
         'QuadOperator': homodyne(),
         'PolyXP': poly_xp,
-        'NumberState': number_state,
+        'FockStateProjector': number_state,
         'Identity': identity
     }
 

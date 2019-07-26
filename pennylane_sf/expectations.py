@@ -95,7 +95,7 @@ def mean_photon(state, wires, params):
 
 
 def number_state(state, wires, params):
-    """Computes the expectation value of the ``qml.NumberState``
+    """Computes the expectation value of the ``qml.FockStateProjector``
     observable in Strawberry Fields.
 
     Args:
