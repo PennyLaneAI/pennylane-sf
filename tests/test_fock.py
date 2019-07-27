@@ -169,7 +169,7 @@ class FockTests(BaseTest):
         gates = list(dev._operation_map.items())
         for g, sfop in gates:
             log.info('\tTesting gate {}...'.format(g))
-            self.assertTrue(dev.supported(g))
+            self.assertTrue(dev.supports_operation(g))
 
             op = getattr(qml.ops, g)
             if op.num_wires == 0:
@@ -229,7 +229,7 @@ class FockTests(BaseTest):
         expectations = list(dev._observable_map.items())
         for g, sfop in expectations:
             log.info('\tTesting expectation {}...'.format(g))
-            self.assertTrue(dev.supported(g))
+            self.assertTrue(dev.supports_observable(g))
 
             op = getattr(qml.ops, g)
             if op.num_wires == 0:
