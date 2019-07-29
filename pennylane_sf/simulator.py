@@ -73,6 +73,12 @@ class StrawberryFieldsSimulator(Device):
         self.state = None
         self.samples = None
 
+    @abc.abstractproperty
+    def _measure_map(self):
+        """Dictionary mapping the PennyLane observables
+        to Strawberry Fields measurement operators."""
+        raise NotImplementedError
+
     def execution_context(self):
         """Initialize the engine"""
         self.reset()
@@ -100,6 +106,20 @@ class StrawberryFieldsSimulator(Device):
         op = self._operation_map[operation](*sf_par)
         op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
+    def post_apply(self):
+        # append measurement operations if samples are requested.
+        for e in self.obs_queue:
+            if e.return_type == "sample" and e.name in self._measure_map:
+                # if samples are requested and supported, append
+                # the SF Measurement operator to the correct wire
+                wires = e.wires
+                op = self._measure_map[e.name]
+
+                if callable(op):
+                    op(*e.params) | [self.q[i] for i in wires]
+                else:
+                    op | [self.q[i] for i in wires]
+
     @abc.abstractmethod
     def pre_measure(self):
         """Run the engine"""
@@ -116,13 +136,11 @@ class StrawberryFieldsSimulator(Device):
         Returns:
             float: expectation value
         """
-        ex, var = self._observable_map[observable](self.state, wires, par)
+        if self.shots == 0:
+            ex, _ = self._observable_map[observable](self.state, wires, par)
 
-        if self.shots != 0:
-            # estimate the expectation value
-            # use central limit theorem, sample normal distribution once, only ok
-            # if shots is large (see https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem)
-            ex = np.random.normal(ex, np.sqrt(var / self.shots))
+        else:
+            ex = np.mean(self.sample(observable, wires, par))
 
         return ex
 
@@ -137,8 +155,25 @@ class StrawberryFieldsSimulator(Device):
         Returns:
             float: variance value
         """
-        _, var = self._observable_map[observable](self.state, wires, par)
+        if self.shots == 0:
+            _, var = self._observable_map[observable](self.state, wires, par)
+
+        else:
+            var = np.var(self.sample(observable, wires, par))
+
         return var
+
+    def sample(self, observable, wires, par, n=None):
+        if n is None:
+            n = self.shots
+
+        if observable in self._measure_map:
+            print(self.samples)
+            return self.samples[wires[0]]
+
+        mu, var = self._observable_map[observable](self.state, wires, par)
+
+        return np.random.normal(mu, np.sqrt(var), n)
 
     def reset(self):
         """Reset the device"""

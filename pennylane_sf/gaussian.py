@@ -44,6 +44,9 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
                                   Pgate, Rgate, S2gate, Sgate)
 
+# import measurements
+from strawberryfields.ops import MeasureFock, MeasureX, MeasureP, MeasureHomodyne
+
 from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
@@ -78,6 +81,13 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
         'PolyXP': poly_xp,
         'FockStateProjector': fock_state,
         'Identity': identity
+    }
+
+    _measure_map = {
+        'X': MeasureX,
+        'P': MeasureP,
+        'QuadOperator': MeasureHomodyne,
+        'FockStateProjector': MeasureFock()
     }
 
     _circuits = {}

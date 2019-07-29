@@ -42,6 +42,9 @@ from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSq
 from strawberryfields.ops import (BSgate, CKgate, CXgate, CZgate, Dgate,
                                   Kgate, Pgate, Rgate, S2gate, Sgate, Vgate)
 
+# import measurements
+from strawberryfields.ops import MeasureFock, MeasureX, MeasureP, MeasureHomodyne
+
 from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
@@ -92,6 +95,13 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         'PolyXP': poly_xp,
         'FockStateProjector': fock_state,
         'Identity': identity
+    }
+
+    _measure_map = {
+        'X': MeasureX,
+        'P': MeasureP,
+        'QuadOperator': MeasureHomodyne,
+        'FockStateProjector': MeasureFock()
     }
 
     _circuits = {}
