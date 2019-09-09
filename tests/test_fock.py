@@ -172,7 +172,7 @@ class FockTests(BaseTest):
             self.assertTrue(dev.supports_operation(g))
 
             op = getattr(qml.ops, g)
-            if op.num_wires == 0:
+            if op.num_wires <= 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
@@ -232,7 +232,7 @@ class FockTests(BaseTest):
             self.assertTrue(dev.supports_observable(g))
 
             op = getattr(qml.ops, g)
-            if op.num_wires == 0:
+            if op.num_wires <= 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
