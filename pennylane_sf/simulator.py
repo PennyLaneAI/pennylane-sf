@@ -50,10 +50,13 @@ class StrawberryFieldsSimulator(Device):
 
     Args:
         wires (int): the number of modes to initialize the device in
+        analytic (bool): indicates if the device should calculate expectations
+            and variances analytically
         shots (int): Number of circuit evaluations/random samples used
-            to estimate expectation values of observables.
-            For simulator devices, 0 means the exact EV is returned.
-        hbar (float): the convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`
+            to estimate expectation values of observables. If ``analytic=True``,
+            this setting is ignored.
+        hbar (float): the convention chosen in the canonical commutation
+            relation :math:`[x, p] = i \hbar`
     """
     name = 'Strawberry Fields Simulator PennyLane plugin'
     pennylane_requires = '>=0.5.0'
@@ -64,7 +67,7 @@ class StrawberryFieldsSimulator(Device):
     _operation_map = {}
     _observable_map = {}
 
-    def __init__(self, wires, *, shots=0, hbar=2):
+    def __init__(self, wires, *, analytic=True, shots=1000, hbar=2):
         super().__init__(wires, shots)
         self.hbar = hbar
         self.prog = None
@@ -72,6 +75,7 @@ class StrawberryFieldsSimulator(Device):
         self.q = None
         self.state = None
         self.samples = None
+        self.analytic = analytic
 
     def execution_context(self):
         """Initialize the engine"""
@@ -118,7 +122,7 @@ class StrawberryFieldsSimulator(Device):
         """
         ex, var = self._observable_map[observable](self.state, wires, par)
 
-        if self.shots != 0:
+        if not self.analytic:
             # estimate the expectation value
             # use central limit theorem, sample normal distribution once, only ok
             # if shots is large (see https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem)

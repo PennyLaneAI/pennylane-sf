@@ -51,10 +51,12 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
 
     Args:
         wires (int): the number of modes to initialize the device in
-        shots (int): Number of circuit evaluations/random samples
-            used to estimate expectation values of observables.
-            For simulator devices, 0 means the exact EV is returned.
+        analytic (bool): indicates if the device should calculate expectations
+            and variances analytically
         cutoff_dim (int): Fock-space truncation dimension
+        shots (int): Number of circuit evaluations/random samples used
+            to estimate expectation values of observables. If ``analytic=True``,
+            this setting is ignored.
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
@@ -96,8 +98,8 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
 
     _circuits = {}
 
-    def __init__(self, wires, *, cutoff_dim, shots=0, hbar=2):
-        super().__init__(wires, shots=shots, hbar=hbar)
+    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, hbar=2):
+        super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
 
     def pre_measure(self):

@@ -49,7 +49,17 @@ from .simulator import StrawberryFieldsSimulator
 
 
 class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
-    """StrawberryFields Gaussian device for PennyLane.
+    r"""StrawberryFields Gaussian device for PennyLane.
+
+    Args:
+        wires (int): the number of modes to initialize the device in
+        analytic (bool): indicates if the device should calculate expectations
+            and variances analytically
+        shots (int): Number of circuit evaluations/random samples used
+            to estimate expectation values of observables. If ``analytic=True``,
+            this setting is ignored.
+        hbar (float): the convention chosen in the canonical commutation
+            relation :math:`[x, p] = i \hbar`
     """
     name = 'Strawberry Fields Gaussian PennyLane plugin'
     short_name = 'strawberryfields.gaussian'
