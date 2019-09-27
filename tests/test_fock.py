@@ -52,7 +52,7 @@ class FockTests(BaseTest):
         self.assertEqual(dev.num_wires, 2)
         self.assertEqual(dev.cutoff, 5)
         self.assertEqual(dev.hbar, 2)
-        self.assertEqual(dev.shots, 0)
+        self.assertEqual(dev.shots, 1000)
         self.assertEqual(dev.short_name, 'strawberryfields.fock')
 
     def test_fock_args(self):
@@ -75,7 +75,7 @@ class FockTests(BaseTest):
         for g in all_gates - gates:
             op = getattr(qml.ops, g)
 
-            if op.num_wires == 0:
+            if op.num_wires is qml.operation.Wires.Any or qml.operation.Wires.All:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
@@ -106,7 +106,7 @@ class FockTests(BaseTest):
         for g in all_obs - obs:
             op = getattr(qml.ops, g)
 
-            if op.num_wires == 0:
+            if op.num_wires is qml.operation.Wires.Any or qml.operation.Wires.All:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))

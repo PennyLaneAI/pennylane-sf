@@ -44,7 +44,7 @@ class GaussianTests(BaseTest):
         dev = qml.device('strawberryfields.gaussian', wires=2)
         self.assertEqual(dev.num_wires, 2)
         self.assertEqual(dev.hbar, 2)
-        self.assertEqual(dev.shots, 0)
+        self.assertEqual(dev.shots, 1000)
         self.assertEqual(dev.short_name, 'strawberryfields.gaussian')
 
     def test_gaussian_args(self):
