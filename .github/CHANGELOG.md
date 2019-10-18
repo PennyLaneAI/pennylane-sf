@@ -5,7 +5,7 @@
 * Two missing gates have been added. Cubic phase gate has been added
   to the `strawberryfields.fock` device, and the Inteferometer has
   been added to both `strawberryfields.fock` and `strawberryfields.gaussian`.
-  [#19](https://github.com/XanaduAI/pennylane-sf/pull/19)
+  [#25](https://github.com/XanaduAI/pennylane-sf/pull/25)
 
 ### Contributors
 
