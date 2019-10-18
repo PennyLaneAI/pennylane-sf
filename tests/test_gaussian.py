@@ -171,7 +171,7 @@ class GaussianTests(BaseTest):
             op = getattr(qml.ops, g)
             if g == "Interferometer":
                 wires = [0, 1]
-            elif op.num_wires <= 0:
+            elif op.num_wires is (qml.operation.Wires.Any or qml.operation.Wires.All):
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
