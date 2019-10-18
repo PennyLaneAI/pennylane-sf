@@ -42,7 +42,7 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
                                   Squeezed, Thermal, Gaussian)
 # import gates
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
-                                  Pgate, Rgate, S2gate, Sgate)
+                                  Pgate, Rgate, S2gate, Sgate, Interferometer)
 
 from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
@@ -77,7 +77,8 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
         'QuadraticPhase': Pgate,
         'Rotation': Rgate,
         'TwoModeSqueezing': S2gate,
-        'Squeezing': Sgate
+        'Squeezing': Sgate,
+        'Interferometer': Interferometer
     }
 
     _observable_map = {

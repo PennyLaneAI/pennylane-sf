@@ -27,6 +27,14 @@ from pennylane import numpy as np
 from defaults import BaseTest
 
 
+U = np.array(
+    [
+        [0.83645892 - 0.40533293j, -0.20215326 + 0.30850569j],
+        [-0.23889780 - 0.28101519j, -0.88031770 - 0.29832709j],
+    ]
+)
+
+
 def prep_par(par, op):
     "Convert par into a list of parameters that op expects."
     if op.par_domain == 'A':
@@ -161,7 +169,9 @@ class GaussianTests(BaseTest):
             self.assertTrue(dev.supports_operation(g))
 
             op = getattr(qml.ops, g)
-            if op.num_wires <= 0:
+            if g == "Interferometer":
+                wires = [0, 1]
+            elif op.num_wires is (qml.operation.Wires.Any or qml.operation.Wires.All):
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
@@ -188,6 +198,8 @@ class GaussianTests(BaseTest):
                 r = np.array([0, 0])
                 V = np.array([[0.5, 0], [0, 2]])
                 self.assertAllEqual(circuit(V, r), SF_reference(V, r))
+            elif g == 'Interferometer':
+                self.assertAllEqual(circuit(U), SF_reference(U))
             elif g == "DisplacedSqueezedState":
                 self.assertAllEqual(circuit(a, b, c, d),
                                     SF_reference(a*np.exp(1j*b), c, d))
