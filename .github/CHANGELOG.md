@@ -1,18 +1,17 @@
-# Release 0.6.0-dev
-
-### New features since last release
-
-### Breaking changes
-
-### Improvements
-
-### Documentation
+# Release 0.6.0
 
 ### Bug fixes
+
+* Two missing gates have been added. Cubic phase gate has been added
+  to the `strawberryfields.fock` device, and the Inteferometer has
+  been added to both `strawberryfields.fock` and `strawberryfields.gaussian`.
+  [#19](https://github.com/XanaduAI/pennylane-sf/pull/19)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Josh Izaac
 
 ---
 
@@ -21,6 +20,12 @@ This release contains contributions from (in alphabetical order):
 * Renamed the observables `MeanPhoton` to `NumberOperator`, `Homodyne` to `QuadOperator` and
   `NumberState` to `FockStateProjector` to be compatible with the upcoming version of PennyLane (0.5.0).
   [#19](https://github.com/XanaduAI/pennylane-sf/pull/19)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Josh Izaac
 
 ---
 

@@ -34,6 +34,14 @@ psi = np.array([ 0.08820314+0.14909648j,  0.32826940+0.32956027j,
         0.21021125+0.30082734j,  0.23443833+0.19584968j])
 
 
+U = np.array(
+    [
+        [0.83645892 - 0.40533293j, -0.20215326 + 0.30850569j],
+        [-0.23889780 - 0.28101519j, -0.88031770 - 0.29832709j],
+    ]
+)
+
+
 def prep_par(par, op):
     "Convert par into a list of parameters that op expects."
     if op.par_domain == 'A':
@@ -172,7 +180,9 @@ class FockTests(BaseTest):
             self.assertTrue(dev.supports_operation(g))
 
             op = getattr(qml.ops, g)
-            if op.num_wires <= 0:
+            if g == "Interferometer":
+                wires = [0, 1]
+            elif op.num_wires <= 0:
                 wires = [0]
             else:
                 wires = list(range(op.num_wires))
@@ -180,6 +190,7 @@ class FockTests(BaseTest):
             @qml.qnode(dev)
             def circuit(*args):
                 qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+                print(args, wires)
                 op(*args, wires=wires)
                 return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
@@ -199,6 +210,8 @@ class FockTests(BaseTest):
                 r = np.array([0, 0])
                 V = np.array([[0.5, 0], [0, 2]])
                 self.assertAllEqual(circuit(V, r), SF_reference(V, r))
+            elif g == 'Interferometer':
+                self.assertAllEqual(circuit(U), SF_reference(U))
             elif g == 'FockDensityMatrix':
                 dm = np.outer(psi, psi.conj())
                 self.assertAllEqual(circuit(dm), SF_reference(dm))
