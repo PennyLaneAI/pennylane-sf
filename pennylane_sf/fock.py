@@ -40,7 +40,7 @@ from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSq
                                   Fock, Ket, Squeezed, Thermal, Gaussian)
 # import gates
 from strawberryfields.ops import (BSgate, CKgate, CXgate, CZgate, Dgate,
-                                  Kgate, Pgate, Rgate, S2gate, Sgate, Vgate)
+                                  Kgate, Pgate, Rgate, S2gate, Sgate, Vgate, Interferometer)
 
 from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
@@ -83,7 +83,8 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         'Rotation': Rgate,
         'TwoModeSqueezing': S2gate,
         'Squeezing': Sgate,
-        'CubicPhase': Vgate
+        'CubicPhase': Vgate,
+        'Interferometer': Interferometer
     }
 
     _observable_map = {
