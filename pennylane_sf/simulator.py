@@ -66,6 +66,7 @@ class StrawberryFieldsSimulator(Device):
     short_name = 'strawberryfields'
     _operation_map = {}
     _observable_map = {}
+    _capabilities = {"model": "cv"}
 
     def __init__(self, wires, *, analytic=True, shots=1000, hbar=2):
         super().__init__(wires, shots)

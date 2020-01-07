@@ -10,6 +10,10 @@
 
 ### Bug fixes
 
+* Adds the `"model"` key to the `Device._capabilities` dictionary,
+  to properly register the device as a CV device. Fixes
+  [#27](https://github.com/XanaduAI/pennylane-sf/issues/27)
+
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
