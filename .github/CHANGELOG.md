@@ -1,22 +1,16 @@
-# Release 0.7.0-dev
-
-### New features since last release
-
-### Breaking changes
-
-### Improvements
-
-### Documentation
+# Release 0.8.0
 
 ### Bug fixes
 
 * Adds the `"model"` key to the `Device._capabilities` dictionary,
   to properly register the device as a CV device. Fixes
-  [#27](https://github.com/XanaduAI/pennylane-sf/issues/27)
+  [#28](https://github.com/XanaduAI/pennylane-sf/pull/28)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Josh Izaac
 
 ---
 
