@@ -1,14 +1,3 @@
-.. _usage:
-
-Plugin usage
-############
-
-PennyLane-SF provides two Strawberry Fields simulator devices for PennyLane:
-
-* :class:`strawberryfields.fock <~StrawberryFieldsFock>`: provides an PennyLane device for the Strawberry Fields Fock simulator
-
-* :class:`strawberryfields.gaussian <~StrawberryFieldsGaussian>`: provides an PennyLane device for the Strawberry Fields Gaussian simulator
-
 
 Using the devices
 =================
