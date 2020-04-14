@@ -1,7 +1,7 @@
-pennylane-qiskit
-================
+pennylane-sf
+============
 
-This section contains the API documentation for the PennyLane-Qiskit plugin.
+This section contains the API documentation for the PennyLane-SF plugin.
 
 .. warning::
 
@@ -9,10 +9,10 @@ This section contains the API documentation for the PennyLane-Qiskit plugin.
     to use these classes and functions directly.
 
     See the :doc:`overview </index>` page for more
-    details using the available Qiskit devices with PennyLane.
+    details using the available Strawberry Field devices with PennyLane.
 
-.. currentmodule:: pennylane_qiskit
+.. currentmodule:: pennylane_sf
 
-.. automodapi:: pennylane_qiskit
+.. automodapi:: pennylane_sf
     :no-heading:
     :include-all-objects:

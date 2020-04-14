@@ -4,7 +4,7 @@ The Fock device
 Pennylane's Fock device gives access to
 `Strawberry Field's Fock state simulator backend <https://strawberryfields.readthedocs.io/en/stable/code/api/strawberryfields.backends.FockBackend.html>`_.
 This simulator represents quantum states in the Fock basis
-:math:`\left| 0 \rangle, \left| 1 \rangle, \left| 2 \rangle, \dots, \left| \mathrm{D -1} \rangle`,
+:math:`\left| 0 \right>, \left| 1 \right>, \left| 2 \right>, \dots, \left| \mathrm{D -1} \right>`,
 where :math:`D` is the user-given value for ``cutoff_dim`` that limits the dimension of the Hilbert space.
 
 The advantage of this representation is that *any* continuous-variable operation can be represented. However,

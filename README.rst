@@ -45,7 +45,8 @@ The plugin documentation can be found here: `https://pennylane-sf.readthedocs.io
 Features
 ========
 
-* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
+* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``.
+These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
 * Supports all core PennyLane operations and observables across the two devices.
 
@@ -70,7 +71,7 @@ Alternatively, you can install PennyLane-SF from the source code by navigating t
 	$ python setup.py install
 
 Dependencies
-============
+~~~~~~~~~~~~
 
 .. highlight:: bash
 
@@ -89,7 +90,7 @@ we recommend `Anaconda for Python 3 <https://www.anaconda.com/download/>`_, a di
 version of Python packaged for scientific computation.
 
 Software tests
-==============
+~~~~~~~~~~~~~~
 
 To ensure that PennyLane-SF is working correctly after installation, the test suite can be
 run by navigating to the source code folder and running
@@ -99,7 +100,7 @@ run by navigating to the source code folder and running
 
 
 Documentation
-=============
+~~~~~~~~~~~~~
 
 To build the HTML documentation, go to the top-level directory and run
 ::
@@ -114,9 +115,11 @@ Contributing
 ============
 
 We welcome contributions - simply fork the PennyLane-SF repository, and then make a
-`pull request <https://help.github.com/articles/about-pull-requests/>`_ containing your contribution.  All contributers to PennyLane-SF will be listed as authors on the releases.
+`pull request <https://help.github.com/articles/about-pull-requests/>`_ containing your contribution.
+All contributers to PennyLane-SF will be listed as authors on the releases.
 
-We also encourage bug reports, suggestions for new features and enhancements, and even links to cool projects or applications built on PennyLane and Strawberry Fields.
+We also encourage bug reports, suggestions for new features and enhancements, and even links
+to cool projects or applications built on PennyLane and Strawberry Fields.
 
 
 Authors

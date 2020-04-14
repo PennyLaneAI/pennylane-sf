@@ -19,18 +19,18 @@ Once the PennyLane-SF plugin is installed, the two provided Strawberry Fields de
 straight away in PennyLane, without the need to import any additional packages.
 
 Devices
-~~~~~~~
+=======
 
 PennyLane-SF provides two Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.fock'
-    :description: Supports all operations, including non-Gaussian gates and measurements.
+    :description: Full simulator that supports all continuous-variable operations.
     :link: devices/fock.html
 
 .. devicegalleryitem::
     :name: 'strawberryfields.gaussian'
-    :description: Optimized to support only Gaussian operations.
+    :description: Optimized simulator that supports only Gaussian operations.
     :link: devices/gaussian.html
 
 .. raw:: html
@@ -46,7 +46,7 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
 
 
 Tutorials
-~~~~~~~~~
+=========
 
 To see the PennyLane-SF plugin in action, you can use any of the *continuous-variable* based `demos
 from the PennyLane documentation <https://pennylane.ai/qml/demonstrations.html>`_, for example
@@ -76,9 +76,8 @@ use the "Strawberry Fields" filter on the right panel of the
    :caption: Usage
    :hidden:
 
-   devices/aer
-   devices/basicaer
-   devices/ibmq
+   devices/fock
+   devices/gaussian
 
 .. toctree::
    :maxdepth: 1
