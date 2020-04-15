@@ -30,14 +30,13 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.gaussian'
-    :description: Optimized simulator that supports only Gaussian operations and photon
-        number resolving measurements.
+    :description: Optimized simulator that supports only Gaussian operations and photon number resolving measurements.
     :link: devices/gaussian.html
 
 .. raw:: html
 
-        <div style='clear:both'></div>
-        </br>
+    <div style='clear:both'></div>
+    </br>
 
 .. note::
 
@@ -60,7 +59,7 @@ such as ``'strawberryfields.gaussian'``:
     dev = qml.device('strawberryfields.gaussian', wires=XXX)
 
 The ``'strawberryfields.fock'`` device is explicitly used in the
-` quantum neural net tutorial <https://pennylane.ai/qml/demos/quantum_neural_net.html>`_.
+`quantum neural net tutorial <https://pennylane.ai/qml/demos/quantum_neural_net.html>`_.
 
 To filter tutorials that use a StrawberryFields device,
 use the "Strawberry Fields" filter on the right panel of the

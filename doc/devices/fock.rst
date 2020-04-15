@@ -90,6 +90,10 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
 
 **Supported operations:**
 
+.. raw:: html
+
+    <div class="summary-table">
+
 .. autosummary::
     :nosignatures:
 
@@ -115,7 +119,15 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
     ~pennylane.ThermalState
     ~pennylane.TwoModeSqueezing
 
+.. raw:: html
+
+    </div>
+
 **Supported observables:**
+
+.. raw:: html
+
+    <div class="summary-table">
 
 .. autosummary::
     :nosignatures:
@@ -126,3 +138,7 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
     ~pennylane.P
     ~pennylane.QuadOperator
     ~pennylane.PolyXP
+
+.. raw:: html
+
+    </div>
