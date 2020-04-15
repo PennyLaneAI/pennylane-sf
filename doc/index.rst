@@ -41,8 +41,8 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
 .. note::
 
     The Strawberry Fields plugin only supports
-    `continuous-variable (CV) operations <https://pennylane.readthedocs.io/en/stable/introduction/operations.html>`_,
-    such as ``Squeezing``, or ``NumberOperator``.
+    :ref:`continuous-variable (CV) operations <intro_ref_ops_cv>`,
+    such as :class:`~.pennylane.Squeezing`, or :class:`~.pennylane.NumberOperator`.
 
 
 Tutorials

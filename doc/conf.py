@@ -81,6 +81,8 @@ extensions = [
     "sphinx_automodapi.automodapi"
 ]
 
+intersphinx_mapping = {"https://pennylane.readthedocs.io/en/stable/": None}
+
 # nbsphinx settings
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints', 'tutorials/.ipynb_checkpoints', '*-checkpoint.ipynb']
