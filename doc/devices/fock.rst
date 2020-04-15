@@ -18,7 +18,7 @@ the **simulations are approximations**, whose accuracy increases with the cutoff
 .. note::
 
     For :math:`M` modes or wires and a cutoff dimension of :math:`D`, the Fock simulator needs to keep track of
-    at least :math:`M^D` values. Hence, the simulation time grows much faster with the number of modes than in
+    at least :math:`M^D` values. Hence, the simulation time and required memory grows much faster with the number of modes than in
     qubit-based simulators.
 
 Usage
@@ -58,7 +58,8 @@ We can also evaluate the derivative with respect to any parameter(s):
 1.4660265156190515
 
 The continuous-variable QNodes available via Strawberry Fields can also be combined with qubit-based QNodes
-and classical nodes to build up a hybrid computational model. Such hybrid models can be optimized using
+and classical nodes to build up a `hybrid computational model <https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html>`_.
+Such hybrid models can be optimized using
 the built-in optimizers provided by PennyLane.
 
 Device options
