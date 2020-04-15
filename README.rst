@@ -105,7 +105,7 @@ Documentation
 To build the HTML documentation, go to the top-level directory and run
 ::
 
-  $ make docs
+    $ make docs
 
 The documentation can then be found in the :file:`doc/_build/html/` directory.
 
