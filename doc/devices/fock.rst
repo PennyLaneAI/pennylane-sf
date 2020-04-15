@@ -18,7 +18,7 @@ the **simulations are approximations**, whose accuracy increases with the cutoff
 .. note::
 
     For :math:`M` modes or wires and a cutoff dimension of :math:`D`, the Fock simulator needs to keep track of
-    at least :math:`M^D` values. Hence, the simulation time grows much faster with the number of modes than in
+    at least :math:`M^D` values. Hence, the simulation time and required memory grows much faster with the number of modes than in
     qubit-based simulators.
 
 Usage
