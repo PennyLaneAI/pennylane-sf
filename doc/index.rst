@@ -30,7 +30,8 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.gaussian'
-    :description: Optimized simulator that supports only Gaussian operations.
+    :description: Optimized simulator that supports only Gaussian operations and photon
+        number resolving measurements.
     :link: devices/gaussian.html
 
 .. raw:: html
