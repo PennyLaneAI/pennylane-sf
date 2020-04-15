@@ -58,7 +58,10 @@ such as ``'strawberryfields.gaussian'``:
 
     dev = qml.device('strawberryfields.gaussian', wires=XXX)
 
-To filter tutorials that explicitly use a StrawberryFields device,
+The ``'strawberryfields.fock'`` device is explicitly used in the
+` quantum neural net tutorial <https://pennylane.ai/qml/demos/quantum_neural_net.html>`_.
+
+To filter tutorials that use a StrawberryFields device,
 use the "Strawberry Fields" filter on the right panel of the
 `demos <https://pennylane.ai/qml/demonstrations.html>`_.
 

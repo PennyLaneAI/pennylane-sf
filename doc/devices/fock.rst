@@ -85,11 +85,43 @@ Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 
 The Strawberry Fields Fock device supports all continuous-variable (CV) operations and observables
-provided by PennyLane, including both Gaussian and non-Gaussian operations:
+provided by PennyLane, including both Gaussian and non-Gaussian operations.
 
-* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``,
-  ``Displacement``, ``Kerr``, ``CrossKerr``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``,
-  ``TwoModeSqueezing``, ``CubicPhase``, ``CatState``, ``CoherentState``, ``FockDensityMatrix``,
-  ``DisplacedSqueezedState``, ``FockState``, ``FockStateVector``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
+**Supported operations:**
 
-* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``QuadOperator``, ``PolyXP``
+.. autosummary::
+    :nosignatures:
+
+    ~pennylane.Beamsplitter
+    ~pennylane.CatState
+    ~pennylane.CoherentState
+    ~pennylane.ControlledAddition
+    ~pennylane.ControlledPhase
+    ~pennylane.CrossKerr
+    ~pennylane.CubicPhase
+    ~pennylane.DisplacedSqueezedState
+    ~pennylane.Displacement
+    ~pennylane.FockDensityMatrix
+    ~pennylane.FockState
+    ~pennylane.FockStateVector
+    ~pennylane.GaussianState
+    ~pennylane.Interferometer
+    ~pennylane.Kerr
+    ~pennylane.QuadraticPhase
+    ~pennylane.Rotation
+    ~pennylane.SqueezedState
+    ~pennylane.Squeezing
+    ~pennylane.ThermalState
+    ~pennylane.TwoModeSqueezing
+
+**Supported observables:**
+
+.. autosummary::
+    :nosignatures:
+
+    ~pennylane.Identity
+    ~pennylane.NumberOperator
+    ~pennylane.X
+    ~pennylane.P
+    ~pennylane.QuadOperator
+    ~pennylane.PolyXP

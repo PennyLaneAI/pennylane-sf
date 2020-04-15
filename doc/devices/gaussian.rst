@@ -70,10 +70,35 @@ Supported operations
 ~~~~~~~~~~~~~~~~~~~~
 
 The Strawberry Fields Gaussian device supports all *Gaussian* continuous-variable (CV) operations and
-observables provided by PennyLane:
+observables provided by PennyLane.
 
-* **Supported operations:** ``Beamsplitter``, ``ControlledAddition``, ``ControlledPhase``,
-  ``Displacement``, ``QuadraticPhase``, ``Rotation``, ``Squeezing``, ``TwoModeSqueezing``,
-  ``CoherentState``, ``DisplacedSqueezedState``, ``SqueezedState``, ``ThermalState``, ``GaussianState``
+**Supported operations:**
 
-* **Supported observables:** ``Identity``, ``NumberOperator``, ``X``, ``P``, ``QuadOperator``, ``PolyXP``
+.. autosummary::
+    :nosignatures:
+
+    ~pennylane.Beamsplitter
+    ~pennylane.CoherentState
+    ~pennylane.ControlledAddition
+    ~pennylane.ControlledPhase
+    ~pennylane.DisplacedSqueezedState
+    ~pennylane.Displacement
+    ~pennylane.GaussianState
+    ~pennylane.QuadraticPhase
+    ~pennylane.Rotation
+    ~pennylane.SqueezedState
+    ~pennylane.Squeezing
+    ~pennylane.ThermalState
+    ~pennylane.TwoModeSqueezing
+
+**Supported observables:**
+
+.. autosummary::
+    :nosignatures:
+
+    ~pennylane.Identity
+    ~pennylane.NumberOperator
+    ~pennylane.X
+    ~pennylane.P
+    ~pennylane.QuadOperator
+    ~pennylane.PolyXP
