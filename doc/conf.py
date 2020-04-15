@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# PennyLane-SF documentation build configuration file, created by
-# sphinx-quickstart on Tue Apr 17 11:43:51 2018.
+# PennyLane-SF documentation build configuration file.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -21,6 +20,7 @@ from unittest.mock import MagicMock
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('_ext'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath('.')), 'doc'))
 
 #-------------------------------------------------------------------------
 # Mock out all modules that aren't required for compiling of documentation
@@ -69,18 +69,19 @@ needs_sphinx = '1.6'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.inheritance_diagram',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.inheritance_diagram",
+    "sphinx.ext.intersphinx",
     'sphinx.ext.viewcode',
-    'sphinxcontrib.bibtex',
-    'edit_on_github'
-    # 'nbsphinx'
+    "sphinx_automodapi.automodapi"
 ]
+
+intersphinx_mapping = {"https://pennylane.readthedocs.io/en/stable/": None}
 
 # nbsphinx settings
 
@@ -89,6 +90,11 @@ nbsphinx_execute = 'never'
 nbsphinx_epilog = """
 .. note:: :download:`Click here <../{{env.docname}}.ipynb>` to download this gallery page as an interactive Jupyter notebook.
 """
+
+autosummary_generate = True
+autosummary_imported_members = False
+automodapi_toctreedirnm = "code/api"
+automodsumm_inherited_members = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates', 'xanadu_theme']
@@ -104,7 +110,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PennyLane-StrawberryFields'
-copyright = "Copyright 2018, Xanadu Inc."
+copyright = "Copyright 2018-2020"
 author = 'Xanadu Inc.'
 
 add_module_names = False
@@ -262,10 +268,8 @@ html_sidebars = {
 # implements a search results scorer. If empty, the default will be used.
 #html_search_scorer = 'scorer.js'
 
-# Output file base name for HTML help builder.
-htmlhelp_basename = 'PennyLaneSFdoc'
 
-# # -- Xanadu theme ---------------------------------------------------------
+# -- Xanadu theme ---------------------------------------------------------
 html_theme = 'xanadu_theme'
 html_theme_path = ['.']
 
@@ -274,19 +278,44 @@ html_theme_path = ['.']
 
 # xanadu theme options (see theme.conf for more information)
 html_theme_options = {
+
     # Set the path to a special layout to include for the homepage
-    # "homepage": "special_index.html",
+    # "index_template": "special_index.html",
 
     # Set the name of the project to appear in the left sidebar.
-    "project_nav_name": "Strawberry Fields Plugin",
-    "project_logo": "_static/pennylane.png",
-    "touch_icon": "_static/xanadu_logo.png",
-    "touch_icon_small": "_static/xanadu_logo_small.png",
-    "large_toc": False,
+    "project_nav_name": "PennyLane-SF",
 
+    # Set your Disqus short name to enable comments
+    # "disqus_comments_shortname": "pennylane-1",
+
+    # Set you GA account ID to enable tracking
+    "google_analytics_account": "UA-130507810-2",
+
+    # Path to a touch icon
+    "touch_icon": "logo_new.png",
+
+    # Specify a base_url used to generate sitemap.xml links. If not
+    # specified, then no sitemap will be built.
+    # "base_url": ""
+
+    # Allow a separate homepage from the master_doc
+    # "homepage": "index",
+
+    # Allow the project link to be overriden to a custom URL.
+    # "projectlink": "http://myproject.url",
+
+    "large_toc": True,
+    # colors
+    "navigation_button": "#19b37b",
+    "navigation_button_hover": "#0e714d",
+    "toc_caption": "#19b37b",
+    "toc_hover": "#19b37b",
+    "table_header_bg": "#edf7f4",
+    "table_header_border": "#19b37b",
+    "download_button": "#19b37b",
     # gallery options
-    "github_repo": "XanaduAI/PennyLane-SF",
-    # "gallery_dirs": sphinx_gallery_conf['gallery_dirs']
+    # "github_repo": "XanaduAI/PennyLane",
+    # "gallery_dirs": "tutorials",
 }
 
 edit_on_github_project = 'XanaduAI/pennylane-sf'
@@ -324,8 +353,11 @@ latex_additional_files = ['macros.tex']
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'PennyLane-SF.tex', 'PennyLane-StrawberryFields Documentation',
-     'Xanadu Inc.', 'manual'),
+    (master_doc,
+     'PennyLane-SF.tex',
+     'PennyLane-StrawberryFields Documentation',
+     'Xanadu Inc.',
+     'manual'),
 ]
 
 
@@ -334,7 +366,9 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'pennylane-sf', 'PennyLane-StrawberryFields Documentation',
+    (master_doc,
+     'pennylane-sf',
+     'PennyLane-StrawberryFields Documentation',
      [author], 1)
 ]
 
@@ -345,8 +379,11 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'PennyLane-StrawberryFields', 'PennyLane-StrawberryFields Documentation',
-     author, 'PennyLane-StrawberryFields', 'Strawberry Fields plugin for the PennyLane quantum machine learning library.',
+    (master_doc,
+     'PennyLane-StrawberryFields',
+     'PennyLane-StrawberryFields Documentation',
+     author, 'PennyLane-StrawberryFields',
+     'Strawberry Fields plugin for the PennyLane quantum machine learning library.',
      'Miscellaneous'),
 ]
 
@@ -359,4 +396,11 @@ autodoc_member_order = 'bysource'
 # inheritance_diagram graphviz attributes
 inheritance_node_attrs = dict(color='lightskyblue1', style='filled')
 
+#autodoc_default_flags = ['members']
+autosummary_generate = True
+
+from directives import CustomDeviceGalleryItemDirective
+
+def setup(app):
+    app.add_directive('devicegalleryitem', CustomDeviceGalleryItemDirective)
 
