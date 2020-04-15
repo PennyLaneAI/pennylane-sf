@@ -74,6 +74,10 @@ observables provided by PennyLane.
 
 **Supported operations:**
 
+.. raw:: html
+
+    <div class="summary-table">
+
 .. autosummary::
     :nosignatures:
 
@@ -91,7 +95,15 @@ observables provided by PennyLane.
     ~pennylane.ThermalState
     ~pennylane.TwoModeSqueezing
 
+.. raw:: html
+
+    </div>
+
 **Supported observables:**
+
+.. raw:: html
+
+    <div class="summary-table">
 
 .. autosummary::
     :nosignatures:
@@ -102,3 +114,7 @@ observables provided by PennyLane.
     ~pennylane.P
     ~pennylane.QuadOperator
     ~pennylane.PolyXP
+
+.. raw:: html
+
+    </div>

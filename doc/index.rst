@@ -35,8 +35,8 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
 
 .. raw:: html
 
-        <div style='clear:both'></div>
-        </br>
+    <div style='clear:both'></div>
+    </br>
 
 .. note::
 
