@@ -42,7 +42,8 @@ from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSq
 from strawberryfields.ops import (BSgate, CKgate, CXgate, CZgate, Dgate,
                                   Kgate, Pgate, Rgate, S2gate, Sgate, Vgate, Interferometer)
 
-from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
+from .expectations import (identity, mean_photon, number_expectation, homodyne,
+        fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -89,6 +90,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
 
     _observable_map = {
         'NumberOperator': mean_photon,
+        'TensorNumberOperator': lambda state, wires, par: tuple((number_expectation(state, wires, par), 0)),
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
         'QuadOperator': homodyne(),
