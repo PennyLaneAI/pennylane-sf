@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
-from defaults import TOLERANCE
 
+
+# defaults
+TOLERANCE = os.environ.get("TOL", 1e-5)
 
 @pytest.fixture
 def tol():
 	"""Default tolerance"""
-	# TODO: once tests are ported to pytest completely,
-	# remove defaults.py
 	return TOLERANCE
