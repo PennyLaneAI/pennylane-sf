@@ -15,7 +15,7 @@ import pytest
 
 
 # defaults
-TOLERANCE = os.environ.get("TOL", 1e-5)
+TOLERANCE = 1e-5
 
 @pytest.fixture
 def tol():
