@@ -71,7 +71,7 @@ def SF_expectation_reference(sf_expectation, cutoff_dim, wires, *args):
     eng = sf.Engine("fock", backend_options={"cutoff_dim": cutoff_dim})
     prog = sf.Program(2)
     with prog.context as q:
-        sf.ops.Xgate(0.2) | q[0]
+        sf.ops.Dgate(0.1) | q[0]
         sf.ops.S2gate(0.1) | q
 
     state = eng.run(prog).state
