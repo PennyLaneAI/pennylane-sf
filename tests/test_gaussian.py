@@ -109,7 +109,7 @@ class TestGaussian:
         assert np.allclose(circuit(1), 1, atol=tol, rtol=0)
 
     def test_nonzero_shots(self):
-        """Test that the gaussian plugin provides correct result for high shot number"""
+        """Test that the gaussian plugin provides correct results for high shot number"""
         shots = 10 ** 2
         dev = qml.device("strawberryfields.gaussian", wires=1, shots=shots)
 
