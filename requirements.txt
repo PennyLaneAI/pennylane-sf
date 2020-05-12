@@ -1,2 +1,2 @@
-strawberryfields>=0.11
+strawberryfields>=0.14
 pennylane>=0.7
