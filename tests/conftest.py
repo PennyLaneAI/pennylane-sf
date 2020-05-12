@@ -17,7 +17,8 @@ import pytest
 # defaults
 TOLERANCE = 1e-5
 
+
 @pytest.fixture
 def tol():
-	"""Default tolerance"""
-	return TOLERANCE
+    """Default tolerance"""
+    return TOLERANCE

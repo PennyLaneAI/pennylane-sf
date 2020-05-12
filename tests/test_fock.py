@@ -22,25 +22,34 @@ import pennylane as qml
 from pennylane import numpy as np
 
 
-psi = np.array([ 0.08820314+0.14909648j,  0.32826940+0.32956027j,
-        0.26695166+0.19138087j,  0.32419593+0.08460371j,
-        0.02984712+0.30655538j,  0.03815006+0.18297214j,
-        0.17330397+0.2494433j ,  0.14293477+0.25095202j,
-        0.21021125+0.30082734j,  0.23443833+0.19584968j])
+psi = np.array(
+    [
+        0.08820314 + 0.14909648j,
+        0.32826940 + 0.32956027j,
+        0.26695166 + 0.19138087j,
+        0.32419593 + 0.08460371j,
+        0.02984712 + 0.30655538j,
+        0.03815006 + 0.18297214j,
+        0.17330397 + 0.2494433j,
+        0.14293477 + 0.25095202j,
+        0.21021125 + 0.30082734j,
+        0.23443833 + 0.19584968j,
+    ]
+)
 
 one_mode_single_real_parameter_gates = [
-            ('ThermalState', qml.ThermalState),
-            ('Kerr', qml.Kerr),
-            ('QuadraticPhase', qml.QuadraticPhase),
-            ('Rotation', qml.Rotation),
-            ('CubicPhase', qml.CubicPhase),
-                                           ]
+    ("ThermalState", qml.ThermalState),
+    ("Kerr", qml.Kerr),
+    ("QuadraticPhase", qml.QuadraticPhase),
+    ("Rotation", qml.Rotation),
+    ("CubicPhase", qml.CubicPhase),
+]
 
 two_modes_single_real_parameter_gates = [
-            ('CrossKerr', qml.CrossKerr),
-            ('ControlledAddition', qml.ControlledAddition),
-            ('ControlledPhase', qml.ControlledPhase),
-                                           ]
+    ("CrossKerr", qml.CrossKerr),
+    ("ControlledAddition", qml.ControlledAddition),
+    ("ControlledPhase", qml.ControlledPhase),
+]
 
 
 # compare to reference SF engine
@@ -55,6 +64,7 @@ def SF_gate_reference(sf_op, cutoff_dim, wires, *args):
     state = eng.run(prog).state
     return state.mean_photon(0)[0], state.mean_photon(1)[0]
 
+
 # compare to reference SF engine
 def SF_expectation_reference(sf_expectation, cutoff_dim, wires, *args):
     """SF reference circuit for expectation tests"""
@@ -67,29 +77,32 @@ def SF_expectation_reference(sf_expectation, cutoff_dim, wires, *args):
     state = eng.run(prog).state
     return sf_expectation(state, wires, args)[0]
 
+
 class TestFock:
     """Test the Fock simulator."""
 
     def test_load_fock_device(self):
         """Test that the fock plugin loads correctly"""
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=5)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=5)
         assert dev.num_wires == 2
         assert dev.cutoff == 5
         assert dev.hbar == 2
         assert dev.shots == 1000
-        assert dev.short_name == 'strawberryfields.fock'
+        assert dev.short_name == "strawberryfields.fock"
 
     def test_fock_args(self):
         """Test that the fock plugin requires correct arguments"""
         with pytest.raises(TypeError, match="missing 1 required positional argument: 'wires'"):
-            dev = qml.device('strawberryfields.fock')
+            dev = qml.device("strawberryfields.fock")
 
-        with pytest.raises(TypeError, match="missing 1 required keyword-only argument: 'cutoff_dim'"):
-            dev = qml.device('strawberryfields.fock', wires=1)
+        with pytest.raises(
+            TypeError, match="missing 1 required keyword-only argument: 'cutoff_dim'"
+        ):
+            dev = qml.device("strawberryfields.fock", wires=1)
 
     def test_fock_circuit(self, tol):
         """Test that the fock plugin provides correct result for simple circuit"""
-        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=10)
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=10)
 
         @qml.qnode(dev)
         def circuit(x):
@@ -100,8 +113,8 @@ class TestFock:
 
     def test_nonzero_shots(self):
         """Test that the fock plugin provides correct result for high shot number"""
-        shots = 10**2
-        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=10, shots=shots)
+        shots = 10 ** 2
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=10, shots=shots)
 
         @qml.qnode(dev)
         def circuit(x):
@@ -114,8 +127,9 @@ class TestFock:
         for _ in range(100):
             runs.append(circuit(x))
 
-        expected_var = np.sqrt(1/shots)
+        expected_var = np.sqrt(1 / shots)
         assert np.allclose(np.mean(runs), x, atol=expected_var)
+
 
 class TestGates:
     """Tests the supported gates compared to the result from Strawberry
@@ -132,7 +146,7 @@ class TestGates:
         wires = [0]
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -159,7 +173,7 @@ class TestGates:
         wires = [0, 1]
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -186,7 +200,7 @@ class TestGates:
         operation = qml.GaussianState
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -217,7 +231,7 @@ class TestGates:
         operation = qml.Interferometer
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -246,7 +260,7 @@ class TestGates:
         operation = qml.DisplacedSqueezedState
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -259,7 +273,7 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c, d)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a*np.exp(1j*b), c, d)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c, d)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
     def test_fock_state(self, tol):
@@ -271,7 +285,7 @@ class TestGates:
         operation = qml.FockState
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -297,7 +311,7 @@ class TestGates:
         operation = qml.FockStateVector
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -323,7 +337,7 @@ class TestGates:
         operation = qml.FockDensityMatrix
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -350,7 +364,7 @@ class TestGates:
         operation = qml.CatState
 
         cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -363,12 +377,12 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a*np.exp(1j*b), c)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
     def test_tensorn_not_supported(self):
         """Test error is raised with the unsupported TensorN observable"""
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=2)
 
         observable = qml.TensorN
         wires = [0, 1]
@@ -377,9 +391,12 @@ class TestGates:
         def circuit():
             return qml.expval(observable(wires=wires))
 
-        with pytest.raises(qml.DeviceError, match="Observable TensorN not supported "\
-            "on device strawberryfields.fock"):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Observable TensorN not supported " "on device strawberryfields.fock",
+        ):
             circuit()
+
 
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
@@ -390,7 +407,7 @@ class TestExpectation:
         yields the correct result"""
         cutoff_dim = 10
 
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         gate_name = "NumberOperator"
         assert dev.supports_observable(gate_name)
@@ -405,7 +422,9 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(*args, wires=wires))
 
-        assert np.allclose(circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0)
+        assert np.allclose(
+            circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
+        )
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
@@ -413,7 +432,7 @@ class TestExpectation:
         the correct result"""
         cutoff_dim = 10
 
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         assert dev.supports_observable(gate_name)
 
@@ -426,7 +445,9 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(*args, wires=wires))
 
-        assert np.allclose(circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0)
+        assert np.allclose(
+            circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
+        )
 
     def test_quad_operator(self, tol):
         """Test that the expectation for the generalized quadrature observable
@@ -434,7 +455,7 @@ class TestExpectation:
         cutoff_dim = 10
         a = 0.312
 
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
         op = qml.QuadOperator
         gate_name = "QuadOperator"
@@ -449,7 +470,12 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(*args, wires=wires))
 
-        assert np.allclose(circuit(a), SF_expectation_reference(sf_expectation, cutoff_dim, wires, a), atol=tol, rtol=0)
+        assert np.allclose(
+            circuit(a),
+            SF_expectation_reference(sf_expectation, cutoff_dim, wires, a),
+            atol=tol,
+            rtol=0,
+        )
 
     def test_polyxp(self, tol):
         """Test that PolyXP works as expected"""
@@ -458,8 +484,8 @@ class TestExpectation:
         nbar = 0.2234
 
         hbar = 2
-        dev = qml.device('strawberryfields.fock', wires=1, hbar=hbar, cutoff_dim=cutoff_dim)
-        Q = np.array([0, 1, 0]) # x expectation
+        dev = qml.device("strawberryfields.fock", wires=1, hbar=hbar, cutoff_dim=cutoff_dim)
+        Q = np.array([0, 1, 0])  # x expectation
 
         @qml.qnode(dev)
         def circuit(x):
@@ -467,9 +493,9 @@ class TestExpectation:
             return qml.expval(qml.PolyXP(Q, 0))
 
         # test X expectation
-        assert np.allclose(circuit(a), hbar*a, atol=tol, rtol=0)
+        assert np.allclose(circuit(a), hbar * a, atol=tol, rtol=0)
 
-        Q = np.diag([-0.5, 1/(2*hbar), 1/(2*hbar)]) # mean photon number
+        Q = np.diag([-0.5, 1 / (2 * hbar), 1 / (2 * hbar)])  # mean photon number
 
         @qml.qnode(dev)
         def circuit(x):
@@ -478,7 +504,7 @@ class TestExpectation:
             return qml.expval(qml.PolyXP(Q, 0))
 
         # test X expectation
-        assert np.allclose(circuit(a), nbar+np.abs(a)**2, atol=tol, rtol=0)
+        assert np.allclose(circuit(a), nbar + np.abs(a) ** 2, atol=tol, rtol=0)
 
     def test_fock_state_projector(self, tol):
         """Test that FockStateProjector works as expected"""
@@ -487,7 +513,7 @@ class TestExpectation:
         r = 0.123
 
         hbar = 2
-        dev = qml.device('strawberryfields.fock', wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
 
         # test correct number state expectation |<n|a>|^2
         @qml.qnode(dev)
@@ -495,7 +521,7 @@ class TestExpectation:
             qml.Displacement(x, 0, wires=0)
             return qml.expval(qml.FockStateProjector(np.array([2]), wires=0))
 
-        expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
+        expected = np.abs(np.exp(-np.abs(a) ** 2 / 2) * a ** 2 / np.sqrt(2)) ** 2
         assert np.allclose(circuit(a), expected, atol=tol, rtol=0)
 
         # test correct number state expectation |<n|S(r)>|^2
@@ -504,7 +530,7 @@ class TestExpectation:
             qml.Squeezing(x, 0, wires=0)
             return qml.expval(qml.FockStateProjector(np.array([2, 0]), wires=[0, 1]))
 
-        expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
+        expected = np.abs(np.sqrt(2) / (2) * (-np.tanh(r)) / np.sqrt(np.cosh(r))) ** 2
         assert np.allclose(circuit(r), expected, atol=tol, rtol=0)
 
     def test_trace(self, tol):
@@ -514,7 +540,7 @@ class TestExpectation:
         r2 = 0.7
 
         hbar = 2
-        dev = qml.device('strawberryfields.fock', wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+        dev = qml.device("strawberryfields.fock", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
 
         @qml.qnode(dev)
         def circuit(x, y):
@@ -544,7 +570,7 @@ class TestVariance:
 
     def test_first_order_cv(self, tol):
         """Test variance of a first order CV expectation value"""
-        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=15)
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=15)
 
         @qml.qnode(dev)
         def circuit(r, phi):
@@ -556,22 +582,24 @@ class TestVariance:
         phi = -0.654
 
         var = circuit(r, phi)
-        expected = np.exp(2*r)*np.sin(phi)**2 + np.exp(-2*r)*np.cos(phi)**2
+        expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradA = circuit.jacobian([r, phi], method='A')
-        gradF = circuit.jacobian([r, phi], method='F')
-        expected = np.array([
-            2*np.exp(2*r)*np.sin(phi)**2 - 2*np.exp(-2*r)*np.cos(phi)**2,
-            2*np.sinh(2*r)*np.sin(2*phi)
-        ])
+        gradA = circuit.jacobian([r, phi], method="A")
+        gradF = circuit.jacobian([r, phi], method="F")
+        expected = np.array(
+            [
+                2 * np.exp(2 * r) * np.sin(phi) ** 2 - 2 * np.exp(-2 * r) * np.cos(phi) ** 2,
+                2 * np.sinh(2 * r) * np.sin(2 * phi),
+            ]
+        )
         assert np.allclose(gradA, expected, atol=tol, rtol=0)
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
     def test_second_order_cv(self, tol):
         """Test variance of a second order CV expectation value"""
-        dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=15)
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=15)
 
         @qml.qnode(dev)
         def circuit(n, a):
@@ -587,6 +615,6 @@ class TestVariance:
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.jacobian([n, a], method='F')
-        expected = np.array([2*a**2+2*n+1, 2*a*(2*n+1)])
+        gradF = circuit.jacobian([n, a], method="F")
+        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)

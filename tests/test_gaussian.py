@@ -22,29 +22,37 @@ import pennylane as qml
 from pennylane import numpy as np
 
 
-
-psi = np.array([ 0.08820314+0.14909648j,  0.32826940+0.32956027j,
-        0.26695166+0.19138087j,  0.32419593+0.08460371j,
-        0.02984712+0.30655538j,  0.03815006+0.18297214j,
-        0.17330397+0.2494433j ,  0.14293477+0.25095202j,
-        0.21021125+0.30082734j,  0.23443833+0.19584968j])
+psi = np.array(
+    [
+        0.08820314 + 0.14909648j,
+        0.32826940 + 0.32956027j,
+        0.26695166 + 0.19138087j,
+        0.32419593 + 0.08460371j,
+        0.02984712 + 0.30655538j,
+        0.03815006 + 0.18297214j,
+        0.17330397 + 0.2494433j,
+        0.14293477 + 0.25095202j,
+        0.21021125 + 0.30082734j,
+        0.23443833 + 0.19584968j,
+    ]
+)
 
 one_mode_single_real_parameter_gates = [
-            ('ThermalState', qml.ThermalState),
-            ('QuadraticPhase', qml.QuadraticPhase),
-            ('Rotation', qml.Rotation),
-                                           ]
+    ("ThermalState", qml.ThermalState),
+    ("QuadraticPhase", qml.QuadraticPhase),
+    ("Rotation", qml.Rotation),
+]
 
 two_modes_single_real_parameter_gates = [
-            ('ControlledAddition', qml.ControlledAddition),
-            ('ControlledPhase', qml.ControlledPhase),
-                                           ]
+    ("ControlledAddition", qml.ControlledAddition),
+    ("ControlledPhase", qml.ControlledPhase),
+]
 
 
 unsupported_one_mode_single_real_parameter_gates = [
-            ('Kerr', qml.Kerr),
-            ('CubicPhase', qml.CubicPhase),
-                                           ]
+    ("Kerr", qml.Kerr),
+    ("CubicPhase", qml.CubicPhase),
+]
 
 
 # compare to reference SF engine
@@ -59,6 +67,7 @@ def SF_gate_reference(sf_op, wires, *args):
     state = eng.run(prog).state
     return state.mean_photon(0)[0], state.mean_photon(1)[0]
 
+
 # compare to reference SF engine
 def SF_expectation_reference(sf_expectation, wires, *args):
     """SF reference circuit for expectation tests"""
@@ -72,27 +81,25 @@ def SF_expectation_reference(sf_expectation, wires, *args):
     return sf_expectation(state, wires, args)[0]
 
 
-
 class TestGaussian:
     """Test the Gaussian simulator."""
 
     def test_load_gaussian_device(self):
         """Test that the gaussian plugin loads correctly"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
         assert dev.num_wires == 2
         assert dev.hbar == 2
         assert dev.shots == 1000
-        assert dev.short_name == 'strawberryfields.gaussian'
+        assert dev.short_name == "strawberryfields.gaussian"
 
     def test_gaussian_args(self):
         """Test that the gaussian plugin requires correct arguments"""
         with pytest.raises(TypeError, match="missing 1 required positional argument: 'wires'"):
-            dev = qml.device('strawberryfields.gaussian')
-
+            dev = qml.device("strawberryfields.gaussian")
 
     def test_gaussian_circuit(self, tol):
         """Test that the gaussian plugin provides correct result for simple circuit"""
-        dev = qml.device('strawberryfields.gaussian', wires=1)
+        dev = qml.device("strawberryfields.gaussian", wires=1)
 
         @qml.qnode(dev)
         def circuit(x):
@@ -103,8 +110,8 @@ class TestGaussian:
 
     def test_nonzero_shots(self):
         """Test that the gaussian plugin provides correct result for high shot number"""
-        shots = 10**2
-        dev = qml.device('strawberryfields.gaussian', wires=1, shots=shots)
+        shots = 10 ** 2
+        dev = qml.device("strawberryfields.gaussian", wires=1, shots=shots)
 
         @qml.qnode(dev)
         def circuit(x):
@@ -117,8 +124,9 @@ class TestGaussian:
         for _ in range(100):
             runs.append(circuit(x))
 
-        expected_var = np.sqrt(1/shots)
+        expected_var = np.sqrt(1 / shots)
         assert np.allclose(np.mean(runs), x, atol=expected_var)
+
 
 class TestGates:
     """Tests the supported gates compared to the result from Strawberry
@@ -133,7 +141,7 @@ class TestGates:
 
         wires = [0]
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -159,7 +167,7 @@ class TestGates:
 
         wires = [0, 1]
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -185,7 +193,7 @@ class TestGates:
         gate_name = "GaussianState"
         operation = qml.GaussianState
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -215,7 +223,7 @@ class TestGates:
         gate_name = "Interferometer"
         operation = qml.ops.Interferometer
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -243,7 +251,7 @@ class TestGates:
         gate_name = "DisplacedSqueezedState"
         operation = qml.DisplacedSqueezedState
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         sf_operation = dev._operation_map[gate_name]
 
@@ -256,18 +264,21 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c, d)
-        sf_res = SF_gate_reference(sf_operation, wires, a*np.exp(1j*b), c, d)
+        sf_res = SF_gate_reference(sf_operation, wires, a * np.exp(1j * b), c, d)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
+
 
 class TestUnsupported:
     """Test that an error is raised for gates and observables that are
     unsupported."""
 
-    @pytest.mark.parametrize("gate_name,pennylane_gate", unsupported_one_mode_single_real_parameter_gates)
+    @pytest.mark.parametrize(
+        "gate_name,pennylane_gate", unsupported_one_mode_single_real_parameter_gates
+    )
     def test_unsupported_one_mode_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
         """Test those unsupported gates for the gaussian simulator that take a
         single real parameter and act on one mode """
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
         a = 0.312
 
         operation = pennylane_gate
@@ -278,17 +289,19 @@ class TestUnsupported:
             operation(a, wires=wires)
             return qml.expval(qml.NumberOperator(0))
 
-        with pytest.raises(qml.DeviceError, match="Gate {} not supported "\
-            "on device strawberryfields.gaussian".format(gate_name)):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Gate {} not supported " "on device strawberryfields.gaussian".format(gate_name),
+        ):
             circuit()
 
     def test_cross_kerr_unsupported(self):
         """Test that the CrossKerr gate is unsupported for the gaussian
         simulator"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
         a = 0.312
 
-        gate_name = 'CrossKerr'
+        gate_name = "CrossKerr"
         operation = qml.CrossKerr
         wires = [0, 1]
 
@@ -297,14 +310,16 @@ class TestUnsupported:
             operation(a, wires=wires)
             return qml.expval(qml.NumberOperator(0))
 
-        with pytest.raises(qml.DeviceError, match="Gate {} not supported "\
-            "on device strawberryfields.gaussian".format(gate_name)):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Gate {} not supported " "on device strawberryfields.gaussian".format(gate_name),
+        ):
             circuit()
 
     def test_fock_state_unsupported(self, tol):
         """Test that the FockState gate is unsupported for the gaussian
         simulator"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
         arg = 1
         wires = [0]
 
@@ -316,16 +331,18 @@ class TestUnsupported:
             operation(arg, wires=wires)
             return qml.expval(qml.NumberOperator(0))
 
-        with pytest.raises(qml.DeviceError, match="Gate {} not supported "\
-            "on device strawberryfields.gaussian".format(gate_name)):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Gate {} not supported " "on device strawberryfields.gaussian".format(gate_name),
+        ):
             circuit()
 
     def test_fock_state_vector_unsupported(self):
         """Test that the FockStateVector gate is unsupported for the gaussian
         simulator"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
-        gate_name = 'FockStateVector'
+        gate_name = "FockStateVector"
         operation = qml.FockStateVector
         arg = psi
         wires = [0]
@@ -335,8 +352,10 @@ class TestUnsupported:
             operation(arg, wires=wires)
             return qml.expval(qml.NumberOperator(0))
 
-        with pytest.raises(qml.DeviceError, match="Gate {} not supported "\
-            "on device strawberryfields.gaussian".format(gate_name)):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Gate {} not supported " "on device strawberryfields.gaussian".format(gate_name),
+        ):
             circuit()
 
     def test_fock_density_matrix_unsupported(self, tol):
@@ -349,26 +368,28 @@ class TestUnsupported:
         gate_name = "FockDensityMatrix"
         operation = qml.FockDensityMatrix
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         @qml.qnode(dev)
         def circuit(*args):
             operation(*args, wires=wires)
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
-        with pytest.raises(qml.DeviceError, match="Gate {} not supported "\
-            "on device strawberryfields.gaussian".format(gate_name)):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Gate {} not supported " "on device strawberryfields.gaussian".format(gate_name),
+        ):
             circuit(dm)
 
     def test_cat_state_unsupported(self):
         """Test that the CatState gate is unsupported for the gaussian
         simulator"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
         a = 0.312
         b = 0.123
         c = 0.532
 
-        gate_name = 'CatState'
+        gate_name = "CatState"
         operation = qml.CatState
         wires = [0]
 
@@ -377,13 +398,15 @@ class TestUnsupported:
             operation(a, b, c, wires=wires)
             return qml.expval(qml.NumberOperator(0))
 
-        with pytest.raises(qml.DeviceError, match="Gate {} not supported "\
-            "on device strawberryfields.gaussian".format(gate_name)):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Gate {} not supported " "on device strawberryfields.gaussian".format(gate_name),
+        ):
             circuit()
 
     def test_tensorn_not_supported(self):
         """Test error is raised with the unsupported TensorN observable"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         observable = qml.TensorN
         wires = [0, 1]
@@ -392,9 +415,12 @@ class TestUnsupported:
         def circuit():
             return qml.expval(observable(wires=wires))
 
-        with pytest.raises(qml.DeviceError, match="Observable TensorN not supported "\
-            "on device strawberryfields.gaussian"):
+        with pytest.raises(
+            qml.DeviceError,
+            match="Observable TensorN not supported " "on device strawberryfields.gaussian",
+        ):
             circuit()
+
 
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
@@ -403,7 +429,7 @@ class TestExpectation:
     def test_number_operator(self, tol):
         """Test that the expectation value of the NumberOperator observable
         yields the correct result"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         gate_name = "NumberOperator"
         assert dev.supports_observable(gate_name)
@@ -418,13 +444,15 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(*args, wires=wires))
 
-        assert np.allclose(circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0)
+        assert np.allclose(
+            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+        )
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
         """Test that the expectation of the X and P quadrature operators yield
         the correct result"""
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         assert dev.supports_observable(gate_name)
 
@@ -437,14 +465,16 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(*args, wires=wires))
 
-        assert np.allclose(circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0)
+        assert np.allclose(
+            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+        )
 
     def test_quad_operator(self, tol):
         """Test that the expectation for the generalized quadrature observable
         yields the correct result"""
         a = 0.312
 
-        dev = qml.device('strawberryfields.gaussian', wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2)
 
         op = qml.QuadOperator
         gate_name = "QuadOperator"
@@ -459,7 +489,9 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(*args, wires=wires))
 
-        assert np.allclose(circuit(a), SF_expectation_reference(sf_expectation, wires, a), atol=tol, rtol=0)
+        assert np.allclose(
+            circuit(a), SF_expectation_reference(sf_expectation, wires, a), atol=tol, rtol=0
+        )
 
     def test_polyxp(self, tol):
         """Test that PolyXP works as expected"""
@@ -467,8 +499,8 @@ class TestExpectation:
         nbar = 0.5234
 
         hbar = 2
-        dev = qml.device('strawberryfields.gaussian', wires=2)
-        Q = np.array([0, 1, 0]) # x expectation
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+        Q = np.array([0, 1, 0])  # x expectation
 
         @qml.qnode(dev)
         def circuit(x):
@@ -476,9 +508,9 @@ class TestExpectation:
             return qml.expval(qml.PolyXP(Q, 0))
 
         # test X expectation
-        assert np.allclose(circuit(a), hbar*a, atol=tol, rtol=0)
+        assert np.allclose(circuit(a), hbar * a, atol=tol, rtol=0)
 
-        Q = np.diag([-0.5, 1/(2*hbar), 1/(2*hbar)]) # mean photon number
+        Q = np.diag([-0.5, 1 / (2 * hbar), 1 / (2 * hbar)])  # mean photon number
 
         @qml.qnode(dev)
         def circuit(x):
@@ -487,7 +519,7 @@ class TestExpectation:
             return qml.expval(qml.PolyXP(Q, 0))
 
         # test X expectation
-        assert np.allclose(circuit(a), nbar+np.abs(a)**2, atol=tol, rtol=0)
+        assert np.allclose(circuit(a), nbar + np.abs(a) ** 2, atol=tol, rtol=0)
 
     def test_fock_state_projector(self, tol):
         """Test that FockStateProjector works as expected"""
@@ -495,7 +527,7 @@ class TestExpectation:
         r = 0.123
 
         hbar = 2
-        dev = qml.device('strawberryfields.gaussian', wires=2, hbar=hbar)
+        dev = qml.device("strawberryfields.gaussian", wires=2, hbar=hbar)
 
         # test correct number state expectation |<n|a>|^2
         @qml.qnode(dev)
@@ -503,7 +535,7 @@ class TestExpectation:
             qml.Displacement(x, 0, wires=0)
             return qml.expval(qml.FockStateProjector(np.array([2]), wires=0))
 
-        expected = np.abs(np.exp(-np.abs(a)**2/2)*a**2/np.sqrt(2))**2
+        expected = np.abs(np.exp(-np.abs(a) ** 2 / 2) * a ** 2 / np.sqrt(2)) ** 2
         assert np.allclose(circuit(a), expected, atol=tol, rtol=0)
 
         # test correct number state expectation |<n|S(r)>|^2
@@ -512,15 +544,16 @@ class TestExpectation:
             qml.Squeezing(x, 0, wires=0)
             return qml.expval(qml.FockStateProjector(np.array([2, 0]), wires=[0, 1]))
 
-        expected = np.abs(np.sqrt(2)/(2)*(-np.tanh(r))/np.sqrt(np.cosh(r)))**2
+        expected = np.abs(np.sqrt(2) / (2) * (-np.tanh(r)) / np.sqrt(np.cosh(r))) ** 2
         assert np.allclose(circuit(r), expected, atol=tol, rtol=0)
+
 
 class TestVariance:
     """Test for the device variance"""
 
     def test_first_order_cv(self, tol):
         """Test variance of a first order CV expectation value"""
-        dev = qml.device('strawberryfields.gaussian', wires=1)
+        dev = qml.device("strawberryfields.gaussian", wires=1)
 
         @qml.qnode(dev)
         def circuit(r, phi):
@@ -532,22 +565,24 @@ class TestVariance:
         phi = -0.654
 
         var = circuit(r, phi)
-        expected = np.exp(2*r)*np.sin(phi)**2 + np.exp(-2*r)*np.cos(phi)**2
+        expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradA = circuit.jacobian([r, phi], method='A')
-        gradF = circuit.jacobian([r, phi], method='F')
-        expected = np.array([
-            2*np.exp(2*r)*np.sin(phi)**2 - 2*np.exp(-2*r)*np.cos(phi)**2,
-            2*np.sinh(2*r)*np.sin(2*phi)
-        ])
+        gradA = circuit.jacobian([r, phi], method="A")
+        gradF = circuit.jacobian([r, phi], method="F")
+        expected = np.array(
+            [
+                2 * np.exp(2 * r) * np.sin(phi) ** 2 - 2 * np.exp(-2 * r) * np.cos(phi) ** 2,
+                2 * np.sinh(2 * r) * np.sin(2 * phi),
+            ]
+        )
         assert np.allclose(gradA, expected, atol=tol, rtol=0)
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
     def test_second_order_cv(self, tol):
         """Test variance of a second order CV expectation value"""
-        dev = qml.device('strawberryfields.gaussian', wires=1)
+        dev = qml.device("strawberryfields.gaussian", wires=1)
 
         @qml.qnode(dev)
         def circuit(n, a):
@@ -563,6 +598,6 @@ class TestVariance:
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.jacobian([n, a], method='F')
-        expected = np.array([2*a**2+2*n+1, 2*a*(2*n+1)])
+        gradF = circuit.jacobian([n, a], method="F")
+        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
