@@ -28,19 +28,21 @@ psi = np.array([ 0.08820314+0.14909648j,  0.32826940+0.32956027j,
         0.17330397+0.2494433j ,  0.14293477+0.25095202j,
         0.21021125+0.30082734j,  0.23443833+0.19584968j])
 
-one_mode_single_scalar_parameter_gates = [
-            ('ThermalState', qml.ops.ThermalState),
-            ('Kerr', qml.ops.Kerr),
-            ('QuadraticPhase', qml.ops.QuadraticPhase),
-            ('Rotation', qml.ops.Rotation),
-            ('CubicPhase', qml.ops.CubicPhase),
+one_mode_single_real_parameter_gates = [
+            ('ThermalState', qml.ThermalState),
+            ('Kerr', qml.Kerr),
+            ('QuadraticPhase', qml.QuadraticPhase),
+            ('Rotation', qml.Rotation),
+            ('CubicPhase', qml.CubicPhase),
                                            ]
 
-two_modes_single_scalar_parameter_gates = [
-            ('CrossKerr', qml.ops.CrossKerr),
-            ('ControlledAddition', qml.ops.ControlledAddition),
-            ('ControlledPhase', qml.ops.ControlledPhase),
+two_modes_single_real_parameter_gates = [
+            ('CrossKerr', qml.CrossKerr),
+            ('ControlledAddition', qml.ControlledAddition),
+            ('ControlledPhase', qml.ControlledPhase),
                                            ]
+
+
 # compare to reference SF engine
 def SF_gate_reference(sf_op, cutoff_dim, wires, *args):
     """SF reference circuit for gate tests"""
@@ -85,21 +87,6 @@ class TestFock:
         with pytest.raises(TypeError, match="missing 1 required keyword-only argument: 'cutoff_dim'"):
             dev = qml.device('strawberryfields.fock', wires=1)
 
-    def test_tensorn_not_supported(self):
-        """Test error is raised with the unsupported TensorN observable"""
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
-
-        observable = qml.TensorN
-        wires = [0, 1]
-
-        @qml.qnode(dev)
-        def circuit():
-            return qml.expval(observable(wires=wires))
-
-        with pytest.raises(qml.DeviceError, match="Observable TensorN not supported "\
-            "on device strawberryfields.fock"):
-            circuit()
-
     def test_fock_circuit(self, tol):
         """Test that the fock plugin provides correct result for simple circuit"""
         dev = qml.device('strawberryfields.fock', wires=1, cutoff_dim=10)
@@ -130,9 +117,14 @@ class TestFock:
         expected_var = np.sqrt(1/shots)
         assert np.allclose(np.mean(runs), x, atol=expected_var)
 
-    @pytest.mark.parametrize("gate_name,pennylane_gate", one_mode_single_scalar_parameter_gates)
-    def test_one_mode_single_scalar_parameter_gates(self, gate_name, pennylane_gate, tol):
-        """Test that gates that take a single scalar parameter and act on one mode provide the correct result"""
+class TestGates:
+    """Tests the supported gates compared to the result from Strawberry
+    Fields"""
+
+    @pytest.mark.parametrize("gate_name,pennylane_gate", one_mode_single_real_parameter_gates)
+    def test_one_mode_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
+        """Test that gates that take a single real parameter and act on one
+        mode provide the correct result"""
         a = 0.312
 
         operation = pennylane_gate
@@ -156,9 +148,9 @@ class TestFock:
         sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
-    @pytest.mark.parametrize("gate_name,pennylane_gate", two_modes_single_scalar_parameter_gates)
-    def test_two_modes_single_scalar_parameter_gates(self, gate_name, pennylane_gate, tol):
-        """Test that gates that take a single scalar parameter and act on two
+    @pytest.mark.parametrize("gate_name,pennylane_gate", two_modes_single_real_parameter_gates)
+    def test_two_modes_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
+        """Test that gates that take a single real parameter and act on two
         modes provide the correct result"""
         a = 0.312
 
@@ -191,7 +183,7 @@ class TestFock:
         wires = [0]
 
         gate_name = "GaussianState"
-        operation = qml.ops.GaussianState
+        operation = qml.GaussianState
 
         cutoff_dim = 10
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
@@ -222,7 +214,7 @@ class TestFock:
         wires = [0, 1]
 
         gate_name = "Interferometer"
-        operation = qml.ops.Interferometer
+        operation = qml.Interferometer
 
         cutoff_dim = 10
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
@@ -241,84 +233,6 @@ class TestFock:
         sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, U)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
-    def test_fock_density_matrix(self, tol):
-        """Test that the FockDensityMatrix gate works correctly"""
-        dm = np.outer(psi, psi.conj())
-
-        wires = [0]
-
-        gate_name = "FockDensityMatrix"
-        operation = qml.ops.FockDensityMatrix
-
-        cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
-
-        sf_operation = dev._operation_map[gate_name]
-
-        assert dev.supports_operation(gate_name)
-
-        @qml.qnode(dev)
-        def circuit(*args):
-            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
-            operation(*args, wires=wires)
-            return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
-
-        res = circuit(dm)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, dm)
-        assert np.allclose(res, sf_res, atol=tol, rtol=0)
-
-    def test_fock_state_vector(self, tol):
-        """Test that the FockStateVector gate works correctly"""
-        args = psi
-
-        wires = [0]
-
-        gate_name = "FockStateVector"
-        operation = qml.ops.FockStateVector
-
-        cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
-
-        sf_operation = dev._operation_map[gate_name]
-
-        assert dev.supports_operation(gate_name)
-
-        @qml.qnode(dev)
-        def circuit(*args):
-            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
-            operation(*args, wires=wires)
-            return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
-
-        res = circuit(psi)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, psi)
-        assert np.allclose(res, sf_res, atol=tol, rtol=0)
-
-    def test_fock_state(self, tol):
-        """Test that the FockState gate works correctly"""
-        args = psi
-
-        wires = [0]
-
-        gate_name = "FockState"
-        operation = qml.ops.FockState
-
-        cutoff_dim = 10
-        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
-
-        sf_operation = dev._operation_map[gate_name]
-
-        assert dev.supports_operation(gate_name)
-
-        @qml.qnode(dev)
-        def circuit(*args):
-            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
-            operation(*args, wires=wires)
-            return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
-
-        res = circuit(1)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, 1)
-        assert np.allclose(res, sf_res, atol=tol, rtol=0)
-
     def test_displaced_squeezed_state(self, tol):
         """Test that the DisplacedSqueezedState gate works correctly"""
         a = 0.312
@@ -329,7 +243,7 @@ class TestFock:
         wires = [0]
 
         gate_name = "DisplacedSqueezedState"
-        operation = qml.ops.DisplacedSqueezedState
+        operation = qml.DisplacedSqueezedState
 
         cutoff_dim = 10
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
@@ -348,6 +262,83 @@ class TestFock:
         sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a*np.exp(1j*b), c, d)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
+    def test_fock_state(self, tol):
+        """Test that the FockState gate works correctly"""
+        arg = 1
+        wires = [0]
+
+        gate_name = "FockState"
+        operation = qml.FockState
+
+        cutoff_dim = 10
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+
+        sf_operation = dev._operation_map[gate_name]
+
+        assert dev.supports_operation(gate_name)
+
+        @qml.qnode(dev)
+        def circuit(*args):
+            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+            operation(*args, wires=wires)
+            return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
+
+        res = circuit(arg)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, arg)
+        assert np.allclose(res, sf_res, atol=tol, rtol=0)
+
+    def test_fock_state_vector(self, tol):
+        """Test that the FockStateVector gate works correctly"""
+        args = psi
+
+        wires = [0]
+
+        gate_name = "FockStateVector"
+        operation = qml.FockStateVector
+
+        cutoff_dim = 10
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+
+        sf_operation = dev._operation_map[gate_name]
+
+        assert dev.supports_operation(gate_name)
+
+        @qml.qnode(dev)
+        def circuit(*args):
+            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+            operation(*args, wires=wires)
+            return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
+
+        res = circuit(psi)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, psi)
+        assert np.allclose(res, sf_res, atol=tol, rtol=0)
+
+    def test_fock_density_matrix(self, tol):
+        """Test that the FockDensityMatrix gate works correctly"""
+        dm = np.outer(psi, psi.conj())
+
+        wires = [0]
+
+        gate_name = "FockDensityMatrix"
+        operation = qml.FockDensityMatrix
+
+        cutoff_dim = 10
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
+
+        sf_operation = dev._operation_map[gate_name]
+
+        assert dev.supports_operation(gate_name)
+
+        @qml.qnode(dev)
+        def circuit(*args):
+            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+            operation(*args, wires=wires)
+            return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
+
+        res = circuit(dm)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, dm)
+        assert np.allclose(res, sf_res, atol=tol, rtol=0)
+
     def test_cat_state(self, tol):
         """Test that the CatState gate works correctly"""
         a = 0.312
@@ -356,7 +347,7 @@ class TestFock:
         wires = [0]
 
         gate_name = "CatState"
-        operation = qml.ops.CatState
+        operation = qml.CatState
 
         cutoff_dim = 10
         dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=cutoff_dim)
@@ -374,6 +365,21 @@ class TestFock:
         res = circuit(a, b, c)
         sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a*np.exp(1j*b), c)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
+
+    def test_tensorn_not_supported(self):
+        """Test error is raised with the unsupported TensorN observable"""
+        dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=2)
+
+        observable = qml.TensorN
+        wires = [0, 1]
+
+        @qml.qnode(dev)
+        def circuit():
+            return qml.expval(observable(wires=wires))
+
+        with pytest.raises(qml.DeviceError, match="Observable TensorN not supported "\
+            "on device strawberryfields.fock"):
+            circuit()
 
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
@@ -474,7 +480,7 @@ class TestExpectation:
         # test X expectation
         assert np.allclose(circuit(a), nbar+np.abs(a)**2, atol=tol, rtol=0)
 
-    def test_fock_state(self, tol):
+    def test_fock_state_projector(self, tol):
         """Test that FockStateProjector works as expected"""
         cutoff_dim = 12
         a = 0.54321
