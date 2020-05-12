@@ -109,7 +109,7 @@ class TestGaussian:
         assert np.allclose(circuit(1), 1, atol=tol, rtol=0)
 
     def test_nonzero_shots(self):
-        """Test that the gaussian plugin provides correct result for high shot number"""
+        """Test that the gaussian plugin provides correct results for high shot number"""
         shots = 10 ** 2
         dev = qml.device("strawberryfields.gaussian", wires=1, shots=shots)
 
@@ -134,7 +134,7 @@ class TestGates:
 
     @pytest.mark.parametrize("gate_name,pennylane_gate", one_mode_single_real_parameter_gates)
     def test_one_mode_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
-        """Test that gates that take a single real parameter and act on one mode provide the correct result"""
+        """Test that gates that take a single real parameter and acts on one mode provide the correct result"""
         a = 0.312
 
         operation = pennylane_gate
@@ -159,7 +159,7 @@ class TestGates:
 
     @pytest.mark.parametrize("gate_name,pennylane_gate", two_modes_single_real_parameter_gates)
     def test_two_modes_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
-        """Test that gates that take a single real parameter and act on two
+        """Test that gates that take a single real parameter and acts on two
         modes provide the correct result"""
         a = 0.312
 
