@@ -134,7 +134,7 @@ class TestGates:
 
     @pytest.mark.parametrize("gate_name,pennylane_gate", one_mode_single_real_parameter_gates)
     def test_one_mode_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
-        """Test that gates that take a single real parameter and act on one mode provide the correct result"""
+        """Test that gates that take a single real parameter and acts on one mode provide the correct result"""
         a = 0.312
 
         operation = pennylane_gate
