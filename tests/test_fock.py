@@ -164,7 +164,7 @@ class TestGates:
 
     @pytest.mark.parametrize("gate_name,pennylane_gate", two_modes_single_real_parameter_gates)
     def test_two_modes_single_real_parameter_gates(self, gate_name, pennylane_gate, tol):
-        """Test that gates that take a single real parameter and act on two
+        """Test that gates that take a single real parameter and acts on two
         modes provide the correct result"""
         a = 0.312
 
