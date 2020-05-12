@@ -547,6 +547,21 @@ class TestExpectation:
         expected = np.abs(np.sqrt(2) / (2) * (-np.tanh(r)) / np.sqrt(np.cosh(r))) ** 2
         assert np.allclose(circuit(r), expected, atol=tol, rtol=0)
 
+    def test_trace(self, tol):
+        """Test that Identity expectation works as expected"""
+        r1 = 0.5
+        r2 = 0.7
+
+        hbar = 2
+        dev = qml.device("strawberryfields.gaussian", wires=2, hbar=hbar)
+
+        @qml.qnode(dev)
+        def circuit(x, y):
+            qml.Squeezing(x, 0, wires=0)
+            qml.Squeezing(y, 0, wires=1)
+            return qml.expval(qml.Identity(wires=[0, 1]))
+
+        assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
 
 class TestVariance:
     """Test for the device variance"""
