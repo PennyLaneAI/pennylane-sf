@@ -380,24 +380,6 @@ class TestGates:
         sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
-    def test_tensorn_not_supported(self):
-        """Test error is raised with the unsupported TensorN observable"""
-        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=2)
-
-        observable = qml.TensorN
-        wires = [0, 1]
-
-        @qml.qnode(dev)
-        def circuit():
-            return qml.expval(observable(wires=wires))
-
-        with pytest.raises(
-            qml.DeviceError,
-            match="Observable TensorN not supported " "on device strawberryfields.fock",
-        ):
-            circuit()
-
-
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
     the Strawberry Fields results"""

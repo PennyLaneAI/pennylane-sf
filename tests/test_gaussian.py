@@ -404,24 +404,6 @@ class TestUnsupported:
         ):
             circuit()
 
-    def test_tensorn_not_supported(self):
-        """Test error is raised with the unsupported TensorN observable"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
-
-        observable = qml.TensorN
-        wires = [0, 1]
-
-        @qml.qnode(dev)
-        def circuit():
-            return qml.expval(observable(wires=wires))
-
-        with pytest.raises(
-            qml.DeviceError,
-            match="Observable TensorN not supported " "on device strawberryfields.gaussian",
-        ):
-            circuit()
-
-
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
     the Strawberry Fields results"""
