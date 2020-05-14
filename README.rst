@@ -45,8 +45,7 @@ The plugin documentation can be found here: `https://pennylane-sf.readthedocs.io
 Features
 ========
 
-* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``.
-These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
+* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
 * Supports all core PennyLane operations and observables across the two devices.
 
