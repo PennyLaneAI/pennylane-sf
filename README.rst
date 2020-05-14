@@ -77,12 +77,12 @@ Dependencies
 
 PennyLane-SF requires the following libraries be installed:
 
-* `Python <http://python.org/>`_ >=3.5
+* `Python <http://python.org/>`_ >=3.6
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`_ >=0.4
-* `StrawberryFields <https://strawberryfields.readthedocs.io/>`_ >=0.11
+* `PennyLane <http://pennylane.readthedocs.io/>`_ >=0.7
+* `StrawberryFields <https://strawberryfields.readthedocs.io/>`_ >=0.11.2
 
 
 If you currently do not have Python 3 installed,
