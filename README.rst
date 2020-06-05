@@ -31,22 +31,21 @@ PennyLane Strawberry Fields Plugin
 The PennyLane-SF plugin integrates the StrawberryFields photonic quantum computing framework with PennyLane's
 quantum machine learning capabilities.
 
-`PennyLane <https://pennylane.readthedocs.io>`_ is a machine learning library for optimization and
+`PennyLane <https://pennylane.readthedocs.io>`__ is a machine learning library for optimization and
 automatic differentiation of hybrid quantum-classical computations.
 
-`Strawberry Fields <https://strawberryfields.readthedocs.io>`_ is a full-stack Python library
+`Strawberry Fields <https://strawberryfields.readthedocs.io>`__ is a full-stack Python library
 for designing, simulating, and optimizing photonic quantum circuits.
 
 .. header-end-inclusion-marker-do-not-remove
 
-The plugin documentation can be found here: `https://pennylane-sf.readthedocs.io/en/latest/`_.
+The plugin documentation can be found here: `PennyLane-Strawberry Fields <https://pennylane-sf.readthedocs.io/en/latest/>`__.
 
 
 Features
 ========
 
-* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``.
-These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
+* Provides two devices to be used with PennyLane: ``strawberryfields.fock`` and ``strawberryfields.gaussian``. These provide access to the Strawberry Fields Fock and Gaussian backends respectively.
 
 * Supports all core PennyLane operations and observables across the two devices.
 
@@ -73,20 +72,18 @@ Alternatively, you can install PennyLane-SF from the source code by navigating t
 Dependencies
 ~~~~~~~~~~~~
 
-.. highlight:: bash
-
 PennyLane-SF requires the following libraries be installed:
 
-* `Python <http://python.org/>`_ >=3.5
+* `Python <http://python.org/>`__ >=3.6
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`_ >=0.4
-* `StrawberryFields <https://strawberryfields.readthedocs.io/>`_ >=0.11
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >=0.7
+* `StrawberryFields <https://strawberryfields.readthedocs.io/>`__ >=0.11.2
 
 
 If you currently do not have Python 3 installed,
-we recommend `Anaconda for Python 3 <https://www.anaconda.com/download/>`_, a distributed
+we recommend `Anaconda for Python 3 <https://www.anaconda.com/download/>`__, a distributed
 version of Python packaged for scientific computation.
 
 Software tests
@@ -107,7 +104,7 @@ To build the HTML documentation, go to the top-level directory and run
 
     $ make docs
 
-The documentation can then be found in the :file:`doc/_build/html/` directory.
+The documentation can then be found in the ``doc/_build/html/`` directory.
 
 .. installation-end-inclusion-marker-do-not-remove
 
@@ -115,7 +112,7 @@ Contributing
 ============
 
 We welcome contributions - simply fork the PennyLane-SF repository, and then make a
-`pull request <https://help.github.com/articles/about-pull-requests/>`_ containing your contribution.
+`pull request <https://help.github.com/articles/about-pull-requests/>`__ containing your contribution.
 All contributers to PennyLane-SF will be listed as authors on the releases.
 
 We also encourage bug reports, suggestions for new features and enhancements, and even links
@@ -131,11 +128,11 @@ If you are doing research using PennyLane and StrawberryFields, please cite our 
 
     Ville Bergholm, Josh Izaac, Maria Schuld, Christian Gogolin, and Nathan Killoran.
     *PennyLane: Automatic differentiation of hybrid quantum-classical computations.* 2018.
-    `arXiv:1811.04968 <https://arxiv.org/abs/1811.04968>`_
+    `arXiv:1811.04968 <https://arxiv.org/abs/1811.04968>`__
 
     Nathan Killoran, Josh Izaac, Nicolás Quesada, Ville Bergholm, Matthew Amy, and Christian Weedbrook.
     *Strawberry Fields: A Software Platform for Photonic Quantum Computing.* 2018.
-    `arXiv:1804.03159  <https://arxiv.org/abs/1804.03159>`_
+    `arXiv:1804.03159 <https://arxiv.org/abs/1804.03159>`__
 
 .. support-start-inclusion-marker-do-not-remove
 
@@ -149,7 +146,7 @@ Support
 If you are having issues, please let us know by posting the issue on our Github issue tracker, or
 by asking a question in the forum.
 
-We also have a `Strawberry Fields Slack channel <https://u.strawberryfields.ai/slack>`_ -
+We also have a `Strawberry Fields Slack channel <https://u.strawberryfields.ai/slack>`__ -
 come join the discussion and chat with our Strawberry Fields team.
 
 .. support-end-inclusion-marker-do-not-remove

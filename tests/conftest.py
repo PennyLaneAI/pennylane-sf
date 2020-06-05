@@ -1,4 +1,4 @@
-# Copyright 2018 Xanadu Quantum Technologies Inc.
+# Copyright 2018-2020 Xanadu Quantum Technologies Inc.
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import pytest
-from defaults import TOLERANCE
+
+
+# defaults
+TOLERANCE = 1e-5
 
 
 @pytest.fixture
 def tol():
-	"""Default tolerance"""
-	# TODO: once tests are ported to pytest completely,
-	# remove defaults.py
-	return TOLERANCE
+    """Default tolerance"""
+    return TOLERANCE

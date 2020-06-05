@@ -1,4 +1,4 @@
-# Release 0.9.0-dev
+# Release 0.10.0-dev
 
 ### New features since last release
 
@@ -13,6 +13,26 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+---
+
+# Release 0.9.0
+
+### Improvements
+
+* Refactored the test suite.
+  [#33](https://github.com/XanaduAI/pennylane-sf/pull/33)
+
+### Documentation
+
+* Major redesign of the documentation, making it easier to navigate.
+  [#32](https://github.com/XanaduAI/pennylane-sf/pull/32)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Josh Izaac, Maria Schuld, Antal Száva
 
 ---
 
