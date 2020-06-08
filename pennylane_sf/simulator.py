@@ -142,6 +142,9 @@ class StrawberryFieldsSimulator(Device):
         Returns:
             float: variance value
         """
+        if observable == 'TensorN':
+            raise Exception("The variance for TensorN is not supported.")
+
         _, var = self._observable_map[observable](self.state, wires, par)
         return var
 
