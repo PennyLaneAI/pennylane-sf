@@ -451,6 +451,7 @@ class TestExpectation:
         assert np.allclose(
             circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
         )
+
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
         """Test that the expectation of the X and P quadrature operators yield
