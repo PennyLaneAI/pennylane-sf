@@ -42,7 +42,7 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
                                   Squeezed, Thermal, Gaussian)
 # import gates
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
-                                  Pgate, Rgate, S2gate, Sgate, Interferometer)
+                                  Pgate, Rgate, S2gate, Sgate, Interferometer, MeasureFock)
 
 from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
@@ -61,8 +61,8 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
-    name = 'Strawberry Fields Gaussian PennyLane plugin'
-    short_name = 'strawberryfields.gaussian'
+    name = 'Strawberry Fields Hardware PennyLane plugin'
+    short_name = 'strawberryfields.ai'
 
     _operation_map = {
         'CoherentState': Coherent,
@@ -83,6 +83,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     _observable_map = {
         'NumberOperator': mean_photon,
+        'TensorN': None,
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
         'QuadOperator': homodyne(),
@@ -91,11 +92,22 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         'Identity': identity
     }
 
-    _circuits = {}
+    def __init__(self, wires, *, chip="X8", shots=1000, hbar=2):
+        super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
+        self.chip = chip
 
-    # How to specify the chip?
     def pre_measure(self):
-        self.eng = RemoteEngine("X8")
-        results = self.eng.run(self.prog)
+        self.eng = sf.RemoteEngine(self.chip)
 
+        self.all_measure_fock()
+
+        # RemoteEngine.run also includes compilation that checks the validity
+        # of the defined Program
+        results = self.eng.run(self.prog, shots=self.shots)
         self.samples = results.samples
+
+    def all_measure_fock(self):
+        MeasureFock() | self.q #pylint: disable=pointless-statement
+
+    def sample(self, observable, wires, par):
+        return self.samples

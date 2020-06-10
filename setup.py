@@ -38,6 +38,7 @@ info = {
                 ],
     'entry_points': {
         'pennylane.plugins': [
+            'strawberryfields.ai = pennylane_sf:StrawberryFieldsRemote',
             'strawberryfields.fock = pennylane_sf:StrawberryFieldsFock',
             'strawberryfields.gaussian = pennylane_sf:StrawberryFieldsGaussian'
             ],
