@@ -104,7 +104,8 @@ def number_expectation(state, wires, params):
         params (Sequence): sequence of parameters (not used)
 
     Returns:
-        float, float: mean photon number and its variance
+        float, float: the expectation value of the number operator and its
+            variance
     """
     # pylint: disable=unused-argument
     return state.number_expectation(wires)
