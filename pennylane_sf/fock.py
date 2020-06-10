@@ -42,8 +42,7 @@ from strawberryfields.ops import (Catstate, Coherent, DensityMatrix, DisplacedSq
 from strawberryfields.ops import (BSgate, CKgate, CXgate, CZgate, Dgate,
                                   Kgate, Pgate, Rgate, S2gate, Sgate, Vgate, Interferometer)
 
-from .expectations import (identity, mean_photon, number_expectation, homodyne,
-        fock_state, poly_xp)
+from .expectations import (identity, mean_photon, number_expectation, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
 
