@@ -443,14 +443,33 @@ class TestExpectation:
         wires = [0, 1]
 
         @qml.qnode(dev)
-        def circuit(*args):
+        def circuit():
             qml.Displacement(0.1, 0, wires=0)
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
-            return qml.expval(op(*args, wires=wires))
+            return qml.expval(op(wires=wires))
 
         assert np.allclose(
             circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
         )
+
+    def test_tensor_number_operator_raises(self, tol):
+        """Test that an error is raised if the TensorN is used for more than 2
+        wires with the Gaussian device."""
+        dev = qml.device("strawberryfields.gaussian", wires=3)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        op = qml.TensorN
+        sf_expectation = dev._observable_map[gate_name]
+        wires = [0, 1, 2]
+
+        @qml.qnode(dev)
+        def circuit():
+            return qml.expval(op(wires=wires))
+
+        with pytest.raises(ValueError, match="The number_expectation method only supports one or two modes for Gaussian states."):
+            circuit()
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):

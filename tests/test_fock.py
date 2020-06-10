@@ -423,10 +423,10 @@ class TestExpectation:
         wires = [0, 1]
 
         @qml.qnode(dev)
-        def circuit(*args):
+        def circuit():
             qml.Displacement(0.1, 0, wires=0)
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
-            return qml.expval(op(*args, wires=wires))
+            return qml.expval(op(wires=wires))
 
         assert np.allclose(
             circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
