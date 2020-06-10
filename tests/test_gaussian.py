@@ -639,3 +639,22 @@ class TestVariance:
         gradF = circuit.jacobian([n, a], method="F")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
+
+    def test_tensor_number_operator_raises(self, tol):
+        """Test that the variance of the TensorN observable
+        is not supported"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        op = qml.TensorN
+        sf_expectation = dev._observable_map[gate_name]
+        wires = [0, 1]
+
+        @qml.qnode(dev)
+        def circuit():
+            return qml.var(op(wires=wires))
+
+        with pytest.raises(ValueError, match="The variance for TensorN is not supported."):
+            circuit()
