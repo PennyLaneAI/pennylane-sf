@@ -430,6 +430,27 @@ class TestExpectation:
             circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
         )
 
+    def test_tensor_number_operator(self, tol):
+        """Test that the expectation value of the TensorN observable
+        yields the correct result"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        op = qml.TensorN
+        sf_expectation = dev._observable_map[gate_name]
+        wires = [0, 1]
+
+        @qml.qnode(dev)
+        def circuit(*args):
+            qml.Displacement(0.1, 0, wires=0)
+            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+            return qml.expval(op(*args, wires=wires))
+
+        assert np.allclose(
+            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+        )
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
         """Test that the expectation of the X and P quadrature operators yield
