@@ -108,9 +108,6 @@ def number_expectation(state, wires, params):
             variance
     """
     # pylint: disable=unused-argument
-    if len(wires) == 1:
-        return state.mean_photon(wires[0])
-
     return state.number_expectation(wires), None
 
 

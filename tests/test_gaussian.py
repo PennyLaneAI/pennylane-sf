@@ -645,11 +645,17 @@ class TestVariance:
         calculations for the NumberOperator"""
         dev = qml.device("strawberryfields.gaussian", wires=1)
 
+        op = qml.TensorN(wires=[0])
+
+        # Check that instantiating TensorN on one mode returns the
+        # NumberOperator
+        assert isinstance(op, qml.NumberOperator)
+
         @qml.qnode(dev)
         def circuit(n, a):
             qml.ThermalState(n, wires=0)
             qml.Displacement(a, 0, wires=0)
-            return qml.var(qml.TensorN(wires=[0]))
+            return qml.var(op)
 
         n = 0.12
         a = 0.765
