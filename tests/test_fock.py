@@ -643,5 +643,5 @@ class TestVariance:
         def circuit():
             return qml.var(op(wires=wires))
 
-        with pytest.raises(ValueError, match="The variance for TensorN is not supported."):
+        with pytest.raises(ValueError, match="TensorN does not support variances."):
             circuit()

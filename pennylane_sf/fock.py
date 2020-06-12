@@ -89,7 +89,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
 
     _observable_map = {
         'NumberOperator': mean_photon,
-        'TensorN': lambda state, wires, par: tuple((number_expectation(state, wires, par), None)),
+        'TensorN': number_expectation,
         'X': homodyne(0),
         'P': homodyne(np.pi/2),
         'QuadOperator': homodyne(),
