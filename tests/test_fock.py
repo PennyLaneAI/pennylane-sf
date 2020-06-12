@@ -625,6 +625,29 @@ class TestVariance:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
+    def test_tensorn_one_mode_is_mean_photon(self, tol):
+        """Test variance of TensorN for a single mode, which resorts to
+        calculations for the NumberOperator"""
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=15)
+
+        @qml.qnode(dev)
+        def circuit(n, a):
+            qml.ThermalState(n, wires=0)
+            qml.Displacement(a, 0, wires=0)
+            return qml.var(qml.TensorN(wires=[0]))
+
+        n = 0.12
+        a = 0.105
+
+        var = circuit(n, a)
+        expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
+        assert np.allclose(var, expected, atol=tol, rtol=0)
+
+        # circuit jacobians
+        gradF = circuit.jacobian([n, a], method="F")
+        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
+        assert np.allclose(gradF, expected, atol=tol, rtol=0)
+
     def test_tensor_number_operator_raises(self, tol):
         """Test that the variance of the TensorN observable
         is not supported"""
