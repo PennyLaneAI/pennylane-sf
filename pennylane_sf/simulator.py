@@ -36,11 +36,13 @@ Code details
 ~~~~~~~~~~~~
 """
 import abc
+from collections import OrderedDict
 
 import numpy as np
 
 from pennylane import Device
 import strawberryfields as sf
+from strawberryfields.backends.states import BaseFockState, BaseGaussianState
 
 from ._version import __version__
 
@@ -182,3 +184,46 @@ class StrawberryFieldsSimulator(Device):
             set[str]: the set of PennyLane observable names the device supports
         """
         return set(self._observable_map.keys())
+
+    def probability(self, wires=None):
+        """Return the (marginal) probability of each computational basis
+        state from the last run of the device.
+
+        Args:
+            wires (Sequence[int]): Sequence of wires to return
+                marginal probabilities for. Wires not provided
+                are traced out of the system.
+
+        Returns:
+            OrderedDict[tuple, float]: Dictionary mapping a tuple representing the state
+            to the resulting probability. The dictionary should be sorted such that the
+            state tuples are in lexicographical order.
+        """
+        N = len(wires)
+        cutoff = getattr(self, "cutoff", 10)
+
+        if N == self.state.num_modes:
+            # probabilities of the entire system
+            probs = self.state.all_fock_probs(cutoff=cutoff).flat
+
+        else:
+            if isinstance(self.state, BaseFockState):
+                rdm = self.state.reduced_dm(modes=wires)
+                new_state = BaseFockState(rdm, N, pure=False, cutoff_dim=cutoff)
+
+            elif isinstance(self.state, BaseGaussianState):
+                # Reduced Gaussian state
+                mu, cov = self.state.reduced_gaussian(modes=wires)
+
+                # scale so that hbar = 2
+                mu /= np.sqrt(sf.hbar/2)
+                cov /= sf.hbar/2
+
+                # create reduced Gaussian state
+                new_state = BaseGaussianState((mu, cov), N)
+
+            probs = new_state.all_fock_probs(cutoff=cutoff).flat
+
+        ind = np.indices([cutoff] * N).reshape(N, -1).T
+        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+        return probs

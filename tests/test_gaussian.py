@@ -598,3 +598,4 @@ class TestVariance:
         gradF = circuit.jacobian([n, a], method="F")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
+

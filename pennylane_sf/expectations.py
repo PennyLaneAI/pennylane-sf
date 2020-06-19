@@ -36,8 +36,7 @@ Code details
 import numpy as np
 
 import strawberryfields as sf
-from strawberryfields.backends.states import BaseFockState
-from strawberryfields.backends.gaussianbackend.states import GaussianState
+from strawberryfields.backends.states import BaseFockState, BaseGaussianState
 
 import pennylane.ops
 
@@ -55,7 +54,7 @@ def identity(state, wires, params):
         float, float: trace and its variance
     """
     # pylint: disable=unused-argument
-    if isinstance(state, GaussianState):
+    if isinstance(state, BaseGaussianState):
         # Gaussian state representation will always have trace of 1
         return 1, 0
 
@@ -121,32 +120,16 @@ def fock_state(state, wires, params):
         dm = state.reduced_dm(modes=wires)
         ex = dm[tuple([n[i//2] for i in range(len(n)*2)])].real
 
-    elif isinstance(state, GaussianState):
+    elif isinstance(state, BaseGaussianState):
         # Reduced Gaussian state
         mu, cov = state.reduced_gaussian(modes=wires)
-
-        # calculate reduced Q
-        Q = state.qmat # pylint: disable=protected-access
-        ind = np.concatenate([np.array(wires), N+np.array(wires)])
-        rows = ind.reshape((-1, 1))
-        cols = ind.reshape((1, -1))
-        Q = Q[rows, cols]
-
-        # calculate reduced Amat
-        M = Q.shape[0]//2
-        assert M == len(wires)
-
-        I = np.identity(M)
-        O = np.zeros_like(I)
-        X = np.block([[O, I], [I, O]])
-        A = X @ (np.identity(2*M)-np.linalg.inv(Q))
 
         # scale so that hbar = 2
         mu /= np.sqrt(sf.hbar/2)
         cov /= sf.hbar/2
 
         # create reduced Gaussian state
-        new_state = GaussianState((mu, cov), M, Q, A)
+        new_state = BaseGaussianState((mu, cov), len(wires))
         ex = new_state.fock_prob(n)
 
     var = ex - ex**2

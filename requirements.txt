@@ -1,2 +1,2 @@
-strawberryfields>=0.11.2
+git+https://github.com/XanaduAI/strawberryfields.git
 pennylane>=0.7
