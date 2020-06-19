@@ -20,6 +20,7 @@ import strawberryfields as sf
 
 import pennylane as qml
 from pennylane import numpy as np
+from scipy.special import factorial as fac
 
 
 psi = np.array(
@@ -599,3 +600,68 @@ class TestVariance:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
+
+class TestProbability:
+    """Integration tests for returning probabilities"""
+
+    def test_single_mode_probability(self, tol):
+        """Test that a coherent state returns the correct probability"""
+        dev = qml.device("strawberryfields.gaussian", wires=1)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=0)
+
+        a = 0.4
+        phi = -0.12
+        cutoff = 10
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+        ref_probs = np.abs(np.exp(-0.5 * np.abs(alpha) ** 2) * alpha ** n / np.sqrt(fac(n))) ** 2
+
+        res = circuit(a, phi)
+        assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+
+    def test_multi_mode_probability(self, tol):
+        """Test that a product of coherent states returns the correct probability"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=[0, 1])
+
+        a = 0.4
+        phi = -0.12
+        cutoff = 10
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+        ref_probs = np.abs(np.exp(-0.5 * np.abs(alpha) ** 2) * alpha ** n / np.sqrt(fac(n))) ** 2
+        ref_probs = np.kron(ref_probs, ref_probs)
+
+        res = circuit(a, phi)
+        assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+
+    def test_marginal_probability(self, tol):
+        """Test that a coherent state marginal probability is correct"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=1)
+
+        a = 0.4
+        phi = -0.12
+        cutoff = 10
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+        ref_probs = np.abs(np.exp(-0.5 * np.abs(alpha) ** 2) * alpha ** n / np.sqrt(fac(n))) ** 2
+
+        res = circuit(a, phi)
+        assert np.allclose(res, ref_probs, atol=tol, rtol=0)
