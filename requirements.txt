@@ -1,2 +1,3 @@
 git+https://github.com/XanaduAI/strawberryfields.git
 pennylane>=0.7
+tensorflow==2.2.0
