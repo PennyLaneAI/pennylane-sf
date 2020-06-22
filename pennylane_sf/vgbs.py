@@ -32,6 +32,8 @@ Code details
 ~~~~~~~~~~~~
 """
 
+import pennylane as qml
+
 import numpy as np
 
 import strawberryfields as sf
@@ -41,6 +43,17 @@ from strawberryfields.ops import Dgate
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
+
+
+class GraphTrain(qml.operation.CVOperation):
+    """TODO"""
+
+    num_params = 1
+    num_wires = qml.operation.AllWires
+    par_domain = 'A'
+
+    grad_method = 'A'
+    grad_recipe = None
 
 
 class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
