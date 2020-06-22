@@ -36,14 +36,10 @@ import numpy as np
 
 import strawberryfields as sf
 
-#import state preparations
-from strawberryfields.ops import (Coherent, DisplacedSqueezed,
-                                  Squeezed, Thermal, Gaussian)
 # import gates
-from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
-                                  Pgate, Rgate, S2gate, Sgate, Interferometer)
+from strawberryfields.ops import Dgate
 
-from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
+from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -54,29 +50,10 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
     short_name = 'strawberryfields.vgbs'
 
     _operation_map = {
-        'CoherentState': Coherent,
-        'DisplacedSqueezedState': DisplacedSqueezed,
-        'SqueezedState': Squeezed,
-        'ThermalState': Thermal,
-        'GaussianState': Gaussian,
-        'Beamsplitter': BSgate,
-        'ControlledAddition': CXgate,
-        'ControlledPhase': CZgate,
         'Displacement': Dgate,
-        'QuadraticPhase': Pgate,
-        'Rotation': Rgate,
-        'TwoModeSqueezing': S2gate,
-        'Squeezing': Sgate,
-        'Interferometer': Interferometer
     }
 
     _observable_map = {
-        'NumberOperator': mean_photon,
-        'X': homodyne(0),
-        'P': homodyne(np.pi/2),
-        'QuadOperator': homodyne(),
-        'PolyXP': poly_xp,
-        'FockStateProjector': fock_state,
         'Identity': identity
     }
 
