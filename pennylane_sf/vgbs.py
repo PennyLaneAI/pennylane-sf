@@ -31,7 +31,7 @@ Classes
 Code details
 ~~~~~~~~~~~~
 """
-
+from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 import pennylane as qml
 
 import numpy as np
@@ -39,7 +39,7 @@ import numpy as np
 import strawberryfields as sf
 
 # import gates
-from strawberryfields.ops import Dgate
+from strawberryfields.ops import Dgate, GraphEmbed
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
@@ -48,11 +48,16 @@ from .simulator import StrawberryFieldsSimulator
 class GraphTrain(qml.operation.CVOperation):
     """TODO"""
 
-    num_params = 1
+    def __init__(self, *params, **kwargs):
+        par = list(params)
+        par[2] = np.array(par[2])
+        super().__init__(*par, **kwargs)
+
+    num_params = 3
     num_wires = qml.operation.AllWires
     par_domain = 'A'
 
-    grad_method = 'A'
+    grad_method = 'F'  # This would be better as A, but is incompatible with array inputs
     grad_recipe = None
 
 
@@ -64,6 +69,7 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
     _operation_map = {
         'Displacement': Dgate,
+        "GraphTrain": GraphEmbed,
     }
 
     _observable_map = {
@@ -75,6 +81,21 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
     def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, hbar=2):
         super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
+
+    def apply(self, operation, wires, par):
+        """TODO
+        """
+        weights, A, n_mean = par
+        A = A * rescale(A, n_mean)
+        W = np.diag(np.sqrt(weights))
+        WAW = W @ A @ W
+
+        singular_values = np.linalg.svd(WAW, compute_uv=False)
+        n_mean_WAW = np.sum(singular_values ** 2 / (1 - singular_values ** 2))
+
+        op = self._operation_map[operation](WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
+
 
     def pre_measure(self):
         self.eng = sf.Engine("gaussian")
