@@ -39,7 +39,8 @@ info = {
     'entry_points': {
         'pennylane.plugins': [
             'strawberryfields.fock = pennylane_sf:StrawberryFieldsFock',
-            'strawberryfields.gaussian = pennylane_sf:StrawberryFieldsGaussian'
+            'strawberryfields.gaussian = pennylane_sf:StrawberryFieldsGaussian',
+            'strawberryfields.vgbs = pennylane_sf:StrawberryFieldsVGBS',
             ],
         },
     'description': 'Open source library for continuous-variable quantum computation',
