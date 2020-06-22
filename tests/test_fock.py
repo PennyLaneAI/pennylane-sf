@@ -667,3 +667,38 @@ class TestProbability:
 
         res = circuit(a, phi)
         assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+
+    def test_finite_diff(self, tol):
+        cutoff = 10
+        dev = qml.device("strawberryfields.fock", wires=4, cutoff_dim=cutoff)
+
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        tol = 7*1e-2
+        a = 0.4
+        phi = -0.12
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+
+        circuit = qml.QNode(circuit, dev)
+        t1 = 2*(a**2)**(-0.5 + n)
+        t2 = np.exp(-a**2 + 1j*phi + (-1 + n)*phi)
+        t3 = np.sqrt((a*np.exp(1j*phi))**(2*n))
+        denom = ((a*np.exp(1j*phi))**n*fac(n))
+        partial_a = (t1*t2*t3*(n-a*np.sqrt(a**2)*np.exp(phi*np.sign(a))))/denom
+
+        t1 = 2j*(a**2)**(-0.5 + n)
+        t2 = np.exp(-(a**2) + 1j*(-1 + n)*phi)
+        t3 = (a*np.exp(1j*phi))**(1-n)
+        t4 = np.sqrt((a*np.exp(1j*phi))**(2*n))
+        t5 = n
+        denom = factorial
+        partial_phi = t1*t2*t3*t4*t5/denom
+
+        params = [a, phi]
+        res_F = circuit.jacobian(params, method="F")
+        assert np.allclose(res_F[:,0], partial_a, atol=tol, rtol=0)
+        #assert np.allclose(res_F[:,1], partial_phi, atol=tol, rtol=0)
