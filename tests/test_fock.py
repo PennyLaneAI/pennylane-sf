@@ -668,7 +668,9 @@ class TestProbability:
         res = circuit(a, phi)
         assert np.allclose(res, ref_probs, atol=tol, rtol=0)
 
-    def test_finite_diff(self, tol):
+    def test_finite_diff_coherent(self, tol):
+        """Test that the jacobian of the probability for a coherent states is
+        approximated well with finite differences"""
         cutoff = 10
         dev = qml.device("strawberryfields.fock", wires=4, cutoff_dim=cutoff)
 
@@ -685,20 +687,23 @@ class TestProbability:
 
         circuit = qml.QNode(circuit, dev)
         t1 = 2*(a**2)**(-0.5 + n)
-        t2 = np.exp(-a**2 + 1j*phi + (-1 + n)*phi)
+        t2 = np.exp(-(a**2) + 1j*(phi + (-1 + n)*phi))
         t3 = np.sqrt((a*np.exp(1j*phi))**(2*n))
-        denom = ((a*np.exp(1j*phi))**n*fac(n))
-        partial_a = (t1*t2*t3*(n-a*np.sqrt(a**2)*np.exp(phi*np.sign(a))))/denom
+        t4 = n-a*np.sqrt(a**2)*np.sign(a)
+        denom = (a*np.exp(1j*phi))**n*fac(n)
+        diff_a = t1*t2*t3*t4/denom
+
+        tol = 7*1e-2
 
         t1 = 2j*(a**2)**(-0.5 + n)
         t2 = np.exp(-(a**2) + 1j*(-1 + n)*phi)
         t3 = (a*np.exp(1j*phi))**(1-n)
         t4 = np.sqrt((a*np.exp(1j*phi))**(2*n))
         t5 = n
-        denom = factorial
+        denom = fac(n)
         partial_phi = t1*t2*t3*t4*t5/denom
 
         params = [a, phi]
         res_F = circuit.jacobian(params, method="F")
-        assert np.allclose(res_F[:,0], partial_a, atol=tol, rtol=0)
+        assert np.allclose(res_F[:,0], diff_a, atol=tol, rtol=0)
         #assert np.allclose(res_F[:,1], partial_phi, atol=tol, rtol=0)
