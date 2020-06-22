@@ -59,6 +59,10 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
     _circuits = {}
 
+    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, hbar=2):
+        super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
+        self.cutoff = cutoff_dim
+
     def pre_measure(self):
         self.eng = sf.Engine("gaussian")
         results = self.eng.run(self.prog)
