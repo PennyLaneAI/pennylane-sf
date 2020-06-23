@@ -49,6 +49,7 @@ from .simulator import StrawberryFieldsSimulator
 
 
 class StrawberryFieldsRemote(StrawberryFieldsSimulator):
+    # TODO: docstring
     r"""StrawberryFields Gaussian device for PennyLane.
 
     Args:
