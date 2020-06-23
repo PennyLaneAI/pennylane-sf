@@ -34,6 +34,7 @@ Code details
 from collections import OrderedDict
 from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 import pennylane as qml
+from thewalrus.quantum import photon_number_mean_vector
 
 import numpy as np
 
@@ -89,21 +90,19 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
     def apply(self, operation, wires, par):
         """TODO
         """
-        weights, A, n_mean = par
+        self.weights, A, n_mean = par
         A = A * rescale(A, n_mean)
-        W = np.diag(np.sqrt(weights))
-        WAW = W @ A @ W
+        W = np.diag(np.sqrt(self.weights))
+        self.WAW = W @ A @ W
 
-        singular_values = np.linalg.svd(WAW, compute_uv=False)
+        singular_values = np.linalg.svd(self.WAW, compute_uv=False)
         n_mean_WAW = np.sum(singular_values ** 2 / (1 - singular_values ** 2))
 
-        op = self._operation_map[operation](WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        op = self._operation_map[operation](self.WAW, mean_photon_per_mode=n_mean_WAW / len(A))
         op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
         if not self.analytic:
             MeasureFock() | [self.q[i] for i in wires]
-
-        self.weights = weights
 
     def pre_measure(self):
         self.eng = sf.Engine(self.backend, backend_options={"cutoff_dim": self.cutoff})
@@ -139,4 +138,15 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         # Compute and return the jacobian here.
         # returned jacobian matrix should be of size (output_length, num_params)
         jac = np.zeros([len(prob), len(self.weights)])
+
+        n = len(self.WAW)
+        disp = np.zeros(2 * n)
+        I = np.identity(2 * n)
+        o_mat = np.block([[np.zeros_like(self.WAW), np.conj(self.WAW)], [self.WAW, np.zeros_like(self.WAW)]])
+        cov = self.hbar * (np.linalg.inv(I - o_mat) - I / 2)
+        mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
+
+        for i, s in enumerate(np.ndindex(5, 5)):
+            jac[i] = (s - mean_photons_by_mode) * prob[i] / self.weights
+
         return jac
