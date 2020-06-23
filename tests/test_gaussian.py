@@ -706,7 +706,7 @@ class TestProbability:
 
         res = circuit(a, phi)
         assert np.allclose(res, ref_probs, atol=tol, rtol=0)
-=======
+
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
         calculations for the NumberOperator"""

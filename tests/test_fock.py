@@ -731,7 +731,7 @@ class TestProbability:
         res_F = circuit.jacobian(params, method="F")
         assert np.allclose(res_F[:,0], diff_a, atol=tol, rtol=0)
         #assert np.allclose(res_F[:,1], partial_phi, atol=tol, rtol=0)
-=======
+
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
         calculations for the NumberOperator"""
