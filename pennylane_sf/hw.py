@@ -44,6 +44,8 @@ from strawberryfields.ops import (Coherent, DisplacedSqueezed,
 from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
                                   Pgate, Rgate, S2gate, Sgate, Interferometer, MeasureFock)
 
+from strawberryfields.utils.post_processing import samples_expectation, samples_variance, all_fock_probs_pnr
+
 from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
@@ -112,3 +114,20 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     def sample(self, observable, wires, par):
         return self.samples
+
+    def expval(self, observable, wires, par):
+        return samples_expectation(self.samples)
+
+    def var(self, observable, wires, par):
+        return samples_variance(self.samples)
+
+    def probability(self, wires=None):
+
+        all_probs = all_fock_probs_pnr(self.samples)
+        if wires is None:
+           return all_probs
+
+        all_wires = wires.arange(self.wires)
+        wires_to_trace_out = np.setdiff1d(wires, all_wires)
+        traced_out_probs = np.sum(all_probs, axis=wires_to_trace_out)
+        return traced_out_probs
