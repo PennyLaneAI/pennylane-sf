@@ -34,6 +34,7 @@ Code details
 """
 
 import numpy as np
+from collections import OrderedDict
 
 import strawberryfields as sf
 
@@ -131,10 +132,13 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         wires_to_trace_out = np.setdiff1d(all_wires, wires)
 
         if wires_to_trace_out.size > 0:
-            all_probs = np.sum(all_probs, axis=wires_to_trace_out)
+            all_probs = np.sum(all_probs, axis=tuple(wires_to_trace_out))
 
         N = len(wires)
-        max_val = np.max(all_probs)
-        ind = np.indices([max_val] * N).reshape(N, -1).T
-        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+
+        # Extract the cutoff value by checking for how many Fock states we have
+        # probabilities for
+        cutoff = all_probs.shape[0]
+        ind = np.indices([cutoff] * N).reshape(N, -1).T
+        all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
         return all_probs
