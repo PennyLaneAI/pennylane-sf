@@ -697,41 +697,28 @@ class TestProbability:
         """Test that the jacobian of the probability for a coherent states is
         approximated well with finite differences"""
         cutoff = 10
-        dev = qml.device("strawberryfields.fock", wires=4, cutoff_dim=cutoff)
 
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             return qml.probs(wires=[0])
 
-        tol = 7*1e-2
         a = 0.4
         phi = -0.12
 
-        alpha = a * np.exp(1j * phi)
         n = np.arange(cutoff)
 
-        circuit = qml.QNode(circuit, dev)
-        t1 = 2*(a**2)**(-0.5 + n)
-        t2 = np.exp(-(a**2) + 1j*(phi + (-1 + n)*phi))
-        t3 = np.sqrt((a*np.exp(1j*phi))**(2*n))
-        t4 = n-a*np.sqrt(a**2)*np.sign(a)
-        denom = (a*np.exp(1j*phi))**n*fac(n)
-        diff_a = t1*t2*t3*t4/denom
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
-        tol = 7*1e-2
-
-        t1 = 2j*(a**2)**(-0.5 + n)
-        t2 = np.exp(-(a**2) + 1j*(-1 + n)*phi)
-        t3 = (a*np.exp(1j*phi))**(1-n)
-        t4 = np.sqrt((a*np.exp(1j*phi))**(2*n))
-        t5 = n
-        denom = fac(n)
-        partial_phi = t1*t2*t3*t4*t5/denom
-
-        params = [a, phi]
-        res_F = circuit.jacobian(params, method="F")
-        assert np.allclose(res_F[:,0], diff_a, atol=tol, rtol=0)
-        #assert np.allclose(res_F[:,1], partial_phi, atol=tol, rtol=0)
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
