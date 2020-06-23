@@ -654,10 +654,11 @@ class TestVariance:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
-    def test_tensor_number_operator_raises(self, tol):
-        """Test that the variance of the TensorN observable
-        is not supported"""
+    def test_tensor_number_squeezed_displaced(self, tol):
+        """Test the variance of the TensorN observable for a squeezed displaced
+        state"""
         cutoff_dim = 10
+        var_tol = 0.01
 
         dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
@@ -669,8 +670,36 @@ class TestVariance:
         wires = [0, 1]
 
         @qml.qnode(dev)
-        def circuit():
+        def circuit(n, a):
+            qml.Displacement(np.abs(a0), np.angle(a0), wires=0)
+            qml.Squeezing(r0, phi0, wires=0)
+            qml.Displacement(np.abs(a1), np.angle(a1), wires=1)
+            qml.Squeezing(r1, phi1, wires=1)
             return qml.var(op(wires=wires))
 
-        with pytest.raises(ValueError, match="TensorN does not support variances."):
-            circuit()
+        n = 0.12
+        a = 0.105
+
+        a0 = 0.3 + 0.1 * 1j
+        r0 = 0.2
+        phi0 = 0.6
+        a1 = 0.1 + 0.1 * 1j
+        r1 = 0.3
+        phi1 = 0.9
+
+        def analytic_var(a, r, phi):
+            magnitude_squared = np.abs(a) ** 2
+            var_ex = - magnitude_squared + magnitude_squared ** 2 + 2 *\
+                magnitude_squared*np.cosh(2*r) - np.exp(-1j*phi) * a ** 2 *\
+                np.cosh(r)*np.sinh(r) - np.exp(1j* phi) * np.conj(a) **2 *\
+                np.cosh(r)*np.sinh(r) + np.sinh(r)**4 - (magnitude_squared +\
+                        np.conj(np.sinh(r))*np.sinh(r)) ** 2 +\
+                np.cosh(r)*np.sinh(r)*np.sinh(2*r)
+            return var_ex
+
+        var = circuit(n, a)
+
+        v0 = analytic_var(a0, r0, phi0)
+        v1 = analytic_var(a1, r1, phi1)
+        expected = v0 * v1
+        assert np.allclose(var, expected, atol=var_tol, rtol=0)
