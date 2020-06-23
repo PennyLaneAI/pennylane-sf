@@ -108,7 +108,7 @@ def number_expectation(state, wires, params):
             variance
     """
     # pylint: disable=unused-argument
-    return state.number_expectation(wires), None
+    return state.number_expectation(wires)
 
 
 def fock_state(state, wires, params):
