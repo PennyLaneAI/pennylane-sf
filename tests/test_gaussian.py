@@ -431,6 +431,47 @@ class TestExpectation:
             circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
         )
 
+    def test_tensor_number_operator(self, tol):
+        """Test that the expectation value of the TensorN observable
+        yields the correct result"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        op = qml.TensorN
+        sf_expectation = dev._observable_map[gate_name]
+        wires = [0, 1]
+
+        @qml.qnode(dev)
+        def circuit():
+            qml.Displacement(0.1, 0, wires=0)
+            qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
+            return qml.expval(op(wires=wires))
+
+        assert np.allclose(
+            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+        )
+
+    def test_tensor_number_operator_raises(self, tol):
+        """Test that an error is raised if the TensorN is used for more than 2
+        wires with the Gaussian device."""
+        dev = qml.device("strawberryfields.gaussian", wires=3)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        op = qml.TensorN
+        sf_expectation = dev._observable_map[gate_name]
+        wires = [0, 1, 2]
+
+        @qml.qnode(dev)
+        def circuit():
+            return qml.expval(op(wires=wires))
+
+        with pytest.raises(ValueError, match="The number_expectation method only supports one or two modes for Gaussian states."):
+            circuit()
+
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
         """Test that the expectation of the X and P quadrature operators yield
@@ -665,3 +706,51 @@ class TestProbability:
 
         res = circuit(a, phi)
         assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+=======
+    def test_tensorn_one_mode_is_mean_photon(self, tol):
+        """Test variance of TensorN for a single mode, which resorts to
+        calculations for the NumberOperator"""
+        dev = qml.device("strawberryfields.gaussian", wires=1)
+
+        op = qml.TensorN(wires=[0])
+
+        # Check that instantiating TensorN on one mode returns the
+        # NumberOperator
+        assert isinstance(op, qml.NumberOperator)
+
+        @qml.qnode(dev)
+        def circuit(n, a):
+            qml.ThermalState(n, wires=0)
+            qml.Displacement(a, 0, wires=0)
+            return qml.var(op)
+
+        n = 0.12
+        a = 0.765
+
+        var = circuit(n, a)
+        expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
+        assert np.allclose(var, expected, atol=tol, rtol=0)
+
+        # circuit jacobians
+        gradF = circuit.jacobian([n, a], method="F")
+        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
+        assert np.allclose(gradF, expected, atol=tol, rtol=0)
+
+    def test_tensor_number_operator_raises(self, tol):
+        """Test that the variance of the TensorN observable
+        is not supported"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        op = qml.TensorN
+        sf_expectation = dev._observable_map[gate_name]
+        wires = [0, 1]
+
+        @qml.qnode(dev)
+        def circuit():
+            return qml.var(op(wires=wires))
+
+        with pytest.raises(ValueError, match="TensorN does not support variances."):
+            circuit()
