@@ -97,10 +97,12 @@ def mean_photon(state, wires, params):
 def number_expectation(state, wires, params):
     """Computes the expectation value of tensor products consisting of the
     ``qml.NumberOperator`` observable on specified modes in Strawberry Fields.
+
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
         wires (Sequence[int]): the sequence of modes to measure
         params (Sequence): sequence of parameters (not used)
+
     Returns:
         float, float: the expectation value of the number operator and its
             variance
