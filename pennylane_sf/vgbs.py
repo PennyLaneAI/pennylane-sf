@@ -143,6 +143,7 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
     def expval(self, observable, wires, par):
         if observable == "Cost":
+            self.h = par[0]
             probs = list(self.probability(wires=wires).values())
             return sum([probs[i] * par[0](s) for i, s in enumerate(np.ndindex(5, 5))])
 
@@ -153,6 +154,7 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         # samples/probabilities.
         self.reset()
         prob = np.squeeze(self.execute(operations, observables, parameters=variable_deps))
+        prob = list(self.probability(wires=range(len(self.WAW))).values())
 
         # Compute and return the jacobian here.
         # returned jacobian matrix should be of size (output_length, num_params)
@@ -167,5 +169,9 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
         for i, s in enumerate(np.ndindex(5, 5)):
             jac[i] = (s - mean_photons_by_mode) * prob[i] / self.weights
+
+        if isinstance(observables[0], Cost):
+            hs = np.array([self.h(s) for s in np.ndindex(5, 5)])
+            return np.sum(np.expand_dims(hs, axis=1) * jac, axis=0)
 
         return jac
