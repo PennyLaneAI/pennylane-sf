@@ -429,8 +429,9 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(wires=wires))
 
+        expval = circuit()
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
+            expval, SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
         )
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
@@ -760,24 +761,3 @@ class TestProbability:
         gradF = circuit.jacobian([n, a], method="F")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
-
-    def test_tensor_number_operator_raises(self, tol):
-        """Test that the variance of the TensorN observable
-        is not supported"""
-        cutoff_dim = 10
-
-        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
-
-        gate_name = "TensorN"
-        assert dev.supports_observable(gate_name)
-
-        op = qml.TensorN
-        sf_expectation = dev._observable_map[gate_name]
-        wires = [0, 1]
-
-        @qml.qnode(dev)
-        def circuit():
-            return qml.var(op(wires=wires))
-
-        with pytest.raises(ValueError, match="TensorN does not support variances."):
-            circuit()
