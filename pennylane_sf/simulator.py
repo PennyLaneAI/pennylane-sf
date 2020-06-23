@@ -143,6 +143,10 @@ class StrawberryFieldsSimulator(Device):
             float: variance value
         """
         _, var = self._observable_map[observable](self.state, wires, par)
+
+        if var is None:
+            raise ValueError(f"{observable} does not support variances.")
+
         return var
 
     def reset(self):

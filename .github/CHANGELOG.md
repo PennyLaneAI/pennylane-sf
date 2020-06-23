@@ -2,6 +2,9 @@
 
 ### New features since last release
 
+* Added the ability to compute the expectation value of tensor number operators
+  [#37](https://github.com/XanaduAI/pennylane-sf/pull/37)
+
 ### Breaking changes
 
 ### Improvements
