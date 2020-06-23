@@ -60,6 +60,18 @@ class GraphTrain(qml.operation.CVOperation):
     grad_recipe = None
 
 
+class Cost(qml.operation.CVObservable):
+    """TODO"""
+    do_check_domain = False # turn off parameter domain checking
+
+    num_params = 1
+    num_wires = qml.operation.AllWires
+    par_domain = 'R'
+
+    grad_method = 'A'
+    grad_recipe = None
+
+
 class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
     r"""TODO
     """
@@ -67,12 +79,12 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
     short_name = 'strawberryfields.vgbs'
 
     _operation_map = {
-        'Displacement': Dgate,
         "GraphTrain": GraphEmbed,
     }
 
     _observable_map = {
-        'Identity': identity
+        'Identity': identity,
+        "Cost": Cost,
     }
 
     _circuits = {}
@@ -128,6 +140,13 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
         probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
         return probs
+
+    def expval(self, observable, wires, par):
+        if observable == "Cost":
+            probs = list(self.probability(wires=wires).values())
+            return sum([probs[i] * par[0](s) for i, s in enumerate(np.ndindex(5, 5))])
+
+        return super().expval(observable, wires, par)
 
     def jacobian(self, operations, observables, variable_deps):
         # NOTE: potentially could provide caching here, to avoid recomputing
