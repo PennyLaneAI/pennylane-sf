@@ -172,6 +172,6 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
         if isinstance(observables[0], Cost):
             hs = np.array([self.h(s) for s in np.ndindex(5, 5)])
-            return np.sum(np.expand_dims(hs, axis=1) * jac, axis=0)
+            return np.expand_dims(np.sum(np.expand_dims(hs, axis=1) * jac, axis=0), axis=0)
 
         return jac
