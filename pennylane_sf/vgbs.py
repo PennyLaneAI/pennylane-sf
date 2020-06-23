@@ -31,15 +31,17 @@ Classes
 Code details
 ~~~~~~~~~~~~
 """
+from collections import OrderedDict
 from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 import pennylane as qml
 
 import numpy as np
 
 import strawberryfields as sf
+from strawberryfields.utils import all_fock_probs_pnr
 
 # import gates
-from strawberryfields.ops import Dgate, GraphEmbed
+from strawberryfields.ops import Dgate, GraphEmbed, MeasureFock
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
@@ -47,11 +49,7 @@ from .simulator import StrawberryFieldsSimulator
 
 class GraphTrain(qml.operation.CVOperation):
     """TODO"""
-
-    def __init__(self, *params, **kwargs):
-        par = list(params)
-        par[2] = np.array(par[2])
-        super().__init__(*par, **kwargs)
+    do_check_domain = False # turn off parameter domain checking
 
     num_params = 3
     num_wires = qml.operation.AllWires
@@ -78,9 +76,15 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
     _circuits = {}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, hbar=2):
+    _capabilities = {"model": "cv", "provides_jacobian": True}
+
+    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000, hbar=2):
+        if not analytic and backend != "gaussian":
+            raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
+
         super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
+        self.backend = backend
 
     def apply(self, operation, wires, par):
         """TODO
@@ -96,10 +100,43 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         op = self._operation_map[operation](WAW, mean_photon_per_mode=n_mean_WAW / len(A))
         op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
 
+        if not self.analytic:
+            MeasureFock() | [self.q[i] for i in wires]
+
+        self.weights = weights
 
     def pre_measure(self):
-        self.eng = sf.Engine("gaussian")
-        results = self.eng.run(self.prog)
+        self.eng = sf.Engine(self.backend, backend_options={"cutoff_dim": self.cutoff})
+
+        if self.analytic:
+            results = self.eng.run(self.prog)
+        else:
+            # NOTE: currently, only the gaussian backend supports shots > 1
+            results = self.eng.run(self.prog, shots=self.shots)
 
         self.state = results.state
         self.samples = results.samples
+
+    def probability(self, wires=None):
+        if self.analytic:
+            # compute the fock probabilities analytically
+            # from the state representation
+            return super().probability(wires=wires)
+
+        # compute the fock probabilities from samples
+        N = len(wires) if wires is not None else len(self.num_wires)
+        probs = all_fock_probs_pnr(self.samples)
+        ind = np.indices([self.cutoff] * N).reshape(N, -1).T
+        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+        return probs
+
+    def jacobian(self, operations, observables, variable_deps):
+        # NOTE: potentially could provide caching here, to avoid recomputing
+        # samples/probabilities.
+        self.reset()
+        prob = np.squeeze(self.execute(operations, observables, parameters=variable_deps))
+
+        # Compute and return the jacobian here.
+        # returned jacobian matrix should be of size (output_length, num_params)
+        jac = np.zeros([len(prob), len(self.weights)])
+        return jac
