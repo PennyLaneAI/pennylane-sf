@@ -127,7 +127,14 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         if wires is None:
            return all_probs
 
-        all_wires = wires.arange(self.wires)
-        wires_to_trace_out = np.setdiff1d(wires, all_wires)
-        traced_out_probs = np.sum(all_probs, axis=wires_to_trace_out)
-        return traced_out_probs
+        all_wires = np.arange(self.num_wires)
+        wires_to_trace_out = np.setdiff1d(all_wires, wires)
+
+        if wires_to_trace_out.size > 0:
+            all_probs = np.sum(all_probs, axis=wires_to_trace_out)
+
+        N = len(wires)
+        max_val = np.max(all_probs)
+        ind = np.indices([max_val] * N).reshape(N, -1).T
+        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+        return all_probs
