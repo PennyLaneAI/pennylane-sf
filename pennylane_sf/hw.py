@@ -33,16 +33,19 @@ Code details
 ~~~~~~~~~~~~
 """
 
-import numpy as np
 from collections import OrderedDict
+
+import numpy as np
 
 import strawberryfields as sf
 
 # import gates
-from strawberryfields.ops import (BSgate, Rgate, S2gate, Interferometer,
-        MeasureFock)
-
-from strawberryfields.utils.post_processing import samples_expectation, samples_variance, all_fock_probs_pnr
+from strawberryfields.ops import BSgate, Interferometer, MeasureFock, Rgate, S2gate
+from strawberryfields.utils.post_processing import (
+    all_fock_probs_pnr,
+    samples_expectation,
+    samples_variance,
+)
 
 from .simulator import StrawberryFieldsSimulator
 
@@ -64,19 +67,19 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
     """
-    name = 'Strawberry Fields Hardware PennyLane plugin'
-    short_name = 'strawberryfields.ai'
+    name = "Strawberry Fields Hardware PennyLane plugin"
+    short_name = "strawberryfields.ai"
 
     _operation_map = {
-        'Beamsplitter': BSgate,
-        'Rotation': Rgate,
-        'TwoModeSqueezing': S2gate,
-        'Interferometer': Interferometer
+        "Beamsplitter": BSgate,
+        "Rotation": Rgate,
+        "TwoModeSqueezing": S2gate,
+        "Interferometer": Interferometer,
     }
 
     _observable_map = {
-        'Identity': None,
-        'TensorN': None,
+        "Identity": None,
+        "TensorN": None,
     }
 
     def __init__(self, wires, *, chip="X8", shots=1000, hbar=2, sf_token=None):
@@ -85,7 +88,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
         if sf_token is not None:
             sf.store_account(sf_token)
-
 
     def pre_measure(self):
         self.eng = sf.RemoteEngine(self.chip)
@@ -99,7 +101,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     def all_measure_fock(self):
         """Utility method for measurements in the Fock basis for all modes"""
-        MeasureFock() | self.q #pylint: disable=pointless-statement
+        MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
     def sample(self, observable, wires, par):
         return self.samples
@@ -114,7 +116,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         all_probs = all_fock_probs_pnr(self.samples)
 
         if wires is None:
-           return all_probs
+            return all_probs
 
         all_wires = np.arange(self.num_wires)
         wires_to_trace_out = np.setdiff1d(all_wires, wires)
