@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields Gaussian device
+Strawberry Fields Hardware device
 =================================
 
-**Module name:** :mod:`pennylane_sf.gaussian`
+**Module name:** :mod:`pennylane_sf.hw`
 
-.. currentmodule:: pennylane_sf.gaussian
+.. currentmodule:: pennylane_sf.hw
 
-The Strawberry Fields Gaussian plugin implements all the :class:`~pennylane.device.Device` methods,
-and provides a Gaussian simulation of a continuous-variable quantum circuit.
+The Strawberry Fields Hardware plugin implements all the :class:`~pennylane.device.Device` methods,
+and provides access to Xanadu's continuous-variable quantum hardware.
 
 Classes
 -------
 
 .. autosummary::
-   StrawberryFieldsGaussian
+   StrawberryFieldsRemote
 
 
 Code details
@@ -38,16 +38,12 @@ from collections import OrderedDict
 
 import strawberryfields as sf
 
-#import state preparations
-from strawberryfields.ops import (Coherent, DisplacedSqueezed,
-                                  Squeezed, Thermal, Gaussian)
 # import gates
-from strawberryfields.ops import (BSgate, CXgate, CZgate, Dgate,
-                                  Pgate, Rgate, S2gate, Sgate, Interferometer, MeasureFock)
+from strawberryfields.ops import (BSgate, Rgate, S2gate, Interferometer,
+        MeasureFock)
 
 from strawberryfields.utils.post_processing import samples_expectation, samples_variance, all_fock_probs_pnr
 
-from .expectations import (identity, mean_photon, homodyne, fock_state, poly_xp)
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -73,31 +69,14 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     short_name = 'strawberryfields.ai'
 
     _operation_map = {
-        'CoherentState': Coherent,
-        'DisplacedSqueezedState': DisplacedSqueezed,
-        'SqueezedState': Squeezed,
-        'ThermalState': Thermal,
-        'GaussianState': Gaussian,
         'Beamsplitter': BSgate,
-        'ControlledAddition': CXgate,
-        'ControlledPhase': CZgate,
-        'Displacement': Dgate,
-        'QuadraticPhase': Pgate,
         'Rotation': Rgate,
         'TwoModeSqueezing': S2gate,
-        'Squeezing': Sgate,
         'Interferometer': Interferometer
     }
 
     _observable_map = {
-        'NumberOperator': mean_photon,
         'TensorN': None,
-        'X': homodyne(0),
-        'P': homodyne(np.pi/2),
-        'QuadOperator': homodyne(),
-        'PolyXP': poly_xp,
-        'FockStateProjector': fock_state,
-        'Identity': identity
     }
 
     def __init__(self, wires, *, chip="X8", shots=1000, hbar=2, sf_token=None):
