@@ -112,7 +112,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def var(self, observable, wires, par):
         return samples_variance(self.samples)
 
-    def probability(self, wires=None): # pylint: missing-function-docstring
+    def probability(self, wires=None): # pylint: disable=missing-function-docstring
         all_probs = all_fock_probs_pnr(self.samples)
 
         if wires is None:
