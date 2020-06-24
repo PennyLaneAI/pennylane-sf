@@ -52,18 +52,22 @@ from .simulator import StrawberryFieldsSimulator
 
 
 class StrawberryFieldsRemote(StrawberryFieldsSimulator):
-    # TODO: docstring
-    r"""StrawberryFields Gaussian device for PennyLane.
+    r"""StrawberryFields remote device for PennyLane.
+
+    A valid Strawberry Fields API token is needed for access. This token can be
+    passed when creating the device. The default options of Strawberry Fields
+    are used for configuration to store the authentication token in a
+    configuration file.
 
     Args:
         wires (int): the number of modes to initialize the device in
-        analytic (bool): indicates if the device should calculate expectations
-            and variances analytically
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
+        chip (str): name of the remote chip to be used
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
+        sf_token (str): The SF API token.
     """
     name = 'Strawberry Fields Hardware PennyLane plugin'
     short_name = 'strawberryfields.ai'
@@ -96,9 +100,13 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         'Identity': identity
     }
 
-    def __init__(self, wires, *, chip="X8", shots=1000, hbar=2):
+    def __init__(self, wires, *, chip="X8", shots=1000, hbar=2, sf_token=None):
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
         self.chip = chip
+
+        if sf_token is not None:
+            sf.store_account(sf_token)
+
 
     def pre_measure(self):
         self.eng = sf.RemoteEngine(self.chip)
@@ -111,7 +119,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def all_measure_fock(self):
-        """TODO"""
+        """Utility method for measurements in the Fock basis for all modes"""
         MeasureFock() | self.q #pylint: disable=pointless-statement
 
     def sample(self, observable, wires, par):

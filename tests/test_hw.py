@@ -23,6 +23,20 @@ import pennylane_sf
 import pennylane as qml
 import numpy as np
 
+
+class TestDevice:
+    """General tests for the HardwareDevice"""
+
+    def test_token(self, monkeypatch):
+        """Tests that the SF store_account function is called with token"""
+        test_token = "SomeToken"
+        recorder = []
+        monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
+        dev = qml.device('strawberryfields.ai', chip="X8", wires=8, shots=10, sf_token=test_token)
+
+        assert recorder[0] == test_token
+
+
 MOCK_SAMPLES = np.array([[3, 4, 2, 3, 4, 3, 1, 0],
        [4, 3, 3, 2, 0, 3, 1, 4],
        [2, 1, 3, 3, 3, 2, 2, 4],
@@ -82,7 +96,7 @@ class TestExpval:
             qml.Beamsplitter(theta, phi, wires=[4,5])
             return qml.expval(qml.TensorN(wires=list(range(modes))))
 
-        expected_expval = 100 
+        expected_expval = 100
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("pennylane_sf.hw.samples_expectation", lambda *args: expected_expval)
@@ -106,7 +120,7 @@ class TestVariance:
             qml.Beamsplitter(theta, phi, wires=[4,5])
             return qml.var(qml.TensorN(wires=list(range(modes))))
 
-        expected_var = 100 
+        expected_var = 100
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("pennylane_sf.hw.samples_variance", lambda *args: expected_var)
