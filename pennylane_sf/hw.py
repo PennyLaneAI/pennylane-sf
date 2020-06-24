@@ -51,19 +51,18 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     r"""StrawberryFields remote device for PennyLane.
 
     A valid Strawberry Fields API token is needed for access. This token can be
-    passed when creating the device. The default options of Strawberry Fields
-    are used for configuration to store the authentication token in a
+    passed when creating the device. The default configuration options of
+    Strawberry Fields are used to store the authentication token in a
     configuration file.
 
     Args:
         wires (int): the number of modes to initialize the device in
-        shots (int): Number of circuit evaluations/random samples used
-            to estimate expectation values of observables. If ``analytic=True``,
-            this setting is ignored.
+        shots (int): number of circuit evaluations/random samples used to
+            estimate expectation values of observables
         chip (str): name of the remote chip to be used
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
-        sf_token (str): The SF API token.
+        sf_token (str): the SF API token used for remote access
     """
     name = 'Strawberry Fields Hardware PennyLane plugin'
     short_name = 'strawberryfields.ai'
@@ -93,8 +92,8 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
         self.all_measure_fock()
 
-        # RemoteEngine.run also includes compilation that checks the validity
-        # of the defined Program
+        # RemoteEngine.run includes compilation that checks the validity of the
+        # defined Program
         results = self.eng.run(self.prog, shots=self.shots)
         self.samples = results.samples
 
