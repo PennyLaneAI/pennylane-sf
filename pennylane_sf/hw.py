@@ -79,6 +79,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     _observable_map = {
         "Identity": None,
+        "NumberOperator": None,
         "TensorN": None,
     }
 
@@ -104,7 +105,9 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
     def sample(self, observable, wires, par): # pylint: disable=unused-argument, missing-function-docstring
-        return self.samples
+        wires = np.array(wires)
+        selected_samples = self.samples[:, wires]
+        return np.prod(selected_samples, axis=1)
 
     def expval(self, observable, wires, par):
         return samples_expectation(self.samples)

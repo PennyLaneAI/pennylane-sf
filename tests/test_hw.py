@@ -42,11 +42,13 @@ MOCK_SAMPLES = np.array([[3, 4, 2, 3, 4, 3, 1, 0],
        [2, 1, 3, 3, 3, 2, 2, 4],
        [4, 1, 4, 4, 2, 3, 3, 0],
        [4, 2, 3, 3, 3, 0, 0, 4],
-       [0, 2, 4, 4, 2, 0, 0, 4],
-       [0, 3, 1, 2, 1, 0, 4, 1],
-       [0, 2, 0, 1, 2, 3, 3, 0],
+       [1, 2, 4, 4, 2, 0, 0, 4],
+       [2, 3, 1, 2, 1, 0, 4, 1],
+       [1, 2, 0, 1, 2, 3, 3, 0],
        [1, 2, 4, 0, 0, 4, 2, 4],
-       [0, 0, 1, 1, 1, 3, 1, 0]])
+       [1, 0, 1, 1, 1, 3, 1, 0]])
+
+MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
 
 class MockEngine:
     """Mock SF engine class"""
@@ -74,10 +76,30 @@ class TestSample:
             return qml.sample(qml.TensorN(wires=list(range(modes))))
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        a = quantum_function(1., 0.543)
+        a = quantum_function(1., 0)
 
-        assert a.shape == (shots, modes)
-        assert np.array_equal(a, MOCK_SAMPLES)
+        assert a.shape == (shots,)
+        assert np.array_equal(a, MOCK_SAMPLES_PROD)
+
+    def test_mocked_engine_run_samples_one_mode(self, monkeypatch):
+        """Tests that samples are determined by the RemoteEngine.run method
+        from SF by using a mocked RemoteEngine and specifying a single mode."""
+        modes = [0]
+        shots = 10
+        dev = qml.device('strawberryfields.ai', chip="X8", wires=8, shots=shots)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi,wires=[0,1])
+            qml.Beamsplitter(theta, phi,wires=[4,5])
+            return qml.sample(qml.TensorN(wires=modes))
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        a = quantum_function(1., 0)
+
+        expected = np.array([3, 4, 2, 4, 4, 1, 2, 1, 1, 1])
+        assert a.shape == (shots,)
+        assert np.array_equal(a, expected)
 
 class TestExpval:
     """Test that expectation values are correctly returned from the hardware device."""
@@ -100,7 +122,7 @@ class TestExpval:
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("pennylane_sf.hw.samples_expectation", lambda *args: expected_expval)
-        a = quantum_function(1., 0.543)
+        a = quantum_function(1., 0)
 
         assert a == expected_expval
 class TestVariance:
@@ -123,7 +145,7 @@ class TestVariance:
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("pennylane_sf.hw.samples_variance", lambda *args: expected_var)
-        var = quantum_function(1., 0.543)
+        var = quantum_function(1., 0)
 
         assert var == expected_var
 
@@ -131,7 +153,7 @@ class TestVariance:
 class TestProbs:
     """Test that probabilities are correctly returned from the hardware device."""
 
-    def test_mocked_engine_run_all_fock_probs(self, monkeypatch):
+    def test_mocked_engine_run_all_fock_probs(self, monkeypatch, tol):
         """Tests that probabilities are correctly summed when specifying a
         subset of the wires and using a mock SF RemoteEngine."""
         modes = 8
@@ -144,18 +166,18 @@ class TestProbs:
             qml.Beamsplitter(theta, phi, wires=[4,5])
             return qml.probs(wires=[0, 1])
 
-        expected_probs = np.array([[0.1, 0. , 0.2, 0.1, 0. ],
-                                   [0. , 0. , 0.1, 0. , 0. ],
-                                   [0. , 0.1, 0. , 0. , 0. ],
+        expected_probs = np.array([[0. , 0. , 0. , 0. , 0. ],
+                                   [0.1, 0. , 0.3, 0. , 0. ],
+                                   [0. , 0.1, 0. , 0.1, 0. ],
                                    [0. , 0. , 0. , 0. , 0.1],
                                    [0. , 0.1, 0.1, 0.1, 0. ]])
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        probs = quantum_function(1., 0.543)
+        probs = quantum_function(1., 0)
 
-        assert np.array_equal(probs, expected_probs)
+        assert np.allclose(probs, expected_probs, atol=tol)
 
-    def test_mocked_probability(self, monkeypatch):
+    def test_mocked_probability(self, monkeypatch, tol):
         """Tests that pre-defined probabilities are correctly propagated
         through PennyLane when the StrawberryFieldsRemote.probability method is
         mocked out."""
@@ -181,9 +203,9 @@ class TestProbs:
         # When Device.execute gets called, the values() are extracted => keys
         # do not matter
         monkeypatch.setattr("pennylane_sf.hw.StrawberryFieldsRemote.probability", lambda *args, **kwargs: {'somekey': expected_probs})
-        probs = quantum_function(1., 0.543)
+        probs = quantum_function(1., 0)
 
-        assert np.array_equal(probs, expected_probs)
+        assert np.allclose(probs, expected_probs, atol=tol)
 
     def test_modes_none(self, monkeypatch):
         """Tests that probabilities are returned using SF without any further
