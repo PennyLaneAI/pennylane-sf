@@ -76,6 +76,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     }
 
     _observable_map = {
+        'Identity': None,
         'TensorN': None,
     }
 
