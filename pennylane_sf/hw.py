@@ -111,6 +111,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def all_measure_fock(self):
+        """TODO"""
         MeasureFock() | self.q #pylint: disable=pointless-statement
 
     def sample(self, observable, wires, par):
@@ -123,8 +124,8 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         return samples_variance(self.samples)
 
     def probability(self, wires=None):
-
         all_probs = all_fock_probs_pnr(self.samples)
+
         if wires is None:
            return all_probs
 
@@ -136,8 +137,8 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
         N = len(wires)
 
-        # Extract the cutoff value by checking for how many Fock states we have
-        # probabilities for
+        # Extract the cutoff value by checking the number of Fock states we
+        # obtained probabilities for
         cutoff = all_probs.shape[0]
         ind = np.indices([cutoff] * N).reshape(N, -1).T
         all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
