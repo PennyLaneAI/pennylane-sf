@@ -38,14 +38,15 @@ from collections import OrderedDict
 import numpy as np
 
 import strawberryfields as sf
-
+# import measurements
 # import gates
-from strawberryfields.ops import BSgate, Interferometer, MeasureFock, Rgate, S2gate
-from strawberryfields.utils.post_processing import (
-    all_fock_probs_pnr,
-    samples_expectation,
-    samples_variance,
-)
+#import state preparations
+from strawberryfields.ops import (BSgate, Catstate, CKgate, Coherent, CXgate,
+                                  CZgate, DensityMatrix, Dgate,
+                                  DisplacedSqueezed, Fock, Gaussian,
+                                  Interferometer, Ket, Kgate, MeasureFock,
+                                  Pgate, Rgate, S2gate, Sgate, Squeezed,
+                                  Thermal, Vgate)
 
 from .simulator import StrawberryFieldsSimulator
 
@@ -62,7 +63,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         wires (int): the number of modes to initialize the device in
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
-        backend (str): name of the remote chip to be used
+        backend (str): name of the remote backend to be used
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
@@ -100,9 +101,9 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, wires, *, backend="X8", shots=1000, hbar=2, sf_token=None):
+    def __init__(self, wires, *, backend, shots=1000, hbar=2, sf_token=None):
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
-        self.backend = chip
+        self.backend = backend
 
         if sf_token is not None:
             sf.store_account(sf_token)

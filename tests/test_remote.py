@@ -121,7 +121,7 @@ class TestExpval:
         expected_expval = 100
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        monkeypatch.setattr("pennylane_sf.hw.samples_expectation", lambda *args: expected_expval)
+        monkeypatch.setattr("pennylane_sf.remote.samples_expectation", lambda *args: expected_expval)
         a = quantum_function(1., 0)
 
         assert a == expected_expval
@@ -144,7 +144,7 @@ class TestVariance:
         expected_var = 100
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        monkeypatch.setattr("pennylane_sf.hw.samples_variance", lambda *args: expected_var)
+        monkeypatch.setattr("pennylane_sf.backend.samples_variance", lambda *args: expected_var)
         var = quantum_function(1., 0)
 
         assert var == expected_var
@@ -202,7 +202,7 @@ class TestProbs:
         # Mocking the probability method of the device which returns a dictionary
         # When Device.execute gets called, the values() are extracted => keys
         # do not matter
-        monkeypatch.setattr("pennylane_sf.hw.StrawberryFieldsRemote.probability", lambda *args, **kwargs: {'somekey': expected_probs})
+        monkeypatch.setattr("pennylane_sf.backend.StrawberryFieldsRemote.probability", lambda *args, **kwargs: {'somekey': expected_probs})
         probs = quantum_function(1., 0)
 
         assert np.allclose(probs, expected_probs, atol=tol)
@@ -219,7 +219,7 @@ class TestProbs:
                                    [0. , 0. , 0. , 0. , 0.1],
                                    [0. , 0.1, 0.1, 0.1, 0. ]])
 
-        monkeypatch.setattr("pennylane_sf.hw.all_fock_probs_pnr", lambda *arg: expected_probs)
+        monkeypatch.setattr("pennylane_sf.backend.all_fock_probs_pnr", lambda *arg: expected_probs)
         probs = dev.probability()
 
         assert np.array_equal(probs, expected_probs)
