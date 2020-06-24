@@ -38,15 +38,16 @@ from collections import OrderedDict
 import numpy as np
 
 import strawberryfields as sf
-# import measurements
-# import gates
-#import state preparations
+# import state preparations, gates and measurements
 from strawberryfields.ops import (BSgate, Catstate, CKgate, Coherent, CXgate,
                                   CZgate, DensityMatrix, Dgate,
                                   DisplacedSqueezed, Fock, Gaussian,
                                   Interferometer, Ket, Kgate, MeasureFock,
                                   Pgate, Rgate, S2gate, Sgate, Squeezed,
                                   Thermal, Vgate)
+from strawberryfields.utils.post_processing import (all_fock_probs_pnr,
+                                                    samples_expectation,
+                                                    samples_variance)
 
 from .simulator import StrawberryFieldsSimulator
 
