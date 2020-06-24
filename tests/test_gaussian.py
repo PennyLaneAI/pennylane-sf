@@ -715,6 +715,38 @@ class TestProbability:
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+    def test_finite_diff_coherent_two_wires(self, tol):
+        """Test that the jacobian of the probability for a coherent states is
+        approximated well with finite differences"""
+        cutoff = 4
+
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=[0, 1])
+
+        a = 0.4
+        phi = -0.12
+
+        c = np.arange(cutoff)
+        d = np.arange(cutoff)
+        n0, n1 = np.meshgrid(c, d)
+        n0 = n0.flatten()
+        n1 = n1.flatten()
+
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = 2 * (a **(-1 + 2*n0 + 2*n1)) * np.exp(-2*a ** 2) * (-2*a ** 2 + n0 + n1) / (fac(n0) * fac(n1))
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
         calculations for the NumberOperator"""
