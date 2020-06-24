@@ -1,7 +1,7 @@
-The Fock device
-===============
+The Remote device
+=================
 
-Pennylane's Fock device gives access to
+Pennylane's Remote device gives access to
 `Strawberry Field's Fock state simulator backend <https://strawberryfields.readthedocs.io/en/stable/code/api/strawberryfields.backends.FockBackend.html>`_.
 This simulator represents quantum states in the Fock basis
 :math:`\left| 0 \right>, \left| 1 \right>, \left| 2 \right>, \dots, \left| \mathrm{D -1} \right>`,
@@ -134,10 +134,6 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
 
     ~pennylane.Identity
     ~pennylane.NumberOperator
-    ~pennylane.X
-    ~pennylane.P
-    ~pennylane.QuadOperator
-    ~pennylane.PolyXP
     ~pennylane.TensorN
 
 .. raw:: html
