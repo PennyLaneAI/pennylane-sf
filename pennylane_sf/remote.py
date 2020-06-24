@@ -112,16 +112,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def pre_measure(self):
         self.eng = sf.RemoteEngine(self.backend)
 
-        self.all_measure_fock()
+        MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
         # RemoteEngine.run includes compilation that checks the validity of the
         # defined Program
         results = self.eng.run(self.prog, shots=self.shots)
         self.samples = results.samples
-
-    def all_measure_fock(self):
-        """Utility method for measurements in the Fock basis for all modes"""
-        MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
     def sample(self, observable, wires, par): # pylint: disable=unused-argument, missing-function-docstring
         wires = np.array(wires)
