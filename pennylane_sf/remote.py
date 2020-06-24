@@ -62,7 +62,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         wires (int): the number of modes to initialize the device in
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
-        chip (str): name of the remote chip to be used
+        backend (str): name of the remote chip to be used
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
@@ -71,10 +71,27 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     short_name = "strawberryfields.ai"
 
     _operation_map = {
-        "Beamsplitter": BSgate,
-        "Rotation": Rgate,
-        "TwoModeSqueezing": S2gate,
-        "Interferometer": Interferometer,
+        'CatState': Catstate,
+        'CoherentState': Coherent,
+        'FockDensityMatrix': DensityMatrix,
+        'DisplacedSqueezedState': DisplacedSqueezed,
+        'FockState': Fock,
+        'FockStateVector': Ket,
+        'SqueezedState': Squeezed,
+        'ThermalState': Thermal,
+        'GaussianState': Gaussian,
+        'Beamsplitter': BSgate,
+        'CrossKerr': CKgate,
+        'ControlledAddition': CXgate,
+        'ControlledPhase': CZgate,
+        'Displacement': Dgate,
+        'Kerr': Kgate,
+        'QuadraticPhase': Pgate,
+        'Rotation': Rgate,
+        'TwoModeSqueezing': S2gate,
+        'Squeezing': Sgate,
+        'CubicPhase': Vgate,
+        'Interferometer': Interferometer
     }
 
     _observable_map = {
@@ -83,15 +100,15 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, wires, *, chip="X8", shots=1000, hbar=2, sf_token=None):
+    def __init__(self, wires, *, backend="X8", shots=1000, hbar=2, sf_token=None):
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
-        self.chip = chip
+        self.backend = chip
 
         if sf_token is not None:
             sf.store_account(sf_token)
 
     def pre_measure(self):
-        self.eng = sf.RemoteEngine(self.chip)
+        self.eng = sf.RemoteEngine(self.backend)
 
         self.all_measure_fock()
 

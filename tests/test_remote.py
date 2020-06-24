@@ -32,7 +32,7 @@ class TestDevice:
         test_token = "SomeToken"
         recorder = []
         monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=8, shots=10, sf_token=test_token)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=8, shots=10, sf_token=test_token)
 
         assert recorder[0] == test_token
 
@@ -67,7 +67,7 @@ class TestSample:
         from SF by using a mocked RemoteEngine."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=modes, shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -86,7 +86,7 @@ class TestSample:
         from SF by using a mocked RemoteEngine and specifying a single mode."""
         modes = [0]
         shots = 10
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=8, shots=shots)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=8, shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -110,7 +110,7 @@ class TestExpval:
         value."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=modes, shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -133,7 +133,7 @@ class TestVariance:
         by using a mocked function instead which returns a pre-defined value."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=modes, shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -158,7 +158,7 @@ class TestProbs:
         subset of the wires and using a mock SF RemoteEngine."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=modes, shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -183,7 +183,7 @@ class TestProbs:
         mocked out."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.ai', chip="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.ai', backend="X8", wires=modes, shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
