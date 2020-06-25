@@ -790,6 +790,23 @@ class TestProbability:
         #print(circuit(r, phi), circuit.jacobian([r, phi], wrt={1}, method="F"), expected_gradient)
         #assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+    def test_analytic_diff_error(self, tol):
+        """Test that the analytic gradients are not supported when returning
+        Fock state probabilities."""
+        cutoff = 10
+
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        a = 0.4
+        phi = -0.12
+        with pytest.raises(ValueError, match="Analytic gradients are not supported for circuits extracting Fock state probabilities"):
+            res_F = circuit.jacobian([a, phi], wrt={0}, method="A").flat
+
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
         calculations for the NumberOperator"""
