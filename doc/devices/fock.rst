@@ -68,7 +68,7 @@ Device options
 The Strawberry Fields Fock device accepts additional arguments beyond the PennyLane default device arguments.
 
 ``cutoff_dim``
-	the Fock basis truncation to be applied when executing quantum functions (``strawberryfields.fock`` only)
+	the Fock basis truncation when applying quantum operations
 
 ``hbar=2``
 	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
@@ -134,6 +134,7 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
 
     ~pennylane.Identity
     ~pennylane.NumberOperator
+    ~pennylane.TensorN
     ~pennylane.X
     ~pennylane.P
     ~pennylane.QuadOperator
