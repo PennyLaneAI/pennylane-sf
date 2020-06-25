@@ -126,6 +126,8 @@ class TestExpval:
 
         assert a == expected_expval
 
+
+
 class TestVariance:
     """Test that variances are correctly returned from the hardware device."""
 
