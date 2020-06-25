@@ -15,22 +15,8 @@
 Strawberry Fields Hardware device
 =================================
 
-**Module name:** :mod:`pennylane_sf.hw`
-
-.. currentmodule:: pennylane_sf.hw
-
 The Strawberry Fields Hardware plugin implements all the :class:`~pennylane.device.Device` methods,
 and provides access to Xanadu's continuous-variable quantum hardware.
-
-Classes
--------
-
-.. autosummary::
-   StrawberryFieldsRemote
-
-
-Code details
-~~~~~~~~~~~~
 """
 
 from collections import OrderedDict
