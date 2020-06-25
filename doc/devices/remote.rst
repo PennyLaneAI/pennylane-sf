@@ -4,9 +4,6 @@ The Remote device
 Pennylane's Remote device gives access to remote backends from Strawberry Fields including
 `hardware backends <https://strawberryfields.ai/photonics/hardware/index.html>`_.
 
-The advantage of this representation is that *any* continuous-variable operation can be represented. However,
-the **simulations are approximations**, whose accuracy increases with the cutoff dimension.
-
 Accounts and Tokens
 ~~~~~~~~~~~~~~~~~~~
 
@@ -76,57 +73,6 @@ The Strawberry Fields Fock device accepts additional arguments beyond the PennyL
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 
-The Strawberry Fields Fock device supports all continuous-variable (CV) operations and observables
-provided by PennyLane, including both Gaussian and non-Gaussian operations.
-
-**Supported operations:**
-
-.. raw:: html
-
-    <div class="summary-table">
-
-.. autosummary::
-    :nosignatures:
-
-    ~pennylane.Beamsplitter
-    ~pennylane.CatState
-    ~pennylane.CoherentState
-    ~pennylane.ControlledAddition
-    ~pennylane.ControlledPhase
-    ~pennylane.CrossKerr
-    ~pennylane.CubicPhase
-    ~pennylane.DisplacedSqueezedState
-    ~pennylane.Displacement
-    ~pennylane.FockDensityMatrix
-    ~pennylane.FockState
-    ~pennylane.FockStateVector
-    ~pennylane.GaussianState
-    ~pennylane.Interferometer
-    ~pennylane.Kerr
-    ~pennylane.QuadraticPhase
-    ~pennylane.Rotation
-    ~pennylane.SqueezedState
-    ~pennylane.Squeezing
-    ~pennylane.ThermalState
-    ~pennylane.TwoModeSqueezing
-
-.. raw:: html
-
-    </div>
-
-**Supported observables:**
-
-.. raw:: html
-
-    <div class="summary-table">
-
-.. autosummary::
-    :nosignatures:
-
-    ~pennylane.Identity
-    ~pennylane.NumberOperator
-    ~pennylane.TensorN
-
-.. raw:: html
-
-    </div>
+The Strawberry Fields Remote device supports certain continuous-variable (CV)
+operations and observables provided by PennyLane. The set of supported
+operations depends on the specific backend used.
