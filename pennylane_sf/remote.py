@@ -130,6 +130,11 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         all_probs = all_fock_probs_pnr(self.samples)
 
         if wires is None:
+            N = self.num_wires
+            cutoff = all_probs.shape[0]
+            ind = np.indices([cutoff] * N).reshape(N, -1).T
+            all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
+            print(all_probs.keys())
             return all_probs
 
         all_wires = np.arange(self.num_wires)
