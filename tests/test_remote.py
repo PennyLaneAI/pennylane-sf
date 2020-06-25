@@ -36,6 +36,30 @@ class TestDevice:
 
         assert recorder[0] == test_token
 
+    def test_reset(self, monkeypatch):
+        """Tests the reset method of the remote device."""
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=10)
+
+        @qml.qnode(dev)
+        def quantum_function():
+            return qml.sample(qml.TensorN(wires=list(range(8))))
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+
+        quantum_function()
+
+        assert dev.eng is not None
+        assert dev.q is not None
+        assert dev.prog is not None
+        assert dev.samples is not None
+
+        dev.reset()
+
+        assert dev.eng is None
+        assert dev.q is None
+        assert dev.prog is None
+        assert dev.samples is None
+
 
 MOCK_SAMPLES = np.array([[3, 4, 2, 3, 4, 3, 1, 0],
        [4, 3, 3, 2, 0, 3, 1, 4],
