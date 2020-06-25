@@ -7,8 +7,9 @@ Pennylane's Remote device gives access to remote backends from Strawberry Fields
 Accounts and Tokens
 ~~~~~~~~~~~~~~~~~~~
 
-By default, the ``strawberryfields.ai`` device will attempt to use an already active or stored
-Strawberry Fields account. If the device finds no account it will raise a warning:
+By default, the ``strawberryfields.remote`` device will attempt to use an
+already active or stored Strawberry Fields account. If the device finds no
+account it will raise a warning:
 
 .. code::
 
@@ -30,7 +31,7 @@ You can instantiate the Remote device in PennyLane as follows:
 
     import pennylane as qml
 
-    dev = qml.device('strawberryfields.ai', backend="X8", wires=8, shots=10, sf_token="XXX")
+    dev = qml.device('strawberryfields.remote', backend="X8", wires=8, shots=10, sf_token="XXX")
 
 The device can then be used to create supported circuits to define and evaluate
 QNodes within PennyLane. Refer to the `Strawberry Fields hardware page

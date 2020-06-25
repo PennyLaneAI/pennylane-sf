@@ -70,7 +70,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         sf_token (str): the SF API token used for remote access
     """
     name = "Strawberry Fields Hardware PennyLane plugin"
-    short_name = "strawberryfields.ai"
+    short_name = "strawberryfields.remote"
 
     _operation_map = {
         'CatState': Catstate,
