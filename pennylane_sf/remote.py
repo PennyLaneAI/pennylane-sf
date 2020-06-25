@@ -19,7 +19,7 @@ Strawberry Fields Remote device
 
 .. currentmodule:: pennylane_sf.remote
 
-The Strawberry Fields Hardware plugin implements all the :class:`~pennylane.device.Device` methods,
+The Strawberry Fields remote device implements all the :class:`~pennylane.device.Device` methods,
 and provides access to Xanadu's continuous-variable quantum hardware.
 
 Classes
