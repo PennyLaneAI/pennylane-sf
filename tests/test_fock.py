@@ -20,6 +20,8 @@ import strawberryfields as sf
 
 import pennylane as qml
 from pennylane import numpy as np
+from scipy.special import factorial as fac
+from scipy.special import gamma
 
 
 psi = np.array(
@@ -428,8 +430,9 @@ class TestExpectation:
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             return qml.expval(op(wires=wires))
 
+        expval = circuit()
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
+            expval, SF_expectation_reference(sf_expectation, cutoff_dim, wires), atol=tol, rtol=0
         )
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
@@ -625,6 +628,181 @@ class TestVariance:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
+
+class TestProbability:
+    """Integration tests for returning probabilities"""
+
+    def test_single_mode_probability(self, tol):
+        """Test that a coherent state returns the correct probability"""
+        cutoff = 10
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=0)
+
+        a = 0.4
+        phi = -0.12
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+        ref_probs = np.abs(np.exp(-0.5 * np.abs(alpha) ** 2) * alpha ** n / np.sqrt(fac(n))) ** 2
+
+        res = circuit(a, phi)
+        assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+
+    def test_multi_mode_probability(self, tol):
+        """Test that a product of coherent states returns the correct probability"""
+        cutoff = 10
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=[0, 1])
+
+        a = 0.4
+        phi = -0.12
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+        ref_probs = np.abs(np.exp(-0.5 * np.abs(alpha) ** 2) * alpha ** n / np.sqrt(fac(n))) ** 2
+        ref_probs = np.kron(ref_probs, ref_probs)
+
+        res = circuit(a, phi)
+        assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+
+    def test_marginal_probability(self, tol):
+        """Test that a coherent state marginal probability is correct"""
+        cutoff = 10
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=1)
+
+        a = 0.4
+        phi = -0.12
+
+        alpha = a * np.exp(1j * phi)
+        n = np.arange(cutoff)
+        ref_probs = np.abs(np.exp(-0.5 * np.abs(alpha) ** 2) * alpha ** n / np.sqrt(fac(n))) ** 2
+
+        res = circuit(a, phi)
+        assert np.allclose(res, ref_probs, atol=tol, rtol=0)
+
+    def test_finite_diff_coherent(self, tol):
+        """Test that the jacobian of the probability for a coherent states is
+        approximated well with finite differences"""
+        cutoff = 10
+
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        a = 0.4
+        phi = -0.12
+
+        n = np.arange(cutoff)
+
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_finite_diff_squeezed(self, tol):
+        """Test that the jacobian of the probability for a squeezed states is
+        approximated well with finite differences"""
+        cutoff = 5
+
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(r, phi):
+            qml.Squeezing(r, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        r = 0.4
+        phi = -0.12
+
+        n = np.arange(cutoff)
+
+        # differentiate with respect to parameter r
+        res_F = circuit.jacobian([r, phi], wrt={0}, method="F").flatten()
+        assert res_F.shape == (cutoff,)
+
+        expected_gradient = (
+            np.abs(np.tanh(r)) ** n * (1 + 2 * n - np.cosh(2 * r)) * fac(n)
+            / (2 ** (n + 1) * np.cosh(r) **2 * np.sinh(r) * fac(n / 2) ** 2)
+        )
+        expected_gradient[n % 2 != 0] = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([r, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_finite_diff_coherent_two_wires(self, tol):
+        """Test that the jacobian of the probability for a coherent states on
+        two wires is approximated well with finite differences"""
+        cutoff = 4
+
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=[0, 1])
+
+        a = 0.4
+        phi = -0.12
+
+        c = np.arange(cutoff)
+        d = np.arange(cutoff)
+        n0, n1 = np.meshgrid(c, d)
+        n0 = n0.flatten()
+        n1 = n1.flatten()
+
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = 2 * (a **(-1 + 2*n0 + 2*n1)) * np.exp(-2*a ** 2) * (-2*a ** 2 + n0 + n1) / (fac(n0) * fac(n1))
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_analytic_diff_error(self, tol):
+        """Test that the analytic gradients are not supported when returning
+        Fock state probabilities."""
+        cutoff = 10
+
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        a = 0.4
+        phi = -0.12
+        with pytest.raises(ValueError, match="The analytic gradient method cannot be used"):
+            res_F = circuit.jacobian([a, phi], wrt={0}, method="A").flat
+
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
         calculations for the NumberOperator"""
@@ -653,24 +831,3 @@ class TestVariance:
         gradF = circuit.jacobian([n, a], method="F")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
-
-    def test_tensor_number_operator_raises(self, tol):
-        """Test that the variance of the TensorN observable
-        is not supported"""
-        cutoff_dim = 10
-
-        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
-
-        gate_name = "TensorN"
-        assert dev.supports_observable(gate_name)
-
-        op = qml.TensorN
-        sf_expectation = dev._observable_map[gate_name]
-        wires = [0, 1]
-
-        @qml.qnode(dev)
-        def circuit():
-            return qml.var(op(wires=wires))
-
-        with pytest.raises(ValueError, match="TensorN does not support variances."):
-            circuit()
