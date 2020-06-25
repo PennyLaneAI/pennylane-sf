@@ -51,7 +51,7 @@ is then converted into a QNode which is placed on the
     def quantum_function(theta, x):
         qml.TwoModeSqueezing(1.0, 0.0, wires=[0,4])
         qml.TwoModeSqueezing(1.0, 0.0, wires=[1,5])
-        qml.Beamsplitter(theta, phi ,wires=[0,1])
+        qml.Beamsplitter(theta, phi, wires=[0,1])
         qml.Beamsplitter(theta, phi, wires=[4,5])
         return qml.expval(qml.NumberOperator(0))
 
