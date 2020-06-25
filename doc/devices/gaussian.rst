@@ -58,6 +58,9 @@ The Strawberry Fields Gaussian device accepts additional arguments beyond the Pe
 	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
 	Default value is :math:`\hbar=2`.
 
+``cutoff_dim``
+    the Fock basis truncation to be applied when computing quantities in the Fock basis (such as probabilities)
+
 ``shots=0``
 	The number of circuit evaluations/random samples used to estimate expectation values of observables.
 	The default value of 0 means that the exact expectation value is returned.
@@ -110,6 +113,7 @@ observables provided by PennyLane.
 
     ~pennylane.Identity
     ~pennylane.NumberOperator
+    ~pennylane.TensorN
     ~pennylane.X
     ~pennylane.P
     ~pennylane.QuadOperator

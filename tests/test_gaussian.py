@@ -87,10 +87,11 @@ class TestGaussian:
 
     def test_load_gaussian_device(self):
         """Test that the gaussian plugin loads correctly"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2, cutoff_dim=15)
         assert dev.num_wires == 2
         assert dev.hbar == 2
         assert dev.shots == 1000
+        assert dev.cutoff == 15
         assert dev.short_name == "strawberryfields.gaussian"
 
     def test_gaussian_args(self):
@@ -712,6 +713,39 @@ class TestProbability:
 
         # differentiate with respect to parameter phi
         res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_finite_diff_squeezed(self, tol):
+        """Test that the jacobian of the probability for a squeezed states is
+        approximated well with finite differences"""
+        cutoff = 5
+
+        dev = qml.device("strawberryfields.gaussian", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(r, phi):
+            qml.Squeezing(r, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        r = 0.4
+        phi = -0.12
+
+        n = np.arange(cutoff)
+
+        # differentiate with respect to parameter r
+        res_F = circuit.jacobian([r, phi], wrt={0}, method="F").flatten()
+        assert res_F.shape == (cutoff,)
+
+        expected_gradient = (
+            np.abs(np.tanh(r)) ** n * (1 + 2 * n - np.cosh(2 * r)) * fac(n)
+            / (2 ** (n + 1) * np.cosh(r) **2 * np.sinh(r) * fac(n / 2) ** 2)
+        )
+        expected_gradient[n % 2 != 0] = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([r, phi], wrt={1}, method="F").flat
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 

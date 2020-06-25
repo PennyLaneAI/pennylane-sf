@@ -721,6 +721,39 @@ class TestProbability:
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+    def test_finite_diff_squeezed(self, tol):
+        """Test that the jacobian of the probability for a squeezed states is
+        approximated well with finite differences"""
+        cutoff = 5
+
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(r, phi):
+            qml.Squeezing(r, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        r = 0.4
+        phi = -0.12
+
+        n = np.arange(cutoff)
+
+        # differentiate with respect to parameter r
+        res_F = circuit.jacobian([r, phi], wrt={0}, method="F").flatten()
+        assert res_F.shape == (cutoff,)
+
+        expected_gradient = (
+            np.abs(np.tanh(r)) ** n * (1 + 2 * n - np.cosh(2 * r)) * fac(n)
+            / (2 ** (n + 1) * np.cosh(r) **2 * np.sinh(r) * fac(n / 2) ** 2)
+        )
+        expected_gradient[n % 2 != 0] = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([r, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
     def test_finite_diff_coherent_two_wires(self, tol):
         """Test that the jacobian of the probability for a coherent states on
         two wires is approximated well with finite differences"""
@@ -752,43 +785,6 @@ class TestProbability:
         res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
-
-    def test_finite_diff_squeezed(self, tol):
-        """Test that the jacobian of the probability for a squeezed state is
-        approximated well with finite differences"""
-        cutoff = 10
-
-        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=cutoff)
-
-        @qml.qnode(dev)
-        def circuit(a, phi):
-            qml.Squeezing(a, phi, wires=0)
-            return qml.probs(wires=[0])
-
-        r = 0.4
-        phi = -0.12
-
-        n = np.arange(cutoff, dtype=float)
-
-        hermite_coeffs = np.array([1, 0, -2, 0, 12, 0, -120, 0, 1680, 0])
-
-        def sech(z):
-            return 1 / np.cosh(z)
-
-        def csch(z):
-            return 1 / np.sinh(z)
-
-        expected_gradient = hermite_coeffs **2 *(2**(-1 - n)*np.abs(np.tanh(r))**n*(1 + 2*n - np.cosh(2*r))*csch(r)*sech(r)**2)/fac(n)
-
-        # differentiate with respect to parameter r
-        res_F = circuit.jacobian([r, phi], wrt={0}, method="F").flat
-        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
-
-        # differentiate with respect to parameter phi
-        res_F = circuit.jacobian([r, phi], wrt={1}, method="F").flat
-        #expected_gradient = hermite_coeffs **2 * 1j*2**(-n)*np.abs(np.tanh(r))**n * sech(r) / gamma(n)
-        #print(circuit(r, phi), circuit.jacobian([r, phi], wrt={1}, method="F"), expected_gradient)
-        #assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
     def test_analytic_diff_error(self, tol):
         """Test that the analytic gradients are not supported when returning
