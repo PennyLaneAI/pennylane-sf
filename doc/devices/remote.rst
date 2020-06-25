@@ -1,86 +1,77 @@
 The Remote device
 =================
 
-Pennylane's Remote device gives access to
-`Strawberry Field's Fock state simulator backend <https://strawberryfields.readthedocs.io/en/stable/code/api/strawberryfields.backends.FockBackend.html>`_.
-This simulator represents quantum states in the Fock basis
-:math:`\left| 0 \right>, \left| 1 \right>, \left| 2 \right>, \dots, \left| \mathrm{D -1} \right>`,
-where :math:`D` is the user-given value for ``cutoff_dim`` that limits the dimension of the Hilbert space.
+Pennylane's Remote device gives access to remote backends from Strawberry Fields including
+`hardware backends <https://strawberryfields.ai/photonics/hardware/index.html>`_.
 
 The advantage of this representation is that *any* continuous-variable operation can be represented. However,
 the **simulations are approximations**, whose accuracy increases with the cutoff dimension.
 
-.. warning::
+Accounts and Tokens
+~~~~~~~~~~~~~~~~~~~
 
-    It is often useful to keep track of the normalization of a quantum state during optimization, to make sure
-    the circuit does not "learn" to push its parameters into a regime where the simulation is vastly inaccurate.
+By default, the ``strawberryfields.ai`` device will attempt to use an already active or stored
+Strawberry Fields account. If the device finds no account it will raise a warning:
 
-.. note::
+.. code::
 
-    For :math:`M` modes or wires and a cutoff dimension of :math:`D`, the Fock simulator needs to keep track of
-    at least :math:`M^D` values. Hence, the simulation time and required memory grows much faster with the number of modes than in
-    qubit-based simulators.
+    'WARNING:strawberryfields.configuration:No Strawberry Fields configuration file found.'
+
+You can use the ``strawberryfields.store_account("<my_token>")`` function to
+permanently store an account.  Alternatively, you can use the `Strawberry
+Fields command line interface for configuration
+<https://strawberryfields.readthedocs.io/en/stable/code/sf_cli.html>`__.
+
+.. warning:: Never publish code containing your token online.
 
 Usage
 ~~~~~
 
-You can instantiate the Fock device in PennyLane as follows:
+You can instantiate the Remote device in PennyLane as follows:
 
 .. code-block:: python
 
     import pennylane as qml
 
-    dev = qml.device('strawberryfields.fock', wires=2, cutoff_dim=10)
+    dev = qml.device('strawberryfields.ai', backend="X8", wires=8, shots=10, sf_token="XXX")
 
-The device can then be used just like other devices for the definition and evaluation of QNodes within PennyLane.
+The device can then be used to create supported circuits to define and evaluate
+QNodes within PennyLane. Refer to the `Strawberry Fields hardware page
+<https://strawberryfields.readthedocs.io/en/stable/introduction/photonic_hardware.html>`__
+for more details on circuit structures, backends to use and getting an
+authentication token.
 
-For instance, the following simple example defines a :code:`quantum_function` circuit that first displaces
-the vacuum state, applies a beamsplitter, and then returns the photon number expectation.
-This function is then converted into a QNode which is placed on the :code:`strawberryfields.fock` device:
+As an example, the following simple example defines a :code:`quantum_function`
+circuit that first applies two-mode squeezing on the the vacuum state, followed
+by beamsplitters, and then returns the photon number expectation. This function
+is then converted into a QNode which is placed on the
+:code:`strawberryfields.ai` device:
 
 .. code-block:: python
 
     @qml.qnode(dev)
-    def quantum_function(x, theta):
-        qml.Displacement(x, 0, wires=0)
-        qml.Beamsplitter(theta, 0, wires=[0, 1])
+    def quantum_function(theta, x):
+        qml.TwoModeSqueezing(1.0) | (q[0], q[4])
+        qml.TwoModeSqueezing(1.0) | (q[1], q[5])
+        qml.Beamsplitter(theta, phi,wires=[0,1])
+        qml.Beamsplitter(theta, phi,wires=[4,5])
         return qml.expval(qml.NumberOperator(0))
 
-We can evaluate the QNode for arbitrary values of the circuit parameters:
-
->>> quantum_function(1., 0.543)
-0.7330132578095255
-
-We can also evaluate the derivative with respect to any parameter(s):
-
->>> dqfunc = qml.grad(quantum_function, argnum=0)
->>> dqfunc(1., 0.543)
-1.4660265156190515
-
-The continuous-variable QNodes available via Strawberry Fields can also be combined with qubit-based QNodes
-and classical nodes to build up a `hybrid computational model <https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html>`_.
-Such hybrid models can be optimized using
-the built-in optimizers provided by PennyLane.
 
 Device options
 ~~~~~~~~~~~~~~
 
 The Strawberry Fields Fock device accepts additional arguments beyond the PennyLane default device arguments.
 
-``cutoff_dim``
-	the Fock basis truncation to be applied when executing quantum functions (``strawberryfields.fock`` only)
+``backend``
+    The remote Strawberry Fields backend to use. Authentication is required for connection.
 
-``hbar=2``
-	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
-	Default value is :math:`\hbar=2`.
+``sf_token``
+    The SF API token used for remote access.
 
-``shots=0``
-	The number of circuit evaluations/random samples used to estimate expectation values of observables.
-	The default value of 0 means that the exact expectation value is returned.
-
-	If shots is non-zero, the Fock device calculates the variance of the expectation value(s),
-	and use the `Berry-Esseen theorem <https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem>`_ to
-	estimate the sampled expectation value.
+``shots=10``
+    The number of circuit evaluations/random samples used to estimate
+    expectation values and variances of observables.
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
