@@ -760,7 +760,7 @@ class TestProbability:
         a = 0.4
         phi = -0.12
 
-        with pytest.raises(ValueError, match="Analytic gradients are not supported for circuits extracting Fock state probabilities"):
+        with pytest.raises(ValueError, match="The analytic gradient method cannot be used with"):
             res_F = circuit.jacobian([a, phi], wrt={0}, method="A").flat
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
