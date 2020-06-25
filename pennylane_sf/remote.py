@@ -106,6 +106,23 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         if sf_token is not None:
             sf.store_account(sf_token)
 
+    def reset(self):
+        """Reset the device"""
+        sf.hbar = self.hbar
+
+        # Simply set eng to None (no reset for RemoteEngine)
+        if self.eng is not None:
+            self.eng = None
+
+        if self.q is not None:
+            self.q = None
+
+        if self.prog is not None:
+            self.prog = None
+
+        if self.samples is not None:
+            self.samples = None
+
     def pre_measure(self):
         self.eng = sf.RemoteEngine(self.backend)
         MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
