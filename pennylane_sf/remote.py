@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields Hardware device
-=================================
+Strawberry Fields Remote device
+===============================
 
 **Module name:** :mod:`pennylane_sf.remote`
 
