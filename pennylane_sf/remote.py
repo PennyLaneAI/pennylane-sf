@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields Hardware device
-=================================
+Strawberry Fields Remote device
+===============================
 
 The Strawberry Fields Hardware plugin implements all the :class:`~pennylane.device.Device` methods,
 and provides access to Xanadu's continuous-variable quantum hardware.
