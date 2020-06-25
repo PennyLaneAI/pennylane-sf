@@ -129,12 +129,16 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def probability(self, wires=None): # pylint: disable=missing-function-docstring
         all_probs = all_fock_probs_pnr(self.samples)
 
+        # Extract the cutoff value by checking the number of Fock states we
+        # obtained probabilities for
+        cutoff = all_probs.shape[0]
+
         if wires is None:
+
+            all_probs = all_probs.flat
             N = self.num_wires
-            cutoff = all_probs.shape[0]
             ind = np.indices([cutoff] * N).reshape(N, -1).T
             all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
-            print(all_probs.keys())
             return all_probs
 
         all_wires = np.arange(self.num_wires)
@@ -143,11 +147,9 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         if wires_to_trace_out.size > 0:
             all_probs = np.sum(all_probs, axis=tuple(wires_to_trace_out))
 
+        all_probs = all_probs.flat
         N = len(wires)
 
-        # Extract the cutoff value by checking the number of Fock states we
-        # obtained probabilities for
-        cutoff = all_probs.shape[0]
         ind = np.indices([cutoff] * N).reshape(N, -1).T
         all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
         return all_probs

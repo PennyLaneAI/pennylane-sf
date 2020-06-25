@@ -152,13 +152,13 @@ class TestVariance:
 
         assert var == expected_var
 
-
 class TestProbs:
     """Test that probabilities are correctly returned from the hardware device."""
 
     def test_mocked_engine_run_all_fock_probs(self, monkeypatch, tol):
         """Tests that probabilities are correctly summed when specifying a
         subset of the wires and using a mock SF RemoteEngine."""
+        wires = [0, 1]
         shots = 10
         dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
@@ -166,23 +166,29 @@ class TestProbs:
         def quantum_function(theta, phi):
             qml.Beamsplitter(theta, phi, wires=[0,1])
             qml.Beamsplitter(theta, phi, wires=[4,5])
-            return qml.probs(wires=[0, 1])
+            return qml.probs(wires=wires)
 
-        expected_probs = np.array([[0. , 0. , 0. , 0. , 0. ],
-                                   [0.1, 0. , 0.3, 0. , 0. ],
-                                   [0. , 0.1, 0. , 0.1, 0. ],
-                                   [0. , 0. , 0. , 0. , 0.1],
-                                   [0. , 0.1, 0.1, 0.1, 0. ]])
+        expected_probs = np.array([0. , 0. , 0. , 0. , 0., 0.1, 0. , 0.3, 0.,
+            0., 0. , 0.1, 0. , 0.1, 0., 0. , 0. , 0. , 0. , 0.1, 0. , 0.1, 0.1,
+            0.1, 0.])
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         probs = quantum_function(1., 0)
 
+        # all_fock_probs uses a cutoff equal to 1 + the maximum number of
+        # photons detected (including no photons detected)
+        cutoff = 1 + np.max(MOCK_SAMPLES)
+
+        # Check that the shape of the expected probabilities indeed matches the cutoff
+        # The combination of yields a shape of (cutoff, cutoff)
+        assert probs.shape == cutoff ** len(wires)
         assert np.allclose(probs, expected_probs, atol=tol)
 
     def test_mocked_probability(self, monkeypatch, tol):
         """Tests that pre-defined probabilities are correctly propagated
         through PennyLane when the StrawberryFieldsRemote.probability method is
         mocked out."""
+        wires = [0, 1]
         shots = 10
         dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
@@ -192,11 +198,8 @@ class TestProbs:
             qml.Beamsplitter(theta, phi, wires=[4,5])
             return qml.probs(wires=[0, 1])
 
-        expected_probs = np.array([[0.3, 0. , 0.1, 0.1, 0. ],
-                                  [0. , 0. , 0.1, 0.1, 0. ],
-                                  [0. , 0, 0. , 0. , 0. ],
-                                  [0. , 0. , 0. , 0. , 0.1],
-                                  [0. , 0, 0.1, 0.1, 0. ]])
+        expected_probs = np.array([0.3, 0., 0.1, 0.1, 0., 0., 0., 0.1, 0.1, 0.,\
+            0., 0, 0., 0., 0., 0., 0., 0., 0., 0.1, 0., 0, 0.1, 0.1, 0.])
 
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
 
@@ -206,6 +209,13 @@ class TestProbs:
         monkeypatch.setattr("pennylane_sf.remote.StrawberryFieldsRemote.probability", lambda *args, **kwargs: {'somekey': expected_probs})
         probs = quantum_function(1., 0)
 
+        # all_fock_probs uses a cutoff equal to 1 + the maximum number of
+        # photons detected (including no photons detected)
+        cutoff = 1 + np.max(MOCK_SAMPLES)
+
+        # Check that the shape of the expected probabilities indeed matches the cutoff
+        # The combination of yields a shape of (cutoff, cutoff)
+        assert probs.shape == cutoff ** len(wires)
         assert np.allclose(probs, expected_probs, atol=tol)
 
     def test_modes_none(self, monkeypatch):
@@ -213,13 +223,24 @@ class TestProbs:
         processing when no specific modes were specified."""
         dev = pennylane_sf.StrawberryFieldsRemote(backend="X8")
 
-        expected_probs = np.array([[0.1, 0. , 0.2, 0.1, 0. ],
-                                   [0. , 0. , 0.1, 0. , 0. ],
-                                   [0. , 0.1, 0. , 0. , 0. ],
-                                   [0. , 0. , 0. , 0. , 0.1],
-                                   [0. , 0.1, 0.1, 0.1, 0. ]])
+        mock_returned_probs = np.array([[0.1, 0. , 0.2, 0.1, 0. ],
+                                       [0. , 0. , 0.1, 0. , 0. ],
+                                       [0. , 0.1, 0. , 0. , 0. ],
+                                       [0. , 0. , 0. , 0. , 0.1],
+                                       [0. , 0.1, 0.1, 0.1, 0. ]])
 
-        monkeypatch.setattr("pennylane_sf.remote.all_fock_probs_pnr", lambda *arg: expected_probs)
-        probs = dev.probability()
+        shape = mock_returned_probs.shape[0]
 
-        assert np.array_equal(probs, expected_probs)
+        # Mock internal attributes used in the probability method
+        # The pre-defined probabilities are fed in
+        dev.num_wires = 2
+        dev.samples =  mock_returned_probs
+        monkeypatch.setattr("pennylane_sf.remote.all_fock_probs_pnr", lambda arg: arg)
+        probs_dict = dev.probability()
+
+        probs = np.array(list(probs_dict.values()))
+
+        # Check that the output shape is the shape of the flattened result
+        # coming from all_fock_probs
+        assert probs.shape == (shape ** 2,)
+        assert np.array_equal(probs, mock_returned_probs.flatten())
