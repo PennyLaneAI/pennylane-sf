@@ -31,7 +31,7 @@ You can instantiate the Remote device in PennyLane as follows:
 
     import pennylane as qml
 
-    dev = qml.device('strawberryfields.remote', backend="X8", wires=8, shots=10, sf_token="XXX")
+    dev = qml.device('strawberryfields.remote', backend="X8", shots=10, sf_token="XXX")
 
 The device can then be used to create supported circuits to define and evaluate
 QNodes within PennyLane. Refer to the `Strawberry Fields hardware page

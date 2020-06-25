@@ -32,7 +32,7 @@ class TestDevice:
         test_token = "SomeToken"
         recorder = []
         monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=8, shots=10, sf_token=test_token)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=10, sf_token=test_token)
 
         assert recorder[0] == test_token
 
@@ -67,7 +67,7 @@ class TestSample:
         from SF by using a mocked RemoteEngine."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -86,7 +86,7 @@ class TestSample:
         from SF by using a mocked RemoteEngine and specifying a single mode."""
         modes = [0]
         shots = 10
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=8, shots=shots)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -110,7 +110,7 @@ class TestExpval:
         value."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -125,6 +125,7 @@ class TestExpval:
         a = quantum_function(1., 0)
 
         assert a == expected_expval
+
 class TestVariance:
     """Test that variances are correctly returned from the hardware device."""
 
@@ -133,7 +134,7 @@ class TestVariance:
         by using a mocked function instead which returns a pre-defined value."""
         modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -156,9 +157,8 @@ class TestProbs:
     def test_mocked_engine_run_all_fock_probs(self, monkeypatch, tol):
         """Tests that probabilities are correctly summed when specifying a
         subset of the wires and using a mock SF RemoteEngine."""
-        modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -181,9 +181,8 @@ class TestProbs:
         """Tests that pre-defined probabilities are correctly propagated
         through PennyLane when the StrawberryFieldsRemote.probability method is
         mocked out."""
-        modes = 8
         shots = 10
-        dev = qml.device('strawberryfields.remote', backend="X8", wires=modes, shots=shots)
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -210,8 +209,7 @@ class TestProbs:
     def test_modes_none(self, monkeypatch):
         """Tests that probabilities are returned using SF without any further
         processing when no specific modes were specified."""
-        modes = 8
-        dev = pennylane_sf.StrawberryFieldsRemote(backend="X8", wires=modes)
+        dev = pennylane_sf.StrawberryFieldsRemote(backend="X8")
 
         expected_probs = np.array([[0.1, 0. , 0.2, 0.1, 0. ],
                                    [0. , 0. , 0.1, 0. , 0. ],

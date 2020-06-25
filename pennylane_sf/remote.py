@@ -48,6 +48,7 @@ from strawberryfields.ops import (BSgate, Catstate, CKgate, Coherent, CXgate,
 from strawberryfields.utils.post_processing import (all_fock_probs_pnr,
                                                     samples_expectation,
                                                     samples_variance)
+from strawberryfields.circuitspecs import circuit_db
 
 from .simulator import StrawberryFieldsSimulator
 
@@ -102,7 +103,17 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, wires, *, backend, shots=1000, hbar=2, sf_token=None):
+    def __init__(self, *, backend, shots=1000, hbar=2, sf_token=None):
+
+
+        # Explicitly obtain the default target if a family of backends was
+        # defined
+        if backend in sf.RemoteEngine.DEFAULT_TARGETS:
+            backend = sf.RemoteEngine.DEFAULT_TARGETS[backend]
+
+        # Infer the number of modes from the circuitspecs from Strawberry
+        # Fields
+        wires = circuit_db[backend].modes
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
         self.backend = backend
 
@@ -111,7 +122,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     def pre_measure(self):
         self.eng = sf.RemoteEngine(self.backend)
-
         MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
         # RemoteEngine.run includes compilation that checks the validity of the
