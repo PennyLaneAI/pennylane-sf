@@ -125,6 +125,24 @@ class TestSample:
         assert a.shape == (shots,)
         assert np.array_equal(a, expected)
 
+    def test_identity(self, monkeypatch):
+        """Tests that sampling the identity returns an array of ones."""
+        shots = 10
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi,wires=[0,1])
+            qml.Beamsplitter(theta, phi,wires=[4,5])
+            return qml.sample(qml.Identity(wires=0))
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        a = quantum_function(1., 0)
+
+        expected = np.ones(shots)
+        assert a.shape == (shots,)
+        assert np.array_equal(a, expected)
+
 class TestExpval:
     """Test that expectation values are correctly returned from the hardware device."""
 
@@ -150,7 +168,21 @@ class TestExpval:
 
         assert a == expected_expval
 
+    def test_identity(self, monkeypatch):
+        """Tests that the expectation value for the identity is zero."""
+        shots = 10
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
 
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi,wires=[0,1])
+            qml.Beamsplitter(theta, phi,wires=[4,5])
+            return qml.expval(qml.Identity(wires=0))
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        a = quantum_function(1., 0)
+
+        assert a == 1
 
 class TestVariance:
     """Test that variances are correctly returned from the hardware device."""
@@ -175,6 +207,22 @@ class TestVariance:
         var = quantum_function(1., 0)
 
         assert var == expected_var
+
+    def test_identity(self, monkeypatch):
+        """Tests that the variance for the identity is zero."""
+        shots = 10
+        dev = qml.device('strawberryfields.remote', backend="X8", shots=shots)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi,wires=[0,1])
+            qml.Beamsplitter(theta, phi,wires=[4,5])
+            return qml.var(qml.Identity(wires=0))
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        a = quantum_function(1., 0)
+
+        assert a == 0
 
 class TestProbs:
     """Test that probabilities are correctly returned from the hardware device."""

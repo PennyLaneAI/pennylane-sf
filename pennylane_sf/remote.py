@@ -133,14 +133,21 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def sample(self, observable, wires, par): # pylint: disable=unused-argument, missing-function-docstring
+        if observable == "Identity":
+            return np.ones(self.shots)
+
         wires = np.array(wires)
         selected_samples = self.samples[:, wires]
         return np.prod(selected_samples, axis=1)
 
     def expval(self, observable, wires, par):
+        if observable == "Identity":
+            return 1
         return samples_expectation(self.samples)
 
     def var(self, observable, wires, par):
+        if observable == "Identity":
+            return 0
         return samples_variance(self.samples)
 
     def probability(self, wires=None): # pylint: disable=missing-function-docstring
