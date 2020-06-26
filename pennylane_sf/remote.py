@@ -126,7 +126,9 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         results = self.eng.run(self.prog, shots=self.shots)
         self.samples = results.samples
 
-    def sample(self, observable, wires, par): # pylint: disable=unused-argument, missing-function-docstring
+    def sample(
+        self, observable, wires, par
+    ):  # pylint: disable=unused-argument, missing-function-docstring
         if observable == "Identity":
             return np.ones(self.shots)
         wires = np.array(wires)
