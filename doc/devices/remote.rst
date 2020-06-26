@@ -15,10 +15,19 @@ account it will raise a warning:
 
     'WARNING:strawberryfields.configuration:No Strawberry Fields configuration file found.'
 
-You can use the ``strawberryfields.store_account("<my_token>")`` function to
-permanently store an account.  Alternatively, you can use the `Strawberry
+It is recommended to use the ``strawberryfields.store_account()`` function to
+permanently store an account:
+
+.. code-block:: console
+
+    import strawberryfields as sf
+    sf.store_account("my_token")
+
+Alternatively, you can use the `Strawberry
 Fields command line interface for configuration
-<https://strawberryfields.readthedocs.io/en/stable/code/sf_cli.html>`__.
+<https://strawberryfields.readthedocs.io/en/stable/code/sf_cli.html>`__. Please see
+the `Strawberry Fields hardware details <https://strawberryfields.readthedocs.io/en/stable/introduction/photonic_hardware.html>`__
+for more information.
 
 .. warning:: Never publish code containing your token online.
 
@@ -43,7 +52,7 @@ As an example, the following simple example defines a :code:`quantum_function`
 circuit that first applies two-mode squeezing on the the vacuum state, followed
 by beamsplitters, and then returns the photon number expectation. This function
 is then converted into a QNode which is placed on the
-:code:`strawberryfields.ai` device:
+:code:`strawberryfields.remote` device:
 
 .. code-block:: python
 
@@ -55,6 +64,35 @@ is then converted into a QNode which is placed on the
         qml.Beamsplitter(theta, phi, wires=[4,5])
         return qml.expval(qml.NumberOperator(0))
 
+The ``strawberryfields.remote`` device also supports returning Fock basis probabilities:
+
+.. code-block:: python
+
+    @qml.qnode(dev)
+    def quantum_function(theta, x):
+        qml.TwoModeSqueezing(1.0, 0.0, wires=[0,4])
+        qml.TwoModeSqueezing(1.0, 0.0, wires=[1,5])
+        qml.Beamsplitter(theta, phi, wires=[0,1])
+        qml.Beamsplitter(theta, phi, wires=[4,5])
+        return qml.probs(wires=[0, 1, 2, 4])
+
+The probabilities will be returned as a 1-dimensional NumPy array with length :math:`D^N`, where
+:math:`N` is the number of wires, and :math:`D` is the Fock basis truncation (one greater
+than then number of photons detected).
+
+in addition, Fock basis samples can returned from the device:
+
+.. code-block:: python
+
+    @qml.qnode(dev)
+    def quantum_function(theta, x):
+        qml.TwoModeSqueezing(1.0, 0.0, wires=[0,4])
+        qml.TwoModeSqueezing(1.0, 0.0, wires=[1,5])
+        qml.Beamsplitter(theta, phi, wires=[0,1])
+        qml.Beamsplitter(theta, phi, wires=[4,5])
+        return [qml.sample(qml.NumberOperator(i)) for i in [0, 1, 2, 4]]
+
+This will return a NumPy array of shape ``(len(sampled_modes), shots)``.
 
 Device options
 ~~~~~~~~~~~~~~
@@ -74,6 +112,11 @@ The Strawberry Fields Fock device accepts additional arguments beyond the PennyL
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 
-The Strawberry Fields Remote device supports certain continuous-variable (CV)
-operations and observables provided by PennyLane. The set of supported
-operations depends on the specific backend used.
+The Strawberry Fields Remote device supports a subset of continuous-variable (CV)
+operations and observables provided by PennyLane.
+
+* Supported operations: The set of supported operations depends on the specific backend used.
+  Please refer to the Strawberry Fields documentation for the chosen backend.
+
+* Supported observables: This device only supports Fock-based measurements, including
+  ``qml.probs()``, ``qml.NumberOperator``, and ``qml.TensorN``.
