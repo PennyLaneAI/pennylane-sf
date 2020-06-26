@@ -43,7 +43,7 @@ As an example, the following simple example defines a :code:`quantum_function`
 circuit that first applies two-mode squeezing on the the vacuum state, followed
 by beamsplitters, and then returns the photon number expectation. This function
 is then converted into a QNode which is placed on the
-:code:`strawberryfields.ai` device:
+:code:`strawberryfields.remote` device:
 
 .. code-block:: python
 
