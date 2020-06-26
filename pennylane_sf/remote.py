@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields Remote device
-===============================
-
-The Strawberry Fields Hardware plugin implements all the :class:`~pennylane.device.Device` methods,
+The Strawberry Fields remote device implements all the :class:`~pennylane.device.Device` methods,
 and provides access to Xanadu's continuous-variable quantum hardware.
 """
 
@@ -24,16 +21,14 @@ from collections import OrderedDict
 import numpy as np
 
 import strawberryfields as sf
+
 # import state preparations, gates and measurements
-from strawberryfields.ops import (BSgate, Catstate, CKgate, Coherent, CXgate,
-                                  CZgate, DensityMatrix, Dgate,
-                                  DisplacedSqueezed, Fock, Gaussian,
-                                  Interferometer, Ket, Kgate, MeasureFock,
-                                  Pgate, Rgate, S2gate, Sgate, Squeezed,
-                                  Thermal, Vgate)
-from strawberryfields.utils.post_processing import (all_fock_probs_pnr,
-                                                    samples_expectation,
-                                                    samples_variance)
+from strawberryfields import ops
+from strawberryfields.utils.post_processing import (
+    all_fock_probs_pnr,
+    samples_expectation,
+    samples_variance,
+)
 from strawberryfields.circuitspecs import circuit_db
 
 from .simulator import StrawberryFieldsSimulator
@@ -60,27 +55,27 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     short_name = "strawberryfields.remote"
 
     _operation_map = {
-        'CatState': Catstate,
-        'CoherentState': Coherent,
-        'FockDensityMatrix': DensityMatrix,
-        'DisplacedSqueezedState': DisplacedSqueezed,
-        'FockState': Fock,
-        'FockStateVector': Ket,
-        'SqueezedState': Squeezed,
-        'ThermalState': Thermal,
-        'GaussianState': Gaussian,
-        'Beamsplitter': BSgate,
-        'CrossKerr': CKgate,
-        'ControlledAddition': CXgate,
-        'ControlledPhase': CZgate,
-        'Displacement': Dgate,
-        'Kerr': Kgate,
-        'QuadraticPhase': Pgate,
-        'Rotation': Rgate,
-        'TwoModeSqueezing': S2gate,
-        'Squeezing': Sgate,
-        'CubicPhase': Vgate,
-        'Interferometer': Interferometer
+        "CatState": ops.Catstate,
+        "CoherentState": ops.Coherent,
+        "FockDensityMatrix": ops.DensityMatrix,
+        "DisplacedSqueezedState": ops.DisplacedSqueezed,
+        "FockState": ops.Fock,
+        "FockStateVector": ops.Ket,
+        "SqueezedState": ops.Squeezed,
+        "ThermalState": ops.Thermal,
+        "GaussianState": ops.Gaussian,
+        "Beamsplitter": ops.BSgate,
+        "CrossKerr": ops.CKgate,
+        "ControlledAddition": ops.CXgate,
+        "ControlledPhase": ops.CZgate,
+        "Displacement": ops.Dgate,
+        "Kerr": ops.Kgate,
+        "QuadraticPhase": ops.Pgate,
+        "Rotation": ops.Rgate,
+        "TwoModeSqueezing": ops.S2gate,
+        "Squeezing": ops.Sgate,
+        "CubicPhase": ops.Vgate,
+        "Interferometer": ops.Interferometer,
     }
 
     _observable_map = {
@@ -90,7 +85,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     }
 
     def __init__(self, *, backend, shots=1000, hbar=2, sf_token=None):
-
 
         # Explicitly obtain the default target if a family of backends was
         # defined
@@ -125,14 +119,16 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     def pre_measure(self):
         self.eng = sf.RemoteEngine(self.backend)
-        MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
+        ops.MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
         # RemoteEngine.run includes compilation that checks the validity of the
         # defined Program
         results = self.eng.run(self.prog, shots=self.shots)
         self.samples = results.samples
 
-    def sample(self, observable, wires, par): # pylint: disable=unused-argument, missing-function-docstring
+    def sample(
+        self, observable, wires, par
+    ):  # pylint: disable=unused-argument, missing-function-docstring
         wires = np.array(wires)
         selected_samples = self.samples[:, wires]
         return np.prod(selected_samples, axis=1)
@@ -143,7 +139,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def var(self, observable, wires, par):
         return samples_variance(self.samples)
 
-    def probability(self, wires=None): # pylint: disable=missing-function-docstring
+    def probability(self, wires=None):  # pylint: disable=missing-function-docstring
         all_probs = all_fock_probs_pnr(self.samples)
 
         # Extract the cutoff value by checking the number of Fock states we
