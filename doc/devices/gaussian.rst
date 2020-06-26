@@ -118,6 +118,7 @@ observables provided by PennyLane.
     ~pennylane.P
     ~pennylane.QuadOperator
     ~pennylane.PolyXP
+    ~pennylane.TensorN
 
 .. raw:: html
 
