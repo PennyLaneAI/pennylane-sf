@@ -73,10 +73,13 @@ def SF_gate_reference(sf_op, wires, *args):
 def SF_expectation_reference(sf_expectation, wires, *args):
     """SF reference circuit for expectation tests"""
     eng = sf.Engine("gaussian")
-    prog = sf.Program(2)
+
+    # Allows returning the variance of tensor number for 3 modes
+    num_wires = 2 if len(wires) <=2 else 3
+    prog = sf.Program(num_wires)
     with prog.context as q:
         sf.ops.Dgate(0.1) | q[0]
-        sf.ops.S2gate(0.1) | q
+        sf.ops.S2gate(0.1) | (q[0], q[1])
 
     state = eng.run(prog).state
     return sf_expectation(state, wires, args)[0]
