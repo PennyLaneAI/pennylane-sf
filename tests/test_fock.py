@@ -832,11 +832,11 @@ class TestProbability:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
-    def test_tensor_number_squeezed_displaced(self, tol):
+    def test_tensor_number_squeezed_displaced(self):
         """Test the variance of the TensorN observable for a squeezed displaced
         state"""
         cutoff_dim = 10
-        var_tol = 0.01
+        custom_tol = 1e-04
 
         dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
 
@@ -848,36 +848,48 @@ class TestProbability:
         wires = [0, 1]
 
         @qml.qnode(dev)
-        def circuit(n, a):
-            qml.Displacement(np.abs(a0), np.angle(a0), wires=0)
-            qml.Squeezing(r0, phi0, wires=0)
-            qml.Displacement(np.abs(a1), np.angle(a1), wires=1)
-            qml.Squeezing(r1, phi1, wires=1)
+        def circuit(pars):
+            qml.Squeezing(pars[2], pars[3], wires=0)
+            qml.Displacement(pars[0], pars[0], wires=0)
+            qml.Squeezing(pars[6], pars[7], wires=1)
+            qml.Displacement(pars[4], pars[5], wires=1)
             return qml.var(op(wires=wires))
 
-        n = 0.12
-        a = 0.105
+        # Parameters to operations on the first mode
+        alpha0 = 0.3 + 0.1 * 1j
+        r_d_0 = np.abs(alpha0)
+        phi_d_0 = np.angle(alpha0)
+        r_s_0 = 0.2
+        phi_s_0 = 0.6
 
-        a0 = 0.3 + 0.1 * 1j
-        r0 = 0.2
-        phi0 = 0.6
-        a1 = 0.1 + 0.1 * 1j
-        r1 = 0.3
-        phi1 = 0.9
+        first_pars = np.array([r_d_0, phi_d_0, r_s_0, phi_s_0])
 
-        def analytic_var(a, r, phi):
+        # Parameters to operations on the second mode
+        alpha1 = 0.1 + 0.1 * 1j
+        r_d_1 = np.abs(alpha1)
+        phi_d_1 = np.angle(alpha1)
+        r_s_1 = 0.3
+        phi_s_1 = 0.9
+
+        second_pars = np.array([r_d_1, phi_d_1, r_s_1, phi_s_1])
+        pars = np.concatenate([first_pars, second_pars])
+
+        def squared_term(a, r, phi):
             magnitude_squared = np.abs(a) ** 2
-            var_ex = - magnitude_squared + magnitude_squared ** 2 + 2 *\
+            squared_term = - magnitude_squared + magnitude_squared ** 2 + 2 *\
                 magnitude_squared*np.cosh(2*r) - np.exp(-1j*phi) * a ** 2 *\
                 np.cosh(r)*np.sinh(r) - np.exp(1j* phi) * np.conj(a) **2 *\
-                np.cosh(r)*np.sinh(r) + np.sinh(r)**4 - (magnitude_squared +\
-                        np.conj(np.sinh(r))*np.sinh(r)) ** 2 +\
+                np.cosh(r)*np.sinh(r) + np.sinh(r)**4 +\
                 np.cosh(r)*np.sinh(r)*np.sinh(2*r)
-            return var_ex
+            return squared_term
 
-        var = circuit(n, a)
+        var = circuit(pars)
 
-        v0 = analytic_var(a0, r0, phi0)
-        v1 = analytic_var(a1, r1, phi1)
-        expected = v0 * v1
-        assert np.allclose(var, expected, atol=var_tol, rtol=0)
+        n0 = np.sinh(r_s_0) ** 2 + np.abs(alpha0) ** 2
+        n1 = np.sinh(r_s_1) ** 2 + np.abs(alpha1) ** 2
+        expected = squared_term(alpha0, r_s_0, phi_s_0) * squared_term(alpha1, r_s_1, phi_s_1) - n0 ** 2 * n1 ** 2
+        assert np.allclose(var, expected, atol=custom_tol, rtol=0)
+
+        # circuit jacobians
+        gradF = circuit.jacobian([pars], wrt={0}, method="F")
+        # assert np.allclose(gradF, expected, atol=custom_tol, rtol=0)

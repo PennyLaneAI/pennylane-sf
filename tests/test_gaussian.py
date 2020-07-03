@@ -845,22 +845,31 @@ class TestProbability:
         wires = [0, 1]
 
         @qml.qnode(dev)
-        def circuit(n, a):
-            qml.Displacement(np.abs(a0), np.angle(a0), wires=0)
-            qml.Squeezing(r0, phi0, wires=0)
-            qml.Displacement(np.abs(a1), np.angle(a1), wires=1)
-            qml.Squeezing(r1, phi1, wires=1)
+        def circuit(pars):
+            qml.Displacement(pars[0], pars[0], wires=0)
+            qml.Squeezing(pars[2], pars[3], wires=0)
+            qml.Displacement(pars[4], pars[5], wires=1)
+            qml.Squeezing(pars[6], pars[7], wires=1)
             return qml.var(op(wires=wires))
 
-        n = 0.12
-        a = 0.105
+        # Parameters to operations on the first mode
+        alpha0 = 0.3 + 0.1 * 1j
+        r_d_0 = 0.3162277
+        phi_d_0 = 0.32175055
+        r_s_0 = 0.2
+        phi_s_0 = 0.6
 
-        a0 = 0.3 + 0.1 * 1j
-        r0 = 0.2
-        phi0 = 0.6
-        a1 = 0.1 + 0.1 * 1j
-        r1 = 0.3
-        phi1 = 0.9
+        first_pars = np.array([r_d_0, phi_d_0, r_s_0, phi_s_0])
+
+        # Parameters to operations on the second mode
+        alpha1 = 0.1 + 0.1 * 1j
+        r_d_1 = 0.14142136
+        phi_d_1 = 0.78539816
+        r_s_1 = 0.3
+        phi_s_1 = 0.9
+
+        second_pars = np.array([r_d_1, phi_d_1, r_s_1, phi_s_1])
+        pars = np.concatenate([first_pars, second_pars])
 
         def analytic_var(a, r, phi):
             magnitude_squared = np.abs(a) ** 2
@@ -872,9 +881,15 @@ class TestProbability:
                 np.cosh(r)*np.sinh(r)*np.sinh(2*r)
             return var_ex
 
-        var = circuit(n, a)
+        var = circuit(pars)
 
-        v0 = analytic_var(a0, r0, phi0)
-        v1 = analytic_var(a1, r1, phi1)
+        v0 = analytic_var(alpha0, r_s_0, phi_s_0)
+        v1 = analytic_var(alpha1, r_s_1, phi_s_1)
         expected = v0 * v1
+        print(var, expected)
         assert np.allclose(var, expected, atol=var_tol, rtol=0)
+
+        # circuit jacobians
+        gradF = circuit.jacobian([pars], wrt={0}, method="F")
+        print(pars, gradF)
+        #assert np.allclose(gradF, expected, atol=tol, rtol=0)
