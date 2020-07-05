@@ -832,10 +832,42 @@ class TestProbability:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
+    def test_tensor_number_displaced(self, tol):
+        """Test the variance of the TensorN observable for a displaced state"""
+        cutoff_dim = 15
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.var(qml.TensorN(wires=[0, 1]))
+
+        a = 0.4
+        phi = -0.12
+
+        expected = a**4 * (1 + 2* a**2)
+
+        var = circuit(a, phi)
+        assert np.allclose(var, expected, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = 4*(a**3 + 3*a**5)
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
     def test_tensor_number_squeezed_displaced(self):
         """Test the variance of the TensorN observable for a squeezed displaced
         state"""
-        cutoff_dim = 10
+        cutoff_dim = 15
         custom_tol = 1e-04
 
         dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff_dim)
@@ -891,5 +923,8 @@ class TestProbability:
         assert np.allclose(var, expected, atol=custom_tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.jacobian([pars], wrt={0}, method="F")
+        # differentiate with respect to the first displacement parameter (r_d_1)
+        gradF = circuit.jacobian([pars], wrt={2}, method="F")
+        print(gradF)
+        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         # assert np.allclose(gradF, expected, atol=custom_tol, rtol=0)

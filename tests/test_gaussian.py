@@ -829,67 +829,112 @@ class TestProbability:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
+    def test_tensor_number_displaced(self, tol):
+        """Test the variance of the TensorN observable for a displaced state"""
+        dev = qml.device("strawberryfields.gaussian", wires=2)
+
+        gate_name = "TensorN"
+        assert dev.supports_observable(gate_name)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.var(qml.TensorN(wires=[0, 1]))
+
+        a = 0.4
+        phi = -0.12
+
+        expected = a**4 * (1 + 2* a**2)
+
+        var = circuit(a, phi)
+        assert np.allclose(var, expected, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = 4*(a**3 + 3*a**5)
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
     def test_tensor_number_squeezed_displaced(self, tol):
         """Test the variance of the TensorN observable for a squeezed displaced
         state"""
-        cutoff_dim = 10
-        var_tol = 0.01
+        cutoff_dim = 15
 
         dev = qml.device("strawberryfields.gaussian", wires=2)
 
         gate_name = "TensorN"
         assert dev.supports_observable(gate_name)
 
-        op = qml.TensorN
-        sf_expectation = dev._observable_map[gate_name]
-        wires = [0, 1]
-
         @qml.qnode(dev)
         def circuit(pars):
-            qml.Displacement(pars[0], pars[0], wires=0)
-            qml.Squeezing(pars[2], pars[3], wires=0)
-            qml.Displacement(pars[4], pars[5], wires=1)
-            qml.Squeezing(pars[6], pars[7], wires=1)
-            return qml.var(op(wires=wires))
+            qml.Squeezing(pars[0], pars[1], wires=0)
+            qml.Displacement(pars[2], pars[3], wires=0)
+            qml.Squeezing(pars[4], pars[5], wires=1)
+            qml.Displacement(pars[6], pars[7], wires=1)
+            return qml.var(qml.TensorN(wires=[0, 1]))
 
         # Parameters to operations on the first mode
-        alpha0 = 0.3 + 0.1 * 1j
-        r_d_0 = 0.3162277
+        # Displacement
+        r_d_0 = 0.316277
         phi_d_0 = 0.32175055
-        r_s_0 = 0.2
-        phi_s_0 = 0.6
+        alpha0 = r_d_0 * np.exp(1j*phi_d_0)
 
-        first_pars = np.array([r_d_0, phi_d_0, r_s_0, phi_s_0])
+        # Squeezing
+        r_s_0 = 0.1
+        phi_s_0 = 0.1
+
+        first_pars = np.array([r_s_0, phi_s_0, r_d_0, phi_d_0])
 
         # Parameters to operations on the second mode
-        alpha1 = 0.1 + 0.1 * 1j
+        # Displacement
         r_d_1 = 0.14142136
         phi_d_1 = 0.78539816
-        r_s_1 = 0.3
-        phi_s_1 = 0.9
+        alpha1 = r_d_1 * np.exp(1j*phi_d_1)
 
-        second_pars = np.array([r_d_1, phi_d_1, r_s_1, phi_s_1])
+        # Squeezing
+        r_s_1 = 0.1
+        phi_s_1 = 0.15
+
+        second_pars = np.array([r_s_1, phi_s_1, r_d_1, phi_d_1])
         pars = np.concatenate([first_pars, second_pars])
 
-        def analytic_var(a, r, phi):
+        def squared_term(a, r, phi):
             magnitude_squared = np.abs(a) ** 2
-            var_ex = - magnitude_squared + magnitude_squared ** 2 + 2 *\
+            squared_term = - magnitude_squared + magnitude_squared ** 2 + 2 *\
                 magnitude_squared*np.cosh(2*r) - np.exp(-1j*phi) * a ** 2 *\
                 np.cosh(r)*np.sinh(r) - np.exp(1j* phi) * np.conj(a) **2 *\
-                np.cosh(r)*np.sinh(r) + np.sinh(r)**4 - (magnitude_squared +\
-                        np.conj(np.sinh(r))*np.sinh(r)) ** 2 +\
+                np.cosh(r)*np.sinh(r) + np.sinh(r)**4 +\
                 np.cosh(r)*np.sinh(r)*np.sinh(2*r)
-            return var_ex
+            return squared_term
 
         var = circuit(pars)
+        print(var)
 
-        v0 = analytic_var(alpha0, r_s_0, phi_s_0)
-        v1 = analytic_var(alpha1, r_s_1, phi_s_1)
-        expected = v0 * v1
-        print(var, expected)
-        assert np.allclose(var, expected, atol=var_tol, rtol=0)
+        n0 = np.sinh(r_s_0) ** 2 + np.abs(alpha0) ** 2
+        n1 = np.sinh(r_s_1) ** 2 + np.abs(alpha1) ** 2
+        expected = squared_term(alpha0, r_s_0, phi_s_0) * squared_term(alpha1, r_s_1, phi_s_1) - n0 ** 2 * n1 ** 2
+        assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.jacobian([pars], wrt={0}, method="F")
-        print(pars, gradF)
-        #assert np.allclose(gradF, expected, atol=tol, rtol=0)
+        # differentiate with respect to the first displacement parameter (r_d_1)
+        gradF = circuit.jacobian([pars], wrt={1}, method="F")
+        print(gradF, tol)
+        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        assert np.allclose(gradF, expected, atol=custom_tol, rtol=0)
+
+        # def pd_sq_r():
+        #         rd0 * (0.5 - rd0**2 + (-2 + 4 rd0**2) rd1**2 np.cosh( 2 * rs1)\
+        #                 + (-0.5 + 1 rd0**2) np.cosh( 4 rs1) + (2 - 4 rd0**2)\
+        #                 rd1**2 np.cos( 2 * phid1 - 1 \phis1) np.sinh(2 rs1) +\
+        #                 np.cosh(2 rs0] (-0.25 - 2 rd1**2 + 2 * rd1**4 + (-1 + 6\
+        #                     * rd1**2) np.cosh(2 rs1] + 1.25 np.cosh(4 rs1] - 4\
+        #                     * rd1**2 np.cos(2 \phid1 - 1 phis1) np.sinh(2 rs1])\
+        #                 + np.cos(2 *phid0 - 1 phis0* np.sinh( 2 * rs0) (-0.25 +\
+        #                     2 rd1**2 - 2 rd1**4 + (1 - 4. rd1**2) np.cosh(2*\
+        #                         rs1) - 0.75 np.cosh(4 rs1] + 2 rd1**2 np.cos(2*\
+        #                             phid1 - 1 phis1) np.sinh(2 rs1]))
