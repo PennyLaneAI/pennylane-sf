@@ -70,13 +70,15 @@ def SF_gate_reference(sf_op, wires, *args):
 
 
 # compare to reference SF engine
-def SF_expectation_reference(sf_expectation, wires, *args):
+def SF_expectation_reference(sf_expectation, wires, num_wires, *args):
     """SF reference circuit for expectation tests"""
     eng = sf.Engine("gaussian")
-    prog = sf.Program(2)
+
+    # Allows returning the variance of tensor number for 3 modes
+    prog = sf.Program(num_wires)
     with prog.context as q:
         sf.ops.Dgate(0.1) | q[0]
-        sf.ops.S2gate(0.1) | q
+        sf.ops.S2gate(0.1) | (q[0], q[1])
 
     state = eng.run(prog).state
     return sf_expectation(state, wires, args)[0]
@@ -413,7 +415,8 @@ class TestExpectation:
     def test_number_operator(self, tol):
         """Test that the expectation value of the NumberOperator observable
         yields the correct result"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 2
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         gate_name = "NumberOperator"
         assert dev.supports_observable(gate_name)
@@ -429,20 +432,21 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+            circuit(), SF_expectation_reference(sf_expectation, wires, num_wires), atol=tol, rtol=0
         )
 
-    def test_tensor_number_operator(self, tol):
+    @pytest.mark.parametrize("wires", [[0, 1], [0, 1, 2]])
+    def test_tensor_number_operator(self, wires, tol):
         """Test that the expectation value of the TensorN observable
         yields the correct result"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 3
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         gate_name = "TensorN"
         assert dev.supports_observable(gate_name)
 
         op = qml.TensorN
         sf_expectation = dev._observable_map[gate_name]
-        wires = [0, 1]
 
         @qml.qnode(dev)
         def circuit():
@@ -451,14 +455,15 @@ class TestExpectation:
             return qml.expval(op(wires=wires))
 
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+            circuit(), SF_expectation_reference(sf_expectation, wires, num_wires), atol=tol, rtol=0
         )
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
         """Test that the expectation of the X and P quadrature operators yield
         the correct result"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 2
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         assert dev.supports_observable(gate_name)
 
@@ -472,15 +477,15 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+            circuit(), SF_expectation_reference(sf_expectation, wires, num_wires), atol=tol, rtol=0
         )
 
     def test_quad_operator(self, tol):
         """Test that the expectation for the generalized quadrature observable
         yields the correct result"""
         a = 0.312
-
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 2
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         op = qml.QuadOperator
         gate_name = "QuadOperator"
@@ -496,7 +501,7 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(a), SF_expectation_reference(sf_expectation, wires, a), atol=tol, rtol=0
+            circuit(a), SF_expectation_reference(sf_expectation, wires, num_wires, a), atol=tol, rtol=0
         )
 
     def test_polyxp(self, tol):
