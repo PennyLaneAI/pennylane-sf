@@ -405,6 +405,7 @@ class TestUnsupported:
         ):
             circuit()
 
+
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
     the Strawberry Fields results"""
@@ -568,6 +569,7 @@ class TestExpectation:
 
         assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
 
+
 class TestVariance:
     """Test for the device variance"""
 
@@ -707,7 +709,7 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
-        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        expected_gradient = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to parameter phi
