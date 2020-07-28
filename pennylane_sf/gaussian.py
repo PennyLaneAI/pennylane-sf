@@ -64,6 +64,7 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
         wires (int): the number of modes to initialize the device in
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
+        cutoff_dim (int): Fock-space truncation dimension
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
@@ -102,6 +103,10 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
     }
 
     _circuits = {}
+
+    def __init__(self, wires, *, analytic=True, cutoff_dim=10, shots=1000, hbar=2):
+        super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
+        self.cutoff = cutoff_dim
 
     def pre_measure(self):
         self.eng = sf.Engine("gaussian")

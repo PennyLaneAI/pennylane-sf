@@ -33,6 +33,11 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
     :description: Optimized simulator that supports only Gaussian operations and photon number resolving measurements.
     :link: devices/gaussian.html
 
+.. devicegalleryitem::
+    :name: 'strawberryfields.remote'
+    :description: Remote backends including access to continuous-variable hardware.
+    :link: devices/remote.html
+
 .. raw:: html
 
     <div style='clear:both'></div>
@@ -81,6 +86,7 @@ use the "Strawberry Fields" filter on the right panel of the
 
    devices/fock
    devices/gaussian
+   devices/remote
 
 .. toctree::
    :maxdepth: 1

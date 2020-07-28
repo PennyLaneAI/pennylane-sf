@@ -25,6 +25,7 @@ to the corresponding state methods in Strawberry Fields.
 .. autosummary::
     identity
     mean_photon
+    number_expectation
     fock_state
     homodyne
     poly_xp
