@@ -388,6 +388,7 @@ class TestProbs:
     def test_modes_none(self, monkeypatch):
         """Tests that probabilities are returned using SF without any further
         processing when no specific modes were specified."""
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = pennylane_sf.StrawberryFieldsRemote(backend="X8")
 
         mock_returned_probs = np.array(
