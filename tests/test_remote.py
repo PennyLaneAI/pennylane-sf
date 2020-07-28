@@ -72,6 +72,7 @@ class TestDevice:
         """Tests that the SF store_account function is called with token."""
         test_token = "SomeToken"
         recorder = []
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10, sf_token=test_token)
 
