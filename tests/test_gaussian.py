@@ -408,6 +408,7 @@ class TestUnsupported:
         ):
             circuit()
 
+
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
     the Strawberry Fields results"""
@@ -501,7 +502,10 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(a), SF_expectation_reference(sf_expectation, wires, num_wires, a), atol=tol, rtol=0
+            circuit(a),
+            SF_expectation_reference(sf_expectation, wires, num_wires, a),
+            atol=tol,
+            rtol=0,
         )
 
     def test_polyxp(self, tol):
@@ -573,6 +577,7 @@ class TestExpectation:
             return qml.expval(qml.Identity(wires=[0, 1]))
 
         assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
+
 
 class TestVariance:
     """Test for the device variance"""
@@ -713,7 +718,7 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
-        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        expected_gradient = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to parameter phi
@@ -743,8 +748,10 @@ class TestProbability:
         assert res_F.shape == (cutoff,)
 
         expected_gradient = (
-            np.abs(np.tanh(r)) ** n * (1 + 2 * n - np.cosh(2 * r)) * fac(n)
-            / (2 ** (n + 1) * np.cosh(r) **2 * np.sinh(r) * fac(n / 2) ** 2)
+            np.abs(np.tanh(r)) ** n
+            * (1 + 2 * n - np.cosh(2 * r))
+            * fac(n)
+            / (2 ** (n + 1) * np.cosh(r) ** 2 * np.sinh(r) * fac(n / 2) ** 2)
         )
         expected_gradient[n % 2 != 0] = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
@@ -778,7 +785,13 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
-        expected_gradient = 2 * (a **(-1 + 2*n0 + 2*n1)) * np.exp(-2*a ** 2) * (-2*a ** 2 + n0 + n1) / (fac(n0) * fac(n1))
+        expected_gradient = (
+            2
+            * (a ** (-1 + 2 * n0 + 2 * n1))
+            * np.exp(-2 * a ** 2)
+            * (-2 * a ** 2 + n0 + n1)
+            / (fac(n0) * fac(n1))
+        )
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to parameter phi
