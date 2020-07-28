@@ -29,7 +29,6 @@ from strawberryfields.utils.post_processing import (
     samples_expectation,
     samples_variance,
 )
-from strawberryfields.circuitspecs import circuit_db
 
 from .simulator import StrawberryFieldsSimulator
 
@@ -85,17 +84,13 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     }
 
     def __init__(self, *, backend, shots=1000, hbar=2, sf_token=None):
-
-        # Explicitly obtain the default target if a family of backends was
-        # defined
-        if backend in sf.RemoteEngine.DEFAULT_TARGETS:
-            backend = sf.RemoteEngine.DEFAULT_TARGETS[backend]
-
-        # Infer the number of modes from the circuitspecs from Strawberry
-        # Fields
-        wires = circuit_db[backend].modes
-        super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
         self.backend = backend
+        eng = sf.RemoteEngine(self.backend)
+
+        # Infer the number of modes from the device specs
+        wires = eng.device_spec.modes
+        super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
+        self.eng = eng
 
         if sf_token is not None:
             sf.store_account(sf_token)
@@ -103,10 +98,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def reset(self):
         """Reset the device"""
         sf.hbar = self.hbar
-
-        # Simply set eng to None (no reset for RemoteEngine)
-        if self.eng is not None:
-            self.eng = None
 
         if self.q is not None:
             self.q = None
@@ -118,7 +109,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
             self.samples = None
 
     def pre_measure(self):
-        self.eng = sf.RemoteEngine(self.backend)
         ops.MeasureFock() | self.q  # pylint: disable=pointless-statement, expression-not-assigned
 
         # RemoteEngine.run includes compilation that checks the validity of the

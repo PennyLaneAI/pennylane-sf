@@ -97,9 +97,7 @@ class StrawberryFieldsSimulator(Device):
         """
         # convert PennyLane parameter conventions to
         # Strawberry Fields conventions
-        if operation == "DisplacedSqueezedState":
-            sf_par = (par[0] * np.exp(par[1] * 1j), par[2], par[3])
-        elif operation == "CatState":
+        if operation == "CatState":
             sf_par = (par[0] * np.exp(par[1] * 1j), par[2])
         else:
             sf_par = par
