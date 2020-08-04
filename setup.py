@@ -41,7 +41,7 @@ info = {
             'strawberryfields.remote = pennylane_sf:StrawberryFieldsRemote',
             'strawberryfields.fock = pennylane_sf:StrawberryFieldsFock',
             'strawberryfields.gaussian = pennylane_sf:StrawberryFieldsGaussian',
-            'strawberryfields.vgbs = pennylane_sf:StrawberryFieldsGBS',
+            'strawberryfields.gbs = pennylane_sf:StrawberryFieldsGBS',
             ],
         },
     'description': 'Open source library for continuous-variable quantum computation',

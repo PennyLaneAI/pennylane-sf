@@ -15,9 +15,9 @@
 Strawberry Fields variational GBS device
 ========================================
 
-**Module name:** :mod:`pennylane_sf.vgbs`
+**Module name:** :mod:`pennylane_sf.gbs`
 
-.. currentmodule:: pennylane_sf.vgbs
+.. currentmodule:: pennylane_sf.gbs
 
 TODO
 
@@ -25,7 +25,7 @@ Classes
 -------
 
 .. autosummary::
-   StrawberryFieldsVGBS
+   StrawberryFieldsGBS
 
 
 Code details
