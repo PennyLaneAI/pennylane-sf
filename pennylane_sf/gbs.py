@@ -41,13 +41,10 @@ import strawberryfields as sf
 from strawberryfields.utils import all_fock_probs_pnr
 
 # import gates
-from strawberryfields.ops import Dgate, GraphEmbed, MeasureFock
+from strawberryfields.ops import GraphEmbed, MeasureFock
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
-
-from pennylane_sf.ops import ParamGraphEmbed
-
 
 
 class StrawberryFieldsGBS(StrawberryFieldsSimulator):
@@ -91,10 +88,10 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         W = np.diag(np.sqrt(self._params))
         self._WAW = W @ A @ W
 
-        singular_values = np.linalg.svd(self.WAW, compute_uv=False)
+        singular_values = np.linalg.svd(self._WAW, compute_uv=False)
         n_mean_WAW = np.sum(singular_values ** 2 / (1 - singular_values ** 2))
 
-        op = self._operation_map[operation](self.WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        op = self._operation_map[operation](self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
         op | [self.q[i] for i in wires]  # pylint: disable=pointless-statement
 
         if not self.analytic:
@@ -141,7 +138,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         cov = self.hbar * (np.linalg.inv(I - o_mat) - I / 2)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
 
-        for i, s in enumerate(np.ndindex(5, 5)):
+        for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
             jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
 
         return jac

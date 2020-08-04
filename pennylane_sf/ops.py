@@ -69,6 +69,3 @@ class ParamGraphEmbed(CVOperation):
     num_params = 3
     num_wires = AllWires
     par_domain = "A"
-
-    # grad_method = None
-    # grad_recipe = None
