@@ -48,34 +48,15 @@ from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
 
 
-class GraphTrain(qml.operation.CVOperation):
-    """TODO"""
 
-    do_check_domain = False  # turn off parameter domain checking
-
-    num_params = 3
-    num_wires = qml.operation.AllWires
-    par_domain = "A"
-
-    grad_method = "F"  # This would be better as A, but is incompatible with array inputs
-    grad_recipe = None
-
-
-class Cost(qml.operation.CVObservable):
-    """TODO"""
-
-    do_check_domain = False  # turn off parameter domain checking
-
-    num_params = 1
-    num_wires = qml.operation.AllWires
-    par_domain = "R"
-
-    grad_method = "A"
-    grad_recipe = None
 
 
 class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     r"""TODO
+
+    The gradient is
+        calculated on this device using the results of `Banchi et al.
+        <https://arxiv.org/abs/2004.04770>`__.
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.vgbs"
