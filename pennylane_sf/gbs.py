@@ -33,7 +33,6 @@ Code details
 """
 from collections import OrderedDict
 from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
-import pennylane as qml
 from thewalrus.quantum import photon_number_mean_vector
 
 import numpy as np
@@ -47,7 +46,7 @@ from strawberryfields.ops import Dgate, GraphEmbed, MeasureFock
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
 
-
+from pennylane_sf.ops import ParamGraphEmbed
 
 
 
@@ -59,15 +58,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         <https://arxiv.org/abs/2004.04770>`__.
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
-    short_name = "strawberryfields.vgbs"
+    short_name = "strawberryfields.gbs"
 
     _operation_map = {
-        "GraphTrain": GraphEmbed,
+        "ParamGraphEmbed": GraphEmbed,
     }
 
     _observable_map = {
         "Identity": identity,
-        "Cost": Cost,
     }
 
     _circuits = {}
@@ -75,22 +73,23 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
     def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000,
-                 hbar=2, pregenerated_samples=None):
-        if not analytic and backend != "gaussian":
-            raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
+                 hbar=2):
+        # if not analytic and backend != "gaussian":
+        #     raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
 
         super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
         self.backend = backend
-        self.pregenerated_samples = pregenerated_samples
+        self._params = None
+        self._WAW = None
 
     def apply(self, operation, wires, par):
         """TODO
         """
-        self.weights, A, n_mean = par
-        A = A * rescale(A, n_mean)
-        W = np.diag(np.sqrt(self.weights))
-        self.WAW = W @ A @ W
+        self._params, A, n_mean = par
+        A *= rescale(A, n_mean)
+        W = np.diag(np.sqrt(self._params))
+        self._WAW = W @ A @ W
 
         singular_values = np.linalg.svd(self.WAW, compute_uv=False)
         n_mean_WAW = np.sum(singular_values ** 2 / (1 - singular_values ** 2))
@@ -115,56 +114,34 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     def probability(self, wires=None):
 
-        if not self.old_A or not np.allclose(self.A, self.old_A):
-            self.saved_probs = # run circuit with weights equal to all ones
-            self.old_A = self.A
-        return self.reparam(self.saved_probs, self.weights)
+        if self.analytic:
+            # compute the fock probabilities analytically
+            # from the state representation
+            return super().probability(wires=wires)
 
-            if self.analytic:
-                # compute the fock probabilities analytically
-                # from the state representation
-                return super().probability(wires=wires)
-
-            # compute the fock probabilities from samples
-            N = len(wires) if wires is not None else len(self.num_wires)
-            probs = all_fock_probs_pnr(self.samples)
-            ind = np.indices([self.cutoff] * N).reshape(N, -1).T
-            probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
-            return probs
-
-    def expval(self, observable, wires, par):
-        if observable == "Cost":
-            self.h = par[0]
-            probs = list(self.probability(wires=wires).values())
-            return sum([probs[i] * par[0](s) for i, s in enumerate(np.ndindex(5, 5))])
-
-        return super().expval(observable, wires, par)
+        # compute the fock probabilities from samples
+        N = len(wires) if wires is not None else len(self.num_wires)
+        probs = all_fock_probs_pnr(self.samples)
+        ind = np.indices([self.cutoff] * N).reshape(N, -1).T
+        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+        return probs
 
     def jacobian(self, operations, observables, variable_deps):
-        # NOTE: potentially could provide caching here, to avoid recomputing
-        # samples/probabilities.
         self.reset()
         prob = np.squeeze(self.execute(operations, observables, parameters=variable_deps))
-        prob = list(self.probability(wires=range(len(self.WAW))).values())
 
-        # Compute and return the jacobian here.
-        # returned jacobian matrix should be of size (output_length, num_params)
-        jac = np.zeros([len(prob), len(self.weights)])
+        jac = np.zeros([len(prob), self.num_wires])
 
-        n = len(self.WAW)
+        n = len(self._WAW)
         disp = np.zeros(2 * n)
         I = np.identity(2 * n)
         o_mat = np.block(
-            [[np.zeros_like(self.WAW), np.conj(self.WAW)], [self.WAW, np.zeros_like(self.WAW)]]
+            [[np.zeros_like(self._WAW), np.conj(self._WAW)], [self._WAW, np.zeros_like(self._WAW)]]
         )
         cov = self.hbar * (np.linalg.inv(I - o_mat) - I / 2)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
 
         for i, s in enumerate(np.ndindex(5, 5)):
-            jac[i] = (s - mean_photons_by_mode) * prob[i] / self.weights
-
-        if isinstance(observables[0], Cost):
-            hs = np.array([self.h(s) for s in np.ndindex(5, 5)])
-            return np.expand_dims(np.sum(np.expand_dims(hs, axis=1) * jac, axis=0), axis=0)
+            jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
 
         return jac

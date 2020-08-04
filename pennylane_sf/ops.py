@@ -45,8 +45,8 @@ class ParamGraphEmbed(CVOperation):
 
         A \rightarrow WAW
 
-    with :math:`W` a diagonal matrix set by the parameters :math:`\bm{w}`. The initial choice for
-    the parameters can be :math:`\bm{w} = 1` so that :math:`W = \mathbb{I}`.
+    with :math:`W` a diagonal matrix set by the parameters :math:`\sqrt{\bm{w}}`. The initial
+    choice for the parameters can be :math:`\bm{w} = 1` so that :math:`W = \mathbb{I}`.
 
     .. note::
 
