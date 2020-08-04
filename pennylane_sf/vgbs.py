@@ -91,13 +91,15 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000, hbar=2):
+    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000,
+                 hbar=2, pregenerated_samples=None):
         if not analytic and backend != "gaussian":
             raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
 
         super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
         self.backend = backend
+        self.pregenerated_samples = pregenerated_samples
 
     def apply(self, operation, wires, par):
         """TODO
@@ -129,17 +131,23 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def probability(self, wires=None):
-        if self.analytic:
-            # compute the fock probabilities analytically
-            # from the state representation
-            return super().probability(wires=wires)
 
-        # compute the fock probabilities from samples
-        N = len(wires) if wires is not None else len(self.num_wires)
-        probs = all_fock_probs_pnr(self.samples)
-        ind = np.indices([self.cutoff] * N).reshape(N, -1).T
-        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
-        return probs
+        if not self.old_A or not np.allclose(self.A, self.old_A):
+            self.saved_probs = # run circuit with weights equal to all ones
+            self.old_A = self.A
+        return self.reparam(self.saved_probs, self.weights)
+
+            if self.analytic:
+                # compute the fock probabilities analytically
+                # from the state representation
+                return super().probability(wires=wires)
+
+            # compute the fock probabilities from samples
+            N = len(wires) if wires is not None else len(self.num_wires)
+            probs = all_fock_probs_pnr(self.samples)
+            ind = np.indices([self.cutoff] * N).reshape(N, -1).T
+            probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+            return probs
 
     def expval(self, observable, wires, par):
         if observable == "Cost":
