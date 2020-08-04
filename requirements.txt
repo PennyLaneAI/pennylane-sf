@@ -1,2 +1,2 @@
 git+https://github.com/XanaduAI/strawberryfields.git
-git+https://github.com/XanaduAI/pennylane.git@probs_cv_cutoff
+git+https://github.com/PennyLaneAI/pennylane.git

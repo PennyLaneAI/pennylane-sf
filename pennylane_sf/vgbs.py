@@ -50,40 +50,42 @@ from .simulator import StrawberryFieldsSimulator
 
 class GraphTrain(qml.operation.CVOperation):
     """TODO"""
-    do_check_domain = False # turn off parameter domain checking
+
+    do_check_domain = False  # turn off parameter domain checking
 
     num_params = 3
     num_wires = qml.operation.AllWires
-    par_domain = 'A'
+    par_domain = "A"
 
-    grad_method = 'F'  # This would be better as A, but is incompatible with array inputs
+    grad_method = "F"  # This would be better as A, but is incompatible with array inputs
     grad_recipe = None
 
 
 class Cost(qml.operation.CVObservable):
     """TODO"""
-    do_check_domain = False # turn off parameter domain checking
+
+    do_check_domain = False  # turn off parameter domain checking
 
     num_params = 1
     num_wires = qml.operation.AllWires
-    par_domain = 'R'
+    par_domain = "R"
 
-    grad_method = 'A'
+    grad_method = "A"
     grad_recipe = None
 
 
 class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
     r"""TODO
     """
-    name = 'Strawberry Fields variational GBS PennyLane plugin'
-    short_name = 'strawberryfields.vgbs'
+    name = "Strawberry Fields variational GBS PennyLane plugin"
+    short_name = "strawberryfields.vgbs"
 
     _operation_map = {
         "GraphTrain": GraphEmbed,
     }
 
     _observable_map = {
-        'Identity': identity,
+        "Identity": identity,
         "Cost": Cost,
     }
 
@@ -113,7 +115,7 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         n_mean_WAW = np.sum(singular_values ** 2 / (1 - singular_values ** 2))
 
         op = self._operation_map[operation](self.WAW, mean_photon_per_mode=n_mean_WAW / len(A))
-        op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
+        op | [self.q[i] for i in wires]  # pylint: disable=pointless-statement
 
         if not self.analytic:
             MeasureFock() | [self.q[i] for i in wires]
@@ -171,7 +173,9 @@ class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
         n = len(self.WAW)
         disp = np.zeros(2 * n)
         I = np.identity(2 * n)
-        o_mat = np.block([[np.zeros_like(self.WAW), np.conj(self.WAW)], [self.WAW, np.zeros_like(self.WAW)]])
+        o_mat = np.block(
+            [[np.zeros_like(self.WAW), np.conj(self.WAW)], [self.WAW, np.zeros_like(self.WAW)]]
+        )
         cov = self.hbar * (np.linalg.inv(I - o_mat) - I / 2)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
 

@@ -25,6 +25,7 @@ to the corresponding state methods in Strawberry Fields.
 .. autosummary::
     identity
     mean_photon
+    number_expectation
     fock_state
     homodyne
     poly_xp
@@ -64,17 +65,17 @@ def identity(state, wires, params):
     if N == len(wires):
         # trace of the entire system
         tr = state.trace()
-        return tr, tr - tr**2
+        return tr, tr - tr ** 2
 
     # get the reduced density matrix
     N = len(wires)
     dm = state.reduced_dm(modes=wires)
 
     # construct the standard 2D density matrix, and take the trace
-    new_ax = np.arange(2*N).reshape([N, 2]).T.flatten()
-    tr = np.trace(dm.transpose(new_ax).reshape([D**N, D**N])).real
+    new_ax = np.arange(2 * N).reshape([N, 2]).T.flatten()
+    tr = np.trace(dm.transpose(new_ax).reshape([D ** N, D ** N])).real
 
-    return tr, tr - tr**2
+    return tr, tr - tr ** 2
 
 
 def mean_photon(state, wires, params):
@@ -129,27 +130,27 @@ def fock_state(state, wires, params):
     if N == len(wires):
         # expectation value of the entire system
         ex = state.fock_prob(n)
-        return ex, ex - ex**2
+        return ex, ex - ex ** 2
 
     # otherwise, we must trace out remaining systems.
     if isinstance(state, BaseFockState):
         # fock state
         dm = state.reduced_dm(modes=wires)
-        ex = dm[tuple([n[i//2] for i in range(len(n)*2)])].real
+        ex = dm[tuple([n[i // 2] for i in range(len(n) * 2)])].real
 
     elif isinstance(state, BaseGaussianState):
         # Reduced Gaussian state
         mu, cov = state.reduced_gaussian(modes=wires)
 
         # scale so that hbar = 2
-        mu /= np.sqrt(sf.hbar/2)
-        cov /= sf.hbar/2
+        mu /= np.sqrt(sf.hbar / 2)
+        cov /= sf.hbar / 2
 
         # create reduced Gaussian state
         new_state = BaseGaussianState((mu, cov), len(wires))
         ex = new_state.fock_prob(n)
 
-    var = ex - ex**2
+    var = ex - ex ** 2
     return ex, var
 
 
@@ -216,4 +217,4 @@ def poly_xp(state, wires, params):
     M = np.hstack((M[:, 0:1], M[:, 1::2], M[:, 2::2]))
     d1 = M[1:, 0]
     d2 = M[0, 1:]
-    return state.poly_quad_expectation(M[1:, 1:], d1+d2, M[0, 0])
+    return state.poly_quad_expectation(M[1:, 1:], d1 + d2, M[0, 0])

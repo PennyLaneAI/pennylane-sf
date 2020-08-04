@@ -70,13 +70,15 @@ def SF_gate_reference(sf_op, wires, *args):
 
 
 # compare to reference SF engine
-def SF_expectation_reference(sf_expectation, wires, *args):
+def SF_expectation_reference(sf_expectation, wires, num_wires, *args):
     """SF reference circuit for expectation tests"""
     eng = sf.Engine("gaussian")
-    prog = sf.Program(2)
+
+    # Allows returning the variance of tensor number for 3 modes
+    prog = sf.Program(num_wires)
     with prog.context as q:
         sf.ops.Dgate(0.1) | q[0]
-        sf.ops.S2gate(0.1) | q
+        sf.ops.S2gate(0.1) | (q[0], q[1])
 
     state = eng.run(prog).state
     return sf_expectation(state, wires, args)[0]
@@ -87,10 +89,11 @@ class TestGaussian:
 
     def test_load_gaussian_device(self):
         """Test that the gaussian plugin loads correctly"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        dev = qml.device("strawberryfields.gaussian", wires=2, cutoff_dim=15)
         assert dev.num_wires == 2
         assert dev.hbar == 2
         assert dev.shots == 1000
+        assert dev.cutoff == 15
         assert dev.short_name == "strawberryfields.gaussian"
 
     def test_gaussian_args(self):
@@ -265,7 +268,7 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c, d)
-        sf_res = SF_gate_reference(sf_operation, wires, a * np.exp(1j * b), c, d)
+        sf_res = SF_gate_reference(sf_operation, wires, a, b, c, d)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
 
@@ -405,6 +408,7 @@ class TestUnsupported:
         ):
             circuit()
 
+
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to
     the Strawberry Fields results"""
@@ -412,7 +416,8 @@ class TestExpectation:
     def test_number_operator(self, tol):
         """Test that the expectation value of the NumberOperator observable
         yields the correct result"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 2
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         gate_name = "NumberOperator"
         assert dev.supports_observable(gate_name)
@@ -428,20 +433,21 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+            circuit(), SF_expectation_reference(sf_expectation, wires, num_wires), atol=tol, rtol=0
         )
 
-    def test_tensor_number_operator(self, tol):
+    @pytest.mark.parametrize("wires", [[0, 1], [0, 1, 2]])
+    def test_tensor_number_operator(self, wires, tol):
         """Test that the expectation value of the TensorN observable
         yields the correct result"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 3
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         gate_name = "TensorN"
         assert dev.supports_observable(gate_name)
 
         op = qml.TensorN
         sf_expectation = dev._observable_map[gate_name]
-        wires = [0, 1]
 
         @qml.qnode(dev)
         def circuit():
@@ -450,14 +456,15 @@ class TestExpectation:
             return qml.expval(op(wires=wires))
 
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+            circuit(), SF_expectation_reference(sf_expectation, wires, num_wires), atol=tol, rtol=0
         )
 
     @pytest.mark.parametrize("gate_name,op", [("X", qml.X), ("P", qml.P)])
     def test_quadrature(self, gate_name, op, tol):
         """Test that the expectation of the X and P quadrature operators yield
         the correct result"""
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 2
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         assert dev.supports_observable(gate_name)
 
@@ -471,15 +478,15 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(), SF_expectation_reference(sf_expectation, wires), atol=tol, rtol=0
+            circuit(), SF_expectation_reference(sf_expectation, wires, num_wires), atol=tol, rtol=0
         )
 
     def test_quad_operator(self, tol):
         """Test that the expectation for the generalized quadrature observable
         yields the correct result"""
         a = 0.312
-
-        dev = qml.device("strawberryfields.gaussian", wires=2)
+        num_wires = 2
+        dev = qml.device("strawberryfields.gaussian", wires=num_wires)
 
         op = qml.QuadOperator
         gate_name = "QuadOperator"
@@ -495,7 +502,10 @@ class TestExpectation:
             return qml.expval(op(*args, wires=wires))
 
         assert np.allclose(
-            circuit(a), SF_expectation_reference(sf_expectation, wires, a), atol=tol, rtol=0
+            circuit(a),
+            SF_expectation_reference(sf_expectation, wires, num_wires, a),
+            atol=tol,
+            rtol=0,
         )
 
     def test_polyxp(self, tol):
@@ -567,6 +577,7 @@ class TestExpectation:
             return qml.expval(qml.Identity(wires=[0, 1]))
 
         assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
+
 
 class TestVariance:
     """Test for the device variance"""
@@ -707,13 +718,102 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
-        expected_gradient = 2 * np.exp(-a ** 2) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        expected_gradient = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to parameter phi
         res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_finite_diff_squeezed(self, tol):
+        """Test that the jacobian of the probability for a squeezed states is
+        approximated well with finite differences"""
+        cutoff = 5
+
+        dev = qml.device("strawberryfields.gaussian", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(r, phi):
+            qml.Squeezing(r, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        r = 0.4
+        phi = -0.12
+
+        n = np.arange(cutoff)
+
+        # differentiate with respect to parameter r
+        res_F = circuit.jacobian([r, phi], wrt={0}, method="F").flatten()
+        assert res_F.shape == (cutoff,)
+
+        expected_gradient = (
+            np.abs(np.tanh(r)) ** n
+            * (1 + 2 * n - np.cosh(2 * r))
+            * fac(n)
+            / (2 ** (n + 1) * np.cosh(r) ** 2 * np.sinh(r) * fac(n / 2) ** 2)
+        )
+        expected_gradient[n % 2 != 0] = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([r, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_finite_diff_coherent_two_wires(self, tol):
+        """Test that the jacobian of the probability for a coherent states is
+        approximated well with finite differences"""
+        cutoff = 4
+
+        dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            qml.Displacement(a, phi, wires=1)
+            return qml.probs(wires=[0, 1])
+
+        a = 0.4
+        phi = -0.12
+
+        c = np.arange(cutoff)
+        d = np.arange(cutoff)
+        n0, n1 = np.meshgrid(c, d)
+        n0 = n0.flatten()
+        n1 = n1.flatten()
+
+        # differentiate with respect to parameter a
+        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        expected_gradient = (
+            2
+            * (a ** (-1 + 2 * n0 + 2 * n1))
+            * np.exp(-2 * a ** 2)
+            * (-2 * a ** 2 + n0 + n1)
+            / (fac(n0) * fac(n1))
+        )
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+        # differentiate with respect to parameter phi
+        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        expected_gradient = 0
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+
+    def test_analytic_diff_error(self, tol):
+        """Test that the analytic gradients are not supported when returning
+        Fock state probabilities."""
+        dev = qml.device("strawberryfields.gaussian", wires=1)
+
+        @qml.qnode(dev)
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        a = 0.4
+        phi = -0.12
+
+        with pytest.raises(ValueError, match="The analytic gradient method cannot be used with"):
+            res_F = circuit.jacobian([a, phi], wrt={0}, method="A").flat
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
