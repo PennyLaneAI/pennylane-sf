@@ -16,6 +16,6 @@ Top level PennyLane-SF module.
 """
 from .fock import StrawberryFieldsFock
 from .gaussian import StrawberryFieldsGaussian
-from .vgbs import StrawberryFieldsVGBS
+from .gbs import StrawberryFieldsGBS
 from .remote import StrawberryFieldsRemote
 from ._version import __version__

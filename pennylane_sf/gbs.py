@@ -74,7 +74,7 @@ class Cost(qml.operation.CVObservable):
     grad_recipe = None
 
 
-class StrawberryFieldsVGBS(StrawberryFieldsSimulator):
+class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     r"""TODO
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
