@@ -19,3 +19,4 @@ from .gaussian import StrawberryFieldsGaussian
 from .gbs import StrawberryFieldsGBS
 from .remote import StrawberryFieldsRemote
 from ._version import __version__
+import pennylane_sf.ops
