@@ -41,6 +41,7 @@ from collections import OrderedDict
 import numpy as np
 
 from pennylane import Device
+from pennylane.wires import Wires
 import strawberryfields as sf
 from strawberryfields.backends.states import BaseFockState, BaseGaussianState
 
@@ -92,7 +93,7 @@ class StrawberryFieldsSimulator(Device):
 
         Args:
             operation (str): name of the operation
-            wires (Sequence[int]): subsystems the operation is applied on
+            wires (Wires): subsystems the operation is applied on
             par (tuple): parameters for the operation
         """
         # convert PennyLane parameter conventions to
@@ -104,8 +105,11 @@ class StrawberryFieldsSimulator(Device):
         else:
             sf_par = par
 
+        # translate to wire labels used by device
+        device_wires = self.map_wires(wires)
+
         op = self._operation_map[operation](*sf_par)
-        op | [self.q[i] for i in wires] #pylint: disable=pointless-statement
+        op | [self.q[i] for i in device_wires.labels] #pylint: disable=pointless-statement
 
     @abc.abstractmethod
     def pre_measure(self):
@@ -117,7 +121,7 @@ class StrawberryFieldsSimulator(Device):
 
         Args:
             observable (str): name of the observable
-            wires (Sequence[int]): subsystems the observable is evaluated on
+            wires (Wires): subsystems the observable is evaluated on
             par (tuple): parameters for the observable
 
         Returns:
@@ -138,7 +142,7 @@ class StrawberryFieldsSimulator(Device):
 
         Args:
             observable (str): name of the observable
-            wires (Sequence[int]): subsystems the observable is evaluated on
+            wires (Wires): subsystems the observable is evaluated on
             par (tuple): parameters for the observable
 
         Returns:
@@ -191,7 +195,7 @@ class StrawberryFieldsSimulator(Device):
         state from the last run of the device.
 
         Args:
-            wires (Sequence[int]): Sequence of wires to return
+            wires (Iterable[Number, str], Number, str, Wires): wires to return
                 marginal probabilities for. Wires not provided
                 are traced out of the system.
 
@@ -200,6 +204,12 @@ class StrawberryFieldsSimulator(Device):
             to the resulting probability. The dictionary should be sorted such that the
             state tuples are in lexicographical order.
         """
+        wires = wires or self.wires
+        # convert to a wires object
+        wires = Wires(wires)
+        # translate to wire labels used by device
+        device_wires = self.map_wires(wires)
+
         N = len(wires)
         cutoff = getattr(self, "cutoff", 10)
 
@@ -209,12 +219,12 @@ class StrawberryFieldsSimulator(Device):
 
         else:
             if isinstance(self.state, BaseFockState):
-                rdm = self.state.reduced_dm(modes=wires)
+                rdm = self.state.reduced_dm(modes=device_wires.tolist())
                 new_state = BaseFockState(rdm, N, pure=False, cutoff_dim=cutoff)
 
             elif isinstance(self.state, BaseGaussianState):
                 # Reduced Gaussian state
-                mu, cov = self.state.reduced_gaussian(modes=wires)
+                mu, cov = self.state.reduced_gaussian(modes=device_wires.tolist())
 
                 # scale so that hbar = 2
                 mu /= np.sqrt(sf.hbar/2)

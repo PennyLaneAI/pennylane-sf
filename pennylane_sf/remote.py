@@ -30,6 +30,7 @@ from strawberryfields.utils.post_processing import (
     samples_variance,
 )
 from strawberryfields.circuitspecs import circuit_db
+from pennylane.wires import Wires
 
 from .simulator import StrawberryFieldsSimulator
 
@@ -43,7 +44,9 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     configuration file.
 
     Args:
-        wires (int): the number of modes to initialize the device in
+        wires (int, Iterable[Number, str]]): Number of subsystems accessible on the device,
+            or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
+            or strings (``['ancilla', 'q1', 'q2']``).
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
         backend (str): name of the remote backend to be used
@@ -131,7 +134,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     ):  # pylint: disable=unused-argument, missing-function-docstring
         if observable == "Identity":
             return np.ones(self.shots)
-        wires = np.array(wires)
+        wires = wires.toarray()
         selected_samples = self.samples[:, wires]
         return np.prod(selected_samples, axis=1)
 
@@ -160,11 +163,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
             all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
             return all_probs
 
-        all_wires = np.arange(self.num_wires)
-        wires_to_trace_out = np.setdiff1d(all_wires, wires)
+        device_wires = self.map_wires(wires)
+        all_device_wires = Wires(np.arange(self.num_wires))
+        device_wires_to_trace_out = Wires.unique_wires([all_device_wires, device_wires])
 
-        if wires_to_trace_out.size > 0:
-            all_probs = np.sum(all_probs, axis=tuple(wires_to_trace_out))
+        if len(device_wires_to_trace_out) > 0:
+             all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
 
         all_probs = all_probs.flat
         N = len(wires)

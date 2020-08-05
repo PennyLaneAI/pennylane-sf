@@ -20,6 +20,7 @@ import strawberryfields as sf
 
 import pennylane as qml
 from pennylane import numpy as np
+from pennylane.wires import Wires
 from scipy.special import factorial as fac
 from scipy.special import gamma
 
@@ -381,6 +382,7 @@ class TestGates:
         res = circuit(a, b, c)
         sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
+
 
 class TestExpectation:
     """Test that all supported expectations work as expected when compared to

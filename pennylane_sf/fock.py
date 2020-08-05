@@ -50,7 +50,9 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
     r"""StrawberryFields Fock device for PennyLane.
 
     Args:
-        wires (int): the number of modes to initialize the device in
+        wires (int, Iterable[Number, str]]): Number of subsystems accessible on the device,
+            or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
+            or strings (``['ancilla', 'q1', 'q2']``).
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
         cutoff_dim (int): Fock-space truncation dimension
