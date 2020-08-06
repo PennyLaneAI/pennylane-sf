@@ -48,11 +48,22 @@ from .simulator import StrawberryFieldsSimulator
 
 
 class StrawberryFieldsGBS(StrawberryFieldsSimulator):
-    r"""TODO
+    r"""StrawberryFields variational GBS device for PennyLane.
 
-    The gradient is
-        calculated on this device using the results of `Banchi et al.
-        <https://arxiv.org/abs/2004.04770>`__.
+    This device provides a method to embed variational parameters into GBS such that the analytic
+    gradient of the probability distribution is accessible.
+
+    Args:
+        wires (int): the number of modes to initialize the device in
+        analytic (bool): indicates if the device should calculate expectations
+            and variances analytically
+        cutoff_dim (int): Fock-space truncation dimension
+        backend (str): name of the remote backend to be used
+        shots (int): Number of circuit evaluations/random samples used
+            to estimate expectation values of observables. If ``analytic=True``,
+            this setting is ignored.
+        hbar (float): the convention chosen in the canonical commutation
+            relation :math:`[x, p] = i \hbar`
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
@@ -71,8 +82,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000,
                  hbar=2):
-        # if not analytic and backend != "gaussian":
-        #     raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
+        if not analytic and backend != "gaussian":
+            raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
 
         super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
@@ -81,8 +92,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = None
 
     def apply(self, operation, wires, par):
-        """TODO
-        """
         self._params, A, n_mean = par
         A *= rescale(A, n_mean)
         W = np.diag(np.sqrt(self._params))
@@ -110,7 +119,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def probability(self, wires=None):
-
         if self.analytic:
             # compute the fock probabilities analytically
             # from the state representation
@@ -124,6 +132,19 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         return probs
 
     def jacobian(self, operations, observables, variable_deps):
+        """Calculate the Jacobian of the device.
+
+        Args:
+            operations (list[~pennylane.operation.Operation]): operations to be applied to the
+                device
+            observables (list[~pennylane.operation.Operation]): observables to be measured
+            variable_deps (dict[int, ParameterDependency]): reference dictionary
+                mapping free parameter values to the operations that
+                depend on them
+
+        Returns:
+            array[float]: Jacobian matrix of size (``num_params``, ``num_wires``)
+        """
         self.reset()
         prob = np.squeeze(self.execute(operations, observables, parameters=variable_deps))
 
