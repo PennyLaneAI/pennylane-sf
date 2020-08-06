@@ -158,7 +158,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         device_wires_to_trace_out = self.map_wires(wires_to_trace_out)
 
         if len(device_wires_to_trace_out) > 0:
-             all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
+            all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
 
         all_probs = all_probs.flat
         N = len(wires)

@@ -184,9 +184,13 @@ def homodyne(phi=None):
         value and variance
     """
     if phi is not None:
-        return lambda state, device_wires, params: state.quad_expectation(device_wires.labels[0], phi)
+        return lambda state, device_wires, params: state.quad_expectation(
+            device_wires.labels[0], phi
+        )
 
-    return lambda state, device_wires, params: state.quad_expectation(device_wires.labels[0], *params)
+    return lambda state, device_wires, params: state.quad_expectation(
+        device_wires.labels[0], *params
+    )
 
 
 def poly_xp(state, all_wires, wires, params):

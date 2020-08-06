@@ -107,7 +107,7 @@ class StrawberryFieldsSimulator(Device):
         device_wires = self.map_wires(wires)
 
         op = self._operation_map[operation](*sf_par)
-        op | [self.q[i] for i in device_wires.labels] #pylint: disable=pointless-statement
+        op | [self.q[i] for i in device_wires.labels]  # pylint: disable=pointless-statement
 
     @abc.abstractmethod
     def pre_measure(self):
