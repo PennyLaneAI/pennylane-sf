@@ -14,8 +14,12 @@
 """
 Unit tests for the GBS device.
 """
+import numpy as np
 import pennylane as qml
 import pytest
+from strawberryfields.ops import GraphEmbed, MeasureFock
+
+from pennylane_sf import StrawberryFieldsGBS
 
 
 class TestStrawberryFieldsGBS:
@@ -40,5 +44,57 @@ class TestStrawberryFieldsGBS:
         """Test that the device raises a ValueError when loaded in non-analytic mode with a
         non-Gaussian backend"""
         with pytest.raises(ValueError, match="Only the Gaussian backend is supported"):
-            dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, backend="fock",
+            qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, backend="fock",
                              analytic=False)
+
+    def test_calculate_WAW(self):
+        """Test that the _calculate_WAW method calculates correctly when the input adjacency matrix is
+        already normalized to have a mean number of photons equal to 1."""
+        const = 2
+        A = 0.1767767 * np.ones((4, 4))
+        params = const * np.ones(4)
+        waw = StrawberryFieldsGBS._calculate_WAW(params, A, 1)
+        assert np.allclose(waw, const * A)
+
+    def test_calculate_n_mean(self):
+        """Test that the _calculate_n_mean calculates correctly"""
+        A = 0.1767767 * np.ones((4, 4))
+        n_mean = StrawberryFieldsGBS._calculate_n_mean(A)
+        assert np.allclose(n_mean, 1)
+
+    def test_apply_analytic(self):
+        """Test that the apply method constructs the correct program"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        op = "ParamGraphEmbed"
+        wires = list(range(4))
+
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(4)
+        n_mean = 1
+        par = [params, A, n_mean]
+
+        with dev.execution_context():
+            dev.apply(op, wires, par)
+
+        circ = dev.prog.circuit
+        assert len(circ) == 1
+        assert isinstance(circ[0].op, GraphEmbed)
+
+    def test_apply_non_analytic(self):
+        """Test that the apply method constructs the correct program when in non-analytic mode"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False)
+        op = "ParamGraphEmbed"
+        wires = list(range(4))
+
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(4)
+        n_mean = 1
+        par = [params, A, n_mean]
+
+        with dev.execution_context():
+            dev.apply(op, wires, par)
+
+        circ = dev.prog.circuit
+        assert len(circ) == 2
+        assert isinstance(circ[0].op, GraphEmbed)
+        assert isinstance(circ[1].op, MeasureFock)

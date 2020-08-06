@@ -91,14 +91,42 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params = None
         self._WAW = None
 
-    def apply(self, operation, wires, par):
-        self._params, A, n_mean = par
-        A *= rescale(A, n_mean)
-        W = np.diag(np.sqrt(self._params))
-        self._WAW = W @ A @ W
+    @staticmethod
+    def _calculate_WAW(params, A, n_mean):
+        """Calculate the :math:`WAW` matrix.
 
-        singular_values = np.linalg.svd(self._WAW, compute_uv=False)
-        n_mean_WAW = np.sum(singular_values ** 2 / (1 - singular_values ** 2))
+        Rescales :math:`A` so that when encoded in GBS the mean photon number is equal to
+        ``n_mean``.
+
+        Args:
+            params (array[float]): variable parameters
+            A (array[float]): adjacency matrix
+            n_mean (float): mean number of photons
+
+        Returns:
+            array[float]: the :math`WAW` matrix
+        """
+        A *= rescale(A, n_mean)
+        W = np.diag(np.sqrt(params))
+        return W @ A @ W
+
+    @staticmethod
+    def _calculate_n_mean(A):
+        """Calculate the mean number of photons for an adjacency matrix encoded into GBS.
+
+        Args:
+            A (array[float]): adjacency matrix
+
+        Returns:
+            float: mean number of photons
+        """
+        singular_values = np.linalg.svd(A, compute_uv=False)
+        return np.sum(singular_values ** 2 / (1 - singular_values ** 2))
+
+    def apply(self, operation, wires, par):
+        self._params, A, _ = par
+        self._WAW = self._calculate_WAW(*par)
+        n_mean_WAW = self._calculate_n_mean(self._WAW)
 
         op = self._operation_map[operation](self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
         op | [self.q[i] for i in wires]  # pylint: disable=pointless-statement
