@@ -26,15 +26,15 @@ class ParamGraphEmbed(CVOperation):
 
     Any undirected graph can be encoded using its symmetric adjacency matrix. The adjacency
     matrix is first rescaled so that the corresponding GBS device has an initial mean number of
-    photons. The adjacency matrix :math:`A` may then be varied using parameters :math:`\bm{w}`
+    photons. The adjacency matrix :math:`A` may then be varied using parameters :math:`\mathbf{w}`
     such that
 
     .. math::
 
         A \rightarrow WAW
 
-    with :math:`W` a diagonal matrix set by the parameters :math:`\sqrt{\bm{w}}`. The initial
-    choice for the parameters can be :math:`\bm{w} = 1` so that :math:`W = \mathbb{I}`.
+    with :math:`W` a diagonal matrix set by the parameters :math:`\sqrt{\mathbf{w}}`. The initial
+    choice for the parameters can be :math:`\mathbf{w} = 1` so that :math:`W = \mathbb{I}`.
 
     .. note::
 
