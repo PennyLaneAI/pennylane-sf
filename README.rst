@@ -1,29 +1,29 @@
 PennyLane Strawberry Fields Plugin
 ##################################
 
-.. image:: https://img.shields.io/travis/com/XanaduAI/pennylane-sf/master.svg?style=for-the-badge
-    :alt: Travis
-    :target: https://travis-ci.com/XanaduAI/pennylane-sf
+.. image:: https://img.shields.io/github/workflow/status/PennyLaneAI/pennylane-sf/Tests/master?logo=github&style=flat-square
+    :alt: GitHub Workflow Status (branch)
+    :target: https://github.com/PennyLaneAI/pennylane-sf/actions?query=workflow%3ATests
 
-.. image:: https://img.shields.io/codecov/c/github/xanaduai/pennylane-sf/master.svg?style=for-the-badge
+.. image:: https://img.shields.io/codecov/c/github/PennyLaneAI/pennylane-sf/master.svg?logo=codecov&style=flat-square
     :alt: Codecov coverage
-    :target: https://codecov.io/gh/XanaduAI/pennylane-sf
+    :target: https://codecov.io/gh/PennyLaneAI/pennylane-sf
 
-.. image:: https://img.shields.io/codacy/grade/33d12f7d2d0644968087e33966ed904e.svg?style=for-the-badge
-    :alt: Codacy grade
-    :target: https://app.codacy.com/app/XanaduAI/pennylane-sf?utm_source=github.com&utm_medium=referral&utm_content=XanaduAI/pennylane-sf&utm_campaign=badger
+.. image:: https://img.shields.io/codefactor/grade/github/PennyLaneAI/pennylane-sf/master?logo=codefactor&style=flat-square
+    :alt: CodeFactor Grade
+    :target: https://www.codefactor.io/repository/github/pennylaneai/pennylane-sf
 
-.. image:: https://img.shields.io/readthedocs/pennylane-sf.svg?style=for-the-badge
+.. image:: https://img.shields.io/readthedocs/pennylane-sf.svg?logo=read-the-docs&style=flat-square
     :alt: Read the Docs
     :target: https://pennylane-sf.readthedocs.io
 
-.. image:: https://img.shields.io/pypi/v/PennyLane-SF.svg?style=for-the-badge
+.. image:: https://img.shields.io/pypi/v/PennyLane-sf.svg?style=flat-square
     :alt: PyPI
-    :target: https://pypi.org/project/PennyLane-SF
+    :target: https://pypi.org/project/PennyLane-sf
 
-.. image:: https://img.shields.io/pypi/pyversions/PennyLane-SF.svg?style=for-the-badge
+.. image:: https://img.shields.io/pypi/pyversions/PennyLane-sf.svg?style=flat-square
     :alt: PyPI - Python Version
-    :target: https://pypi.org/project/PennyLane-SF
+    :target: https://pypi.org/project/PennyLane-sf
 
 .. header-start-inclusion-marker-do-not-remove
 
@@ -139,8 +139,8 @@ If you are doing research using PennyLane and StrawberryFields, please cite our 
 Support
 =======
 
-- **Source Code:** https://github.com/XanaduAI/pennylane-sf
-- **Issue Tracker:** https://github.com/XanaduAI/pennylane-sf/issues
+- **Source Code:** https://github.com/PennyLaneAI/pennylane-sf
+- **Issue Tracker:** https://github.com/PennyLaneAI/pennylane-sf/issues
 - **PennyLane Forum:** https://discuss.pennylane.ai
 
 If you are having issues, please let us know by posting the issue on our Github issue tracker, or

@@ -61,12 +61,12 @@ class StrawberryFieldsSimulator(Device):
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
-    name = 'Strawberry Fields Simulator PennyLane plugin'
-    pennylane_requires = '>=0.7.0'
+    name = "Strawberry Fields Simulator PennyLane plugin"
+    pennylane_requires = ">=0.7.0"
     version = __version__
-    author = 'Josh Izaac'
+    author = "Josh Izaac"
 
-    short_name = 'strawberryfields'
+    short_name = "strawberryfields"
     _operation_map = {}
     _observable_map = {}
     _capabilities = {"model": "cv"}
@@ -99,7 +99,7 @@ class StrawberryFieldsSimulator(Device):
         # convert PennyLane parameter conventions to
         # Strawberry Fields conventions
         if operation == "CatState":
-            sf_par = (par[0]*np.exp(par[1]*1j), par[2])
+            sf_par = (par[0] * np.exp(par[1] * 1j), par[2])
         else:
             sf_par = par
 
@@ -245,8 +245,8 @@ class StrawberryFieldsSimulator(Device):
                 mu, cov = self.state.reduced_gaussian(modes=device_wires.tolist())
 
                 # scale so that hbar = 2
-                mu /= np.sqrt(sf.hbar/2)
-                cov /= sf.hbar/2
+                mu /= np.sqrt(sf.hbar / 2)
+                cov /= sf.hbar / 2
 
                 # create reduced Gaussian state
                 new_state = BaseGaussianState((mu, cov), N)

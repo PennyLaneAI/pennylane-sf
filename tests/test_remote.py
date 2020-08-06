@@ -17,7 +17,7 @@ Unit tests for the Fock plugin.
 import pytest
 
 import strawberryfields as sf
-from strawberryfields.api import Result
+from strawberryfields.api import Result, DeviceSpec
 import pennylane_sf
 
 import pennylane as qml
@@ -43,6 +43,14 @@ MOCK_SAMPLES = np.array(
 MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
 
 
+mock_device_dict = {
+    "layout": "",
+    "modes": 8,
+    "compiler": ["fock"],
+    "gate_parameters": {},
+}
+
+
 class MockEngine:
     """Mock SF engine class"""
 
@@ -52,6 +60,10 @@ class MockEngine:
     def run(*args, **kwargs):
         return Result(MOCK_SAMPLES)
 
+    @property
+    def device_spec(self):
+        return DeviceSpec(target="X8", spec=mock_device_dict, connection=None)
+
 
 class TestDevice:
     """General tests for the HardwareDevice."""
@@ -60,6 +72,7 @@ class TestDevice:
         """Tests that the SF store_account function is called with token."""
         test_token = "SomeToken"
         recorder = []
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10, sf_token=test_token)
 
@@ -67,24 +80,21 @@ class TestDevice:
 
     def test_reset(self, monkeypatch):
         """Tests the reset method of the remote device."""
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10)
 
         @qml.qnode(dev)
         def quantum_function():
             return qml.sample(qml.TensorN(wires=list(range(8))))
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-
         quantum_function()
 
-        assert dev.eng is not None
         assert dev.q is not None
         assert dev.prog is not None
         assert dev.samples is not None
 
         dev.reset()
 
-        assert dev.eng is None
         assert dev.q is None
         assert dev.prog is None
         assert dev.samples is None
@@ -98,6 +108,7 @@ class TestSample:
         from SF by using a mocked RemoteEngine."""
         modes = 8
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -106,7 +117,6 @@ class TestSample:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.sample(qml.TensorN(wires=list(range(modes))))
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         a = quantum_function(1.0, 0)
 
         assert a.shape == (shots,)
@@ -117,6 +127,7 @@ class TestSample:
         from SF by using a mocked RemoteEngine and specifying a single mode."""
         modes = [0]
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -125,7 +136,6 @@ class TestSample:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.sample(qml.TensorN(wires=modes))
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         a = quantum_function(1.0, 0)
 
         expected = np.array([3, 4, 2, 4, 4, 1, 2, 1, 1, 1])
@@ -135,6 +145,7 @@ class TestSample:
     def test_identity(self, monkeypatch):
         """Tests that sampling the identity returns an array of ones."""
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -143,7 +154,6 @@ class TestSample:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.sample(qml.Identity(wires=0))
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         a = quantum_function(1.0, 0)
 
         expected = np.ones(shots)
@@ -153,6 +163,7 @@ class TestSample:
     def test_fock_basis_samples(self, monkeypatch):
         """Test that fock basis samples are correctly returned"""
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         sampled_modes = np.array([0, 3, 5])
@@ -163,7 +174,6 @@ class TestSample:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return [qml.sample(qml.NumberOperator(i)) for i in sampled_modes]
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         a = quantum_function(1.0, 0)
 
         assert a.shape == (len(sampled_modes), shots)
@@ -179,6 +189,7 @@ class TestExpval:
         value."""
         modes = 8
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -189,7 +200,6 @@ class TestExpval:
 
         expected_expval = 100
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr(
             "pennylane_sf.remote.samples_expectation", lambda *args: expected_expval
         )
@@ -200,6 +210,7 @@ class TestExpval:
     def test_identity(self, monkeypatch):
         """Tests that the expectation value for the identity is zero."""
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -208,7 +219,6 @@ class TestExpval:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.expval(qml.Identity(wires=0))
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         a = quantum_function(1.0, 0)
 
         assert a == 1
@@ -222,6 +232,7 @@ class TestVariance:
         by using a mocked function instead which returns a pre-defined value."""
         modes = 8
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -232,7 +243,6 @@ class TestVariance:
 
         expected_var = 100
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("pennylane_sf.remote.samples_variance", lambda *args: expected_var)
         var = quantum_function(1.0, 0)
 
@@ -241,6 +251,7 @@ class TestVariance:
     def test_identity(self, monkeypatch):
         """Tests that the variance for the identity is zero."""
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -249,9 +260,7 @@ class TestVariance:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.var(qml.Identity(wires=0))
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         a = quantum_function(1.0, 0)
-
         assert a == 0
 
 
@@ -263,6 +272,7 @@ class TestProbs:
         subset of the wires and using a mock SF RemoteEngine."""
         wires = [0, 1]
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -301,7 +311,6 @@ class TestProbs:
             ]
         )
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         probs = quantum_function(1.0, 0)
 
         # all_fock_probs uses a cutoff equal to 1 + the maximum number of
@@ -319,6 +328,7 @@ class TestProbs:
         mocked out."""
         wires = [0, 1]
         shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
@@ -357,8 +367,6 @@ class TestProbs:
             ]
         )
 
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-
         # Mocking the probability method of the device which returns a dictionary
         # When Device.execute gets called, the values() are extracted => keys
         # do not matter
@@ -380,6 +388,7 @@ class TestProbs:
     def test_modes_none(self, monkeypatch):
         """Tests that probabilities are returned using SF without any further
         processing when no specific modes were specified."""
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = pennylane_sf.StrawberryFieldsRemote(backend="X8")
 
         mock_returned_probs = np.array(
