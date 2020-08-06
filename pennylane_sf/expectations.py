@@ -48,7 +48,7 @@ def identity(state, device_wires, params):
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        device_wires (Wires): the measured mode
+        device_wires (Wires): the measured modes
         params (Sequence): sequence of parameters (not used)
 
     Returns:

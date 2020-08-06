@@ -573,6 +573,23 @@ class TestExpectation:
         expected = SF_gate_reference_trace(r1, r2)
         assert np.allclose(circuit(r1, r2), expected, atol=tol, rtol=0)
 
+    def test_trace_subsystems(self, tol):
+        """Test that Identity expectation is one on a subset of wires"""
+        cutoff_dim = 15
+        r1 = 0.01
+        r2 = 0.04
+
+        hbar = 2
+        dev = qml.device("strawberryfields.fock", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+
+        @qml.qnode(dev)
+        def circuit(x, y):
+            qml.Squeezing(x, 0, wires=0)
+            qml.Squeezing(y, 0, wires=1)
+            return qml.expval(qml.Identity(wires=[0]))
+
+        assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
+
 
 class TestVariance:
     """Test for the device variance"""
