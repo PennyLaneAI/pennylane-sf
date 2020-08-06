@@ -98,14 +98,12 @@ class StrawberryFieldsSimulator(Device):
         """
         # convert PennyLane parameter conventions to
         # Strawberry Fields conventions
-        if operation == "DisplacedSqueezedState":
-            sf_par = (par[0]*np.exp(par[1]*1j), par[2], par[3])
-        elif operation == "CatState":
+        if operation == "CatState":
             sf_par = (par[0]*np.exp(par[1]*1j), par[2])
         else:
             sf_par = par
 
-        # translate to wire labels used by device
+        # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
 
         op = self._operation_map[operation](*sf_par)
@@ -127,7 +125,17 @@ class StrawberryFieldsSimulator(Device):
         Returns:
             float: expectation value
         """
-        ex, var = self._observable_map[observable](self.state, wires, par)
+        # translate to consecutive wires used by device
+        device_wires = self.map_wires(wires)
+
+        # Todo: the different observables require different inputs,
+        # which is at the moment solved by having dummy arguments.
+        # The "observable_map" logic should be revised.
+        if observable == "PolyXP":
+            # the poly_xp function currently requires the original wires of the observable
+            ex, var = self._observable_map[observable](self.state, self.wires, wires, par)
+        else:
+            ex, var = self._observable_map[observable](self.state, device_wires, par)
 
         if not self.analytic:
             # estimate the expectation value
@@ -148,7 +156,17 @@ class StrawberryFieldsSimulator(Device):
         Returns:
             float: variance value
         """
-        _, var = self._observable_map[observable](self.state, wires, par)
+        # translate to consecutive wires used by device
+        device_wires = self.map_wires(wires)
+
+        # Todo: the different observables require different inputs,
+        # which is at the moment solved by having dummy arguments.
+        # The "observable_map" logic should be revised.
+        if observable == "PolyXP":
+            # the poly_xp function currently requires the original wires of the observable
+            _, var = self._observable_map[observable](self.state, self.wires, wires, par)
+        else:
+            _, var = self._observable_map[observable](self.state, device_wires, par)
 
         return var
 
@@ -207,7 +225,7 @@ class StrawberryFieldsSimulator(Device):
         wires = wires or self.wires
         # convert to a wires object
         wires = Wires(wires)
-        # translate to wire labels used by device
+        # translate to wires used by device
         device_wires = self.map_wires(wires)
 
         N = len(wires)

@@ -22,8 +22,6 @@ import pennylane as qml
 from pennylane import numpy as np
 from pennylane.wires import Wires
 from scipy.special import factorial as fac
-from scipy.special import gamma
-
 
 psi = np.array(
     [
@@ -78,7 +76,7 @@ def SF_expectation_reference(sf_expectation, cutoff_dim, wires, *args):
         sf.ops.S2gate(0.1) | q
 
     state = eng.run(prog).state
-    return sf_expectation(state, wires, args)[0]
+    return sf_expectation(state, Wires(wires), args)[0]
 
 
 class TestFock:
@@ -276,7 +274,7 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c, d)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c, d)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a, b, c, d)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
     def test_fock_state(self, tol):

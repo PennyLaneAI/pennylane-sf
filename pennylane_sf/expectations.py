@@ -42,7 +42,7 @@ from strawberryfields.backends.states import BaseFockState, BaseGaussianState
 import pennylane.ops
 
 
-def identity(state, wires, device_wires, params):
+def identity(state, device_wires, params):
     """Computes the expectation value of ``qml.Identity``
     observable in Strawberry Fields, corresponding to the trace.
 
@@ -189,13 +189,14 @@ def homodyne(phi=None):
     return lambda state, device_wires, params: state.quad_expectation(device_wires.labels[0], *params)
 
 
-def poly_xp(state, device_wires, params):
+def poly_xp(state, all_wires, wires, params):
     r"""Computes the expectation value of an observable that is a second-order
     polynomial in :math:`\{\hat{x}_i, \hat{p}_i\}_i`.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        device_wires (Wires): measured modes
+        all_wires (Wires): all modes on the device
+        wires (Wires): measured modes for this observable
         params (Sequence[array]): Q is a matrix or vector of coefficients
             using the :math:`(\I, \x_1,\p_1, \x_2,\p_2, \dots)` ordering
 
@@ -205,8 +206,8 @@ def poly_xp(state, device_wires, params):
     Q = params[0]
 
     # HACK, we need access to the Poly instance in order to expand the matrix!
-    op = pennylane.ops.PolyXP(Q, wires=device_wires.labels, do_queue=False)
-    Q = op.heisenberg_obs(device_wires)
+    op = pennylane.ops.PolyXP(Q, wires=wires, do_queue=False)
+    Q = op.heisenberg_obs(all_wires)
 
     if Q.ndim == 1:
         d = np.r_[Q[1::2], Q[2::2]]

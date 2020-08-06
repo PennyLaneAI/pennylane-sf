@@ -163,9 +163,8 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
             all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
             return all_probs
 
-        device_wires = self.map_wires(wires)
-        all_device_wires = Wires(np.arange(self.num_wires))
-        device_wires_to_trace_out = Wires.unique_wires([all_device_wires, device_wires])
+        wires_to_trace_out = Wires.unique_wires([self.wires, wires])
+        device_wires_to_trace_out = self.map_wires(wires_to_trace_out)
 
         if len(device_wires_to_trace_out) > 0:
              all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
