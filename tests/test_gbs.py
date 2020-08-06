@@ -18,8 +18,26 @@ import numpy as np
 import pennylane as qml
 import pytest
 from strawberryfields.ops import GraphEmbed, MeasureFock
+from strawberryfields.program import Program
 
 from pennylane_sf import StrawberryFieldsGBS
+
+target_cov = np.array([[ 2.2071e+00,  1.2071e+00,  1.2071e+00,  1.2071e+00, -2.6021e-18,
+        -1.3878e-16,  6.9323e-17, -7.8505e-17],
+       [ 1.2071e+00,  2.2071e+00,  1.2071e+00,  1.2071e+00, -2.7756e-17,
+        -1.1102e-16,  5.5511e-17, -1.1102e-16],
+       [ 1.2071e+00,  1.2071e+00,  2.2071e+00,  1.2071e+00, -5.3141e-17,
+        -1.6653e-16,  1.0127e-17, -1.3770e-16],
+       [ 1.2071e+00,  1.2071e+00,  1.2071e+00,  2.2071e+00, -7.8505e-17,
+        -2.2204e-16, -1.5236e-17, -1.6306e-16],
+       [-2.6021e-18, -2.7756e-17, -5.3141e-17, -7.8505e-17,  7.9289e-01,
+        -2.0711e-01, -2.0711e-01, -2.0711e-01],
+       [-1.3878e-16, -1.1102e-16, -1.6653e-16, -2.2204e-16, -2.0711e-01,
+         7.9289e-01, -2.0711e-01, -2.0711e-01],
+       [ 6.9323e-17,  5.5511e-17,  1.0127e-17, -1.5236e-17, -2.0711e-01,
+        -2.0711e-01,  7.9289e-01, -2.0711e-01],
+       [-7.8505e-17, -1.1102e-16, -1.3770e-16, -1.6306e-16, -2.0711e-01,
+        -2.0711e-01, -2.0711e-01,  7.9289e-01]])
 
 
 class TestStrawberryFieldsGBS:
@@ -98,3 +116,46 @@ class TestStrawberryFieldsGBS:
         assert len(circ) == 2
         assert isinstance(circ[0].op, GraphEmbed)
         assert isinstance(circ[1].op, MeasureFock)
+
+    def test_pre_measure_eng(self, tol):
+        """Test that the pre_measure method operates as expected by initializing the engine
+        correctly"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        prog = Program(4)
+        op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
+        prog.append(op1, prog.register)
+        dev.prog = prog
+        dev.pre_measure()
+        assert dev.eng.backend_name == "gaussian"
+        assert dev.eng.backend_options == {'cutoff_dim': 3}
+
+    def test_pre_measure_state_and_samples(self, tol):
+        """Test that the pre_measure method operates as expected in analytic mode by generating the
+        correct output state and not generating samples"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        prog = Program(4)
+        op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
+        prog.append(op1, prog.register)
+        dev.prog = prog
+        dev.pre_measure()
+
+        assert np.allclose(dev.state.displacement(), np.zeros(4))
+        assert np.allclose(dev.state.cov(), target_cov, atol=tol)
+        assert not dev.samples
+
+    def test_pre_measure_state_and_samples_non_analytic(self, tol):
+        """Test that the pre_measure method operates as expected in non-analytic mode by
+        generating the correct output state and samples of the right shape"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False, shots=2)
+        prog = Program(4)
+        op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
+        op2 = MeasureFock()
+        prog.append(op1, prog.register)
+        prog.append(op2, prog.register)
+        dev.prog = prog
+        dev.pre_measure()
+
+        assert np.allclose(dev.state.displacement(), np.zeros(4))
+        assert np.allclose(dev.state.cov(), target_cov, atol=tol)
+        assert dev.samples.shape == (2, 4)
+
