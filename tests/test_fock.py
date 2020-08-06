@@ -628,7 +628,7 @@ class TestVariance:
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
-    def test_polyxp_cv(self, tol):
+    def test_polyxp_variance(self, tol):
         """Tests that variance for PolyXP measurement works"""
         dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=15)
 
@@ -636,7 +636,7 @@ class TestVariance:
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
-            return qml.var(qml.PolyXP(np.array([0., 1.]), wires=0))
+            return qml.var(qml.PolyXP(np.array([0, 1, 0]), wires=0))
 
         r = 0.105
         phi = -0.654
