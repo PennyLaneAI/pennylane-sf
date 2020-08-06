@@ -128,9 +128,9 @@ class StrawberryFieldsSimulator(Device):
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
 
-        # Todo: the different observables require different inputs,
+        # The different "expectation" functions require different inputs,
         # which is at the moment solved by having dummy arguments.
-        # The "observable_map" logic should be revised.
+        # This one-size-fits all "observable_map" logic should be revised.
         if observable == "PolyXP":
             # the poly_xp function currently requires the original wires of the observable
             ex, var = self._observable_map[observable](self.state, self.wires, wires, par)
@@ -159,9 +159,9 @@ class StrawberryFieldsSimulator(Device):
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
 
-        # Todo: the different observables require different inputs,
+        # The different "expectation" functions require different inputs,
         # which is at the moment solved by having dummy arguments.
-        # The "observable_map" logic should be revised.
+        # This one-size-fits all "observable_map" logic should be revised.
         if observable == "PolyXP":
             # the poly_xp function currently requires the original wires of the observable
             _, var = self._observable_map[observable](self.state, self.wires, wires, par)
