@@ -19,14 +19,14 @@ Strawberry Fields variational GBS device
 
 .. currentmodule:: pennylane_sf.gbs
 
-TODO
+The Strawberry Fields variational GBS device provides a way to encode variational parameters into
+GBS so that the gradient with respect to the output probability distribution is accessible.
 
 Classes
 -------
 
 .. autosummary::
    StrawberryFieldsGBS
-
 
 Code details
 ~~~~~~~~~~~~
