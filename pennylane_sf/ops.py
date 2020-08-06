@@ -12,22 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Custom operations
-=================
-
-**Module name:** :mod:`pennylane_sf.ops`
-
-.. currentmodule:: pennylane_sf.ops
+Custom operations for use within PennyLane-Strawberry Fields.
 
 Contains the :class:`ParamGraphEmbed` operation for encoding parametrized graphs into GBS for
 machine learning and optimization applications.
-
-.. autosummary::
-
-   ParamGraphEmbed
-
-Code details
-~~~~~~~~~~~~
 """
 from pennylane.operation import AllWires, CVOperation
 

@@ -94,3 +94,4 @@ use the "Strawberry Fields" filter on the right panel of the
    :hidden:
 
    code
+   ops
