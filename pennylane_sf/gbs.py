@@ -35,9 +35,6 @@ from collections import OrderedDict
 from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 from thewalrus.quantum import photon_number_mean_vector
 
-import pennylane as qml
-from pennylane.operation import Probability
-
 import numpy as np
 
 import strawberryfields as sf
@@ -184,12 +181,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
-
-        ob = qml.Identity(wires=range(self.num_wires))
-        ob.return_type = Probability
-        obs = [ob]
-
-        prob = np.squeeze(self.execute(operations, obs, parameters=variable_deps))
+        self.execute(operations, observables, parameters=variable_deps)
+        prob = np.array(list(self.probability().values()))
 
         jac = np.zeros([len(prob), self.num_wires])
 
@@ -197,11 +190,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         disp = np.zeros(2 * n)
         cov = self._calculate_covariance(self._WAW, hbar=self.hbar)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
-        print(observables)
-        # for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
-        #     jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
-        #
-        # return jac
+
+        for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
+            jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
+
+        return jac
 
     @staticmethod
     def _calculate_covariance(A, hbar):
