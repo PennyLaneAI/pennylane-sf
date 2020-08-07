@@ -19,8 +19,11 @@ import pennylane as qml
 import pytest
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
+from pennylane.qnodes.base import ParameterDependency
+from pennylane.operation import Probability
 
 from pennylane_sf import StrawberryFieldsGBS
+from pennylane_sf.ops import ParamGraphEmbed
 from pennylane_sf.simulator import StrawberryFieldsSimulator
 
 
@@ -113,6 +116,19 @@ class TestStrawberryFieldsGBS:
         A = 0.1767767 * np.ones((4, 4))
         n_mean = StrawberryFieldsGBS._calculate_n_mean(A)
         assert np.allclose(n_mean, 1)
+
+    def test_apply_wrong_dim(self):
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        op = "ParamGraphEmbed"
+        wires = list(range(4))
+
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(3)
+        n_mean = 1
+        par = [params, A, n_mean]
+
+        with pytest.raises(ValueError, match="The number of variable parameters must be"):
+            dev.apply(op, wires, par)
 
     def test_apply_analytic(self):
         """Test that the apply method constructs the correct program"""
@@ -253,3 +269,22 @@ class TestStrawberryFieldsGBS:
             ]
         )
         assert np.allclose(cov, target)
+
+    def test_jacobian(self):
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(4)
+        op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
+
+        ob = qml.Identity(wires=range(4))
+        ob.return_type = Probability
+        obs = [ob]
+
+        variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
+
+        jac = dev.jacobian(op, obs, variable_deps)
+
+        # probs = dev.probability()
+
+

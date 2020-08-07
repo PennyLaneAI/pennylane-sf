@@ -125,6 +125,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     def apply(self, operation, wires, par):
         self._params, A, _ = par
+
+        if len(self._params) != self.num_wires:
+            raise ValueError("The number of variable parameters must be equal to the total number "
+                             "of wires.")
+
         self._WAW = self._calculate_WAW(*par)
         n_mean_WAW = self._calculate_n_mean(self._WAW)
 
