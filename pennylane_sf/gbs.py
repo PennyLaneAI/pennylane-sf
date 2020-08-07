@@ -180,14 +180,30 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         n = len(self._WAW)
         disp = np.zeros(2 * n)
-        I = np.identity(2 * n)
-        o_mat = np.block(
-            [[np.zeros_like(self._WAW), np.conj(self._WAW)], [self._WAW, np.zeros_like(self._WAW)]]
-        )
-        cov = self.hbar * (np.linalg.inv(I - o_mat) - I / 2)
+        cov = self._calculate_covariance(self._WAW, hbar=self.hbar)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
 
         for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
             jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
 
         return jac
+
+    @staticmethod
+    def _calculate_covariance(A, hbar):
+        """Calculate the covariance matrix corresponding to an input adjacency matrix.
+
+        Args:
+            A (array[float]): adjacency matrix
+            hbar (float): the convention chosen in the canonical commutation relation
+                :math:`[x, p] = i \hbar`
+
+        Returns:
+            array[float]: covariance matrix
+        """
+        n = len(A)
+        I = np.identity(2 * n)
+        o_mat = np.block(
+            [[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]]
+        )
+        cov = hbar * (np.linalg.inv(I - o_mat) - I / 2)
+        return cov

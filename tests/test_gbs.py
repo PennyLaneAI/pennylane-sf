@@ -239,3 +239,17 @@ class TestStrawberryFieldsGBS:
         assert next(keys) == (0, 1)
         assert next(keys) == (0, 2)
         assert next(keys) == (1, 0)
+
+    def test_calculate_covariance(self):
+        x = np.sqrt(0.5)
+        A = np.array([[0, x], [x, 0]])
+        cov = StrawberryFieldsGBS._calculate_covariance(A, 2)
+        target = np.array(
+            [
+                [3.0, 0.0, 0.0, 2.82842712],
+                [0.0, 3.0, 2.82842712, 0.0],
+                [0.0, 2.82842712, 3.0, 0.0],
+                [2.82842712, 0.0, 0.0, 3.0],
+            ]
+        )
+        assert np.allclose(cov, target)
