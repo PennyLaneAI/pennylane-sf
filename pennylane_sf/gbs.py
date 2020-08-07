@@ -148,15 +148,15 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     def probability(self, wires=None):
         if self.analytic:
-            # compute the fock probabilities analytically
-            # from the state representation
             return super().probability(wires=wires)
 
-        # compute the fock probabilities from samples
-        N = len(wires) if wires is not None else len(self.num_wires)
-        probs = all_fock_probs_pnr(self.samples)
+        N = len(wires) if wires else self.num_wires
+        samples = np.take(self.samples, wires, axis=1) if wires else self.samples
+
+        probs = all_fock_probs_pnr(samples)
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
-        probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
+
+        probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
     def jacobian(self, operations, observables, variable_deps):
