@@ -152,11 +152,13 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def probability(self, wires=None):
+        wires = wires if wires else range(self.num_wires)
+
         if self.analytic:
             return super().probability(wires=wires)
 
-        N = len(wires) if wires else self.num_wires
-        samples = np.take(self.samples, wires, axis=1) if wires else self.samples
+        N = len(wires)
+        samples = np.take(self.samples, wires, axis=1)
 
         probs = all_fock_probs_pnr(samples)
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
@@ -176,7 +178,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
                 depend on them
 
         Returns:
-            array[float]: Jacobian matrix of size (``num_params``, ``num_wires``)
+            array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
         prob = np.squeeze(self.execute(operations, observables, parameters=variable_deps))

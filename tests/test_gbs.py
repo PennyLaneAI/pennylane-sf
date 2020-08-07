@@ -284,7 +284,11 @@ class TestStrawberryFieldsGBS:
         variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
 
         jac = dev.jacobian(op, obs, variable_deps)
+        probs = dev.probability()
 
-        # probs = dev.probability()
+        jac_expected = np.zeros((81, 4))
 
+        for i, (sample, prob) in enumerate(probs.items()):
+            jac_expected[i] = (np.array(sample) - 0.25) * prob
 
+        assert np.allclose(jac, jac_expected)
