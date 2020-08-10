@@ -52,7 +52,9 @@ class StrawberryFieldsSimulator(Device):
     r"""Abstract StrawberryFields simulator device for PennyLane.
 
     Args:
-        wires (int): the number of modes to initialize the device in
+        wires (int or Iterable[Number, str]]): Number of subsystems represented by the device,
+            or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
+            or strings (``['ancilla', 'q1', 'q2']``).
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
         shots (int): Number of circuit evaluations/random samples used
