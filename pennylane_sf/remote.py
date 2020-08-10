@@ -16,7 +16,7 @@ The Strawberry Fields remote device implements all the :class:`~pennylane.device
 and provides access to Xanadu's continuous-variable quantum hardware.
 """
 
-from collections import OrderedDict, Iterable
+from collections import OrderedDict
 
 import numpy as np
 
@@ -104,8 +104,10 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
                 wires = Wires(wires)
 
             if self.num_wires != len(wires):
-                raise ValueError("This hardware device has a fixed number of {} wires and "
-                                 "cannot be created with {} wires.".format(self.num_wires, len(wires)))
+                raise ValueError(
+                    "This hardware device has a fixed number of {} wires and "
+                    "cannot be created with {} wires.".format(self.num_wires, len(wires))
+                )
 
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
         self.eng = eng
