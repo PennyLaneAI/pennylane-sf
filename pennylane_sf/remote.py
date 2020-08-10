@@ -145,7 +145,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         if observable == "Identity":
             return np.ones(self.shots)
         device_wires = self.map_wires(wires)
-
         selected_samples = self.samples[:, device_wires]
         return np.prod(selected_samples, axis=1)
 
