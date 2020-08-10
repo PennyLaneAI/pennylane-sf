@@ -44,8 +44,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     configuration file.
 
     Args:
-        wires (int, Iterable[Number, str]]): Number of subsystems accessible on the device,
-            or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
+        wires (Iterable[Number, str]]): Iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
             or strings (``['ancilla', 'q1', 'q2']``).
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
