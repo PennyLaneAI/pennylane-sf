@@ -21,6 +21,7 @@ from strawberryfields.api import Result, DeviceSpec
 import pennylane_sf
 
 import pennylane as qml
+from pennylane.wires import Wires
 import numpy as np
 
 
@@ -98,6 +99,22 @@ class TestDevice:
         assert dev.q is None
         assert dev.prog is None
         assert dev.samples is None
+
+    def test_wires_argument(self, monkeypatch):
+        """Tests the wires argument of the remote device."""
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+
+        dev_no_wires = qml.device("strawberryfields.remote", backend="X8", shots=10)
+        assert dev_no_wires.wires == Wires(range(8))
+
+        with pytest.raises(ValueError, match="Device has a fixed number of"):
+            qml.device("strawberryfields.remote", wires=8, backend="X8", shots=10)
+
+        dev_iterable_wires = qml.device("strawberryfields.remote", wires=range(8), backend="X8", shots=10)
+        assert dev_iterable_wires.wires == Wires(range(8))
+
+        with pytest.raises(ValueError, match="Device has a fixed number of"):
+            qml.device("strawberryfields.remote", wires=range(9), backend="X8", shots=10)
 
 
 class TestSample:
