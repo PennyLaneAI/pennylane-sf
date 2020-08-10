@@ -16,6 +16,48 @@
 import pennylane as qml
 import pytest
 from pennylane import numpy as np
+from strawberryfields.api import Result, DeviceSpec
+
+
+MOCK_SAMPLES = np.array(
+    [
+        [3, 4, 2, 3, 4, 3, 1, 0],
+        [4, 3, 3, 2, 0, 3, 1, 4],
+        [2, 1, 3, 3, 3, 2, 2, 4],
+        [4, 1, 4, 4, 2, 3, 3, 0],
+        [4, 2, 3, 3, 3, 0, 0, 4],
+        [1, 2, 4, 4, 2, 0, 0, 4],
+        [2, 3, 1, 2, 1, 0, 4, 1],
+        [1, 2, 0, 1, 2, 3, 3, 0],
+        [1, 2, 4, 0, 0, 4, 2, 4],
+        [1, 0, 1, 1, 1, 3, 1, 0],
+    ]
+)
+
+
+MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
+
+
+mock_device_dict = {
+    "layout": "",
+    "modes": 8,
+    "compiler": ["fock"],
+    "gate_parameters": {},
+}
+
+
+class MockEngine:
+    """Mock SF engine class"""
+
+    def __init__(*args):
+        pass
+
+    def run(*args, **kwargs):
+        return Result(MOCK_SAMPLES)
+
+    @property
+    def device_spec(self):
+        return DeviceSpec(target="X8", spec=mock_device_dict, connection=None)
 
 
 # ===== Factories for circuits using arbitrary wire labels and numbers
@@ -37,11 +79,24 @@ def make_simple_circuit_expval(device, wires):
     return circuit
 
 
+def make_x8_circuit_expval(device):
+    """Factory for a qnode running the X8 remote device and returning expvals."""
+
+    n_wires = 8
+
+    @qml.qnode(device)
+    def circuit(theta, phi):
+        qml.Beamsplitter(theta, phi, wires=[0, 1])
+        qml.Beamsplitter(theta, phi, wires=[4, 5])
+        return qml.expval(qml.TensorN(wires=list(range(n_wires))))
+
+    return circuit
+
 # =====
 
 
 class TestWiresIntegration:
-    """Test that the device integrates with PennyLane's wire management."""
+    """Test that the simulator devices integrate with PennyLane's wire management."""
 
     @pytest.mark.parametrize(
         "wires1, wires2",
@@ -84,3 +139,32 @@ class TestWiresIntegration:
         circuit2 = circuit_factory(dev2, wires2)
 
         assert np.allclose(circuit1(), circuit2(), tol)
+
+
+class TestWiresIntegrationRemote:
+    """Test that the remote devices integrate with PennyLane's wire management."""
+
+    @pytest.mark.parametrize(
+        "wires1, wires2",
+        [
+            (["a", "c", "d", "b", "f", "e", "h", "g"], [0, 1, 2, 3, 4, 5, 6, 7]),
+            (["a", "c", "d", "b", "f", "e", "h", "g"], ["a", "b", "c", "d", "e", "f", "g", "h"]),
+        ],
+    )
+    def test_wires_remote(self, wires1, wires2, tol, monkeypatch):
+        """Test that the expectation of the remote device is independent from the wire labels used."""
+        shots = 10
+        expected_expval = 100
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev1 = qml.device("strawberryfields.remote", wires=wires1, backend="X8", shots=shots)
+        dev2 = qml.device("strawberryfields.remote", wires=wires2, backend="X8", shots=shots)
+
+        circuit1 = make_x8_circuit_expval(dev1)
+        circuit2 = make_x8_circuit_expval(dev2)
+
+        monkeypatch.setattr(
+            "pennylane_sf.remote.samples_expectation", lambda *args: expected_expval
+        )
+
+        assert np.allclose(circuit1(1.0, 0), circuit2(1.0, 0), tol)
