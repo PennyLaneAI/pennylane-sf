@@ -79,16 +79,14 @@ def make_simple_circuit_expval(device, wires):
     return circuit
 
 
-def make_x8_circuit_expval(device):
+def make_x8_circuit_expval(device, wires):
     """Factory for a qnode running the X8 remote device and returning expvals."""
-
-    n_wires = 8
 
     @qml.qnode(device)
     def circuit(theta, phi):
-        qml.Beamsplitter(theta, phi, wires=[0, 1])
-        qml.Beamsplitter(theta, phi, wires=[4, 5])
-        return qml.expval(qml.TensorN(wires=list(range(n_wires))))
+        qml.Beamsplitter(theta, phi, wires=[wires[0], wires[1]])
+        qml.Beamsplitter(theta, phi, wires=[wires[4], wires[5]])
+        return qml.expval(qml.TensorN(wires=wires))
 
     return circuit
 
@@ -160,8 +158,8 @@ class TestWiresIntegrationRemote:
         dev1 = qml.device("strawberryfields.remote", wires=wires1, backend="X8", shots=shots)
         dev2 = qml.device("strawberryfields.remote", wires=wires2, backend="X8", shots=shots)
 
-        circuit1 = make_x8_circuit_expval(dev1)
-        circuit2 = make_x8_circuit_expval(dev2)
+        circuit1 = make_x8_circuit_expval(dev1, wires1)
+        circuit2 = make_x8_circuit_expval(dev2, wires2)
 
         monkeypatch.setattr(
             "pennylane_sf.remote.samples_expectation", lambda *args: expected_expval

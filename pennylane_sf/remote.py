@@ -95,12 +95,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         if wires is None:
             # infer the number of modes from the device specs
             # and use consecutive integer wire labels
-            self.wires = Wires(range(self.num_wires))
+            wires = Wires(range(self.num_wires))
         else:
             if isinstance(wires, int):
-                self.wires = Wires(range(wires))
+                wires = Wires(range(wires))
             else:
-                self.wires = Wires(wires)
+                wires = Wires(wires)
 
             if self.num_wires != len(wires):
                 raise ValueError("This hardware device has a fixed number of {} wires and "
