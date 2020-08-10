@@ -49,7 +49,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         wires (Iterable[Number, str]): Iterable that contains unique labels for the
             modes as numbers or strings (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``).
             The number of labels must match the number of modes accessible on the backend.
-            If not provided, modes are addressed as consecutive integers [0, 1, ...], and their number
+            If not provided, modes are addressed as consecutive integers ``[0, 1, ...]``, and their number
             is inferred from the backend.
         backend (str): name of the remote backend to be used
         hbar (float): the convention chosen in the canonical commutation
