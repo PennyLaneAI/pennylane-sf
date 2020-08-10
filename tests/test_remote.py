@@ -107,16 +107,13 @@ class TestDevice:
         dev_no_wires = qml.device("strawberryfields.remote", backend="X8", shots=10)
         assert dev_no_wires.wires == Wires(range(8))
 
-        dev_int_wires = qml.device("strawberryfields.remote", wires=8, backend="X8", shots=10)
-        assert dev_int_wires.wires == Wires(range(8))
-
-        with pytest.raises(ValueError, match="This hardware device has a fixed number"):
-            qml.device("strawberryfields.remote", wires=7, backend="X8", shots=10)
+        with pytest.raises(ValueError, match="Device has a fixed number of"):
+            qml.device("strawberryfields.remote", wires=8, backend="X8", shots=10)
 
         dev_iterable_wires = qml.device("strawberryfields.remote", wires=range(8), backend="X8", shots=10)
         assert dev_iterable_wires.wires == Wires(range(8))
 
-        with pytest.raises(ValueError, match="This hardware device has a fixed number"):
+        with pytest.raises(ValueError, match="Device has a fixed number of"):
             qml.device("strawberryfields.remote", wires=range(9), backend="X8", shots=10)
 
 

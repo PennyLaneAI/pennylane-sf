@@ -46,10 +46,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     Args:
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
-        backend (str): name of the remote backend to be used
-        wires (int, Iterable[Number, str]]): Number of wires or iterable that contains unique labels for the
+        wires (Iterable[Number, str]): Iterable that contains unique labels for the
             modes as numbers or strings (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``).
-            The number of wires must match the number of modes accessible on the hardware device.
+            The number of labels must match the number of modes accessible on the backend.
+            If not provided, modes are addressed as consecutive integers [0, 1, ...], and their number
+            is inferred from the backend.
+        backend (str): name of the remote backend to be used
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
@@ -96,18 +98,19 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         if wires is None:
             # infer the number of modes from the device specs
             # and use consecutive integer wire labels
-            wires = Wires(range(self.num_wires))
-        else:
-            if isinstance(wires, int):
-                wires = Wires(range(wires))
-            else:
-                wires = Wires(wires)
+            wires = range(self.num_wires)
 
-            if self.num_wires != len(wires):
-                raise ValueError(
-                    "This hardware device has a fixed number of {} wires and "
-                    "cannot be created with {} wires.".format(self.num_wires, len(wires))
-                )
+        if isinstance(wires, int):
+            raise ValueError(
+                "Device has a fixed number of {} modes. The wires argument can only be used "
+                "to specify an iterable of wire labels.".format(self.num_wires)
+            )
+
+        if self.num_wires != len(wires):
+            raise ValueError(
+                "Device has a fixed number of {} modes and "
+                "cannot be created with {} wires.".format(self.num_wires, len(wires))
+            )
 
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
         self.eng = eng
