@@ -44,11 +44,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     configuration file.
 
     Args:
-        wires (Iterable[Number, str]]): Iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
-            or strings (``['ancilla', 'q1', 'q2']``).
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
         backend (str): name of the remote backend to be used
+        wires (int, Iterable[Number, str]]): Number of wires or iterable that contains unique labels for the
+            modes as numbers or strings (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``).
+            The number of wires must match the number of modes accessible on the hardware device.
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
