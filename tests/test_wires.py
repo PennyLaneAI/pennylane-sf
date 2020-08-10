@@ -166,3 +166,20 @@ class TestWiresIntegrationRemote:
         )
 
         assert np.allclose(circuit1(1.0, 0), circuit2(1.0, 0), tol)
+
+    def test_subset_of_wires_in_probs(self, tol, monkeypatch):
+        """Test that the right probability is returned when the probability of a subset of wires is requested."""
+        shots = 7
+
+        wires = ["a", "c", "d", "b", "f", "e", "h", "g"]
+
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        device = qml.device("strawberryfields.remote", wires=wires, backend="X8", shots=shots)
+
+        @qml.qnode(device)
+        def circuit():
+            return qml.probs(wires=["a"])
+
+        expected = np.array([0., 0.4, 0.2, 0.1, 0.3])
+
+        assert np.allclose(circuit(), expected)
