@@ -42,13 +42,13 @@ from strawberryfields.backends.states import BaseFockState, BaseGaussianState
 import pennylane.ops
 
 
-def identity(state, wires, params):
+def identity(state, device_wires, params):
     """Computes the expectation value of ``qml.Identity``
     observable in Strawberry Fields, corresponding to the trace.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        wires (Sequence[int]): the measured mode
+        device_wires (Wires): the measured modes
         params (Sequence): sequence of parameters (not used)
 
     Returns:
@@ -62,14 +62,14 @@ def identity(state, wires, params):
     N = state.num_modes
     D = state.cutoff_dim
 
-    if N == len(wires):
+    if N == len(device_wires):
         # trace of the entire system
         tr = state.trace()
         return tr, tr - tr ** 2
 
     # get the reduced density matrix
-    N = len(wires)
-    dm = state.reduced_dm(modes=wires)
+    N = len(device_wires)
+    dm = state.reduced_dm(modes=device_wires.tolist())
 
     # construct the standard 2D density matrix, and take the trace
     new_ax = np.arange(2 * N).reshape([N, 2]).T.flatten()
@@ -78,29 +78,29 @@ def identity(state, wires, params):
     return tr, tr - tr ** 2
 
 
-def mean_photon(state, wires, params):
+def mean_photon(state, device_wires, params):
     """Computes the expectation value of the ``qml.NumberOperator``
     observable in Strawberry Fields.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        wires (Sequence[int]): the measured mode
+        device_wires (Sequence[int]): the measured mode
         params (Sequence): sequence of parameters (not used)
 
     Returns:
         float, float: mean photon number and its variance
     """
     # pylint: disable=unused-argument
-    return state.mean_photon(wires[0])
+    return state.mean_photon(device_wires.labels[0])
 
 
-def number_expectation(state, wires, params):
+def number_expectation(state, device_wires, params):
     """Computes the expectation value of tensor products consisting of the
     ``qml.NumberOperator`` observable on specified modes in Strawberry Fields.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        wires (Sequence[int]): the sequence of modes to measure
+        device_wires (Wires): the sequence of modes to measure
         params (Sequence): sequence of parameters (not used)
 
     Returns:
@@ -108,16 +108,16 @@ def number_expectation(state, wires, params):
             variance
     """
     # pylint: disable=unused-argument
-    return state.number_expectation(wires)
+    return state.number_expectation(device_wires.labels)
 
 
-def fock_state(state, wires, params):
+def fock_state(state, device_wires, params):
     """Computes the expectation value of the ``qml.FockStateProjector``
     observable in Strawberry Fields.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        wires (Sequence[int]): the measured mode
+        device_wires (Wires): the measured mode
         params (Sequence): sequence of parameters
 
     Returns:
@@ -127,7 +127,7 @@ def fock_state(state, wires, params):
     n = params[0]
     N = state.num_modes
 
-    if N == len(wires):
+    if N == len(device_wires):
         # expectation value of the entire system
         ex = state.fock_prob(n)
         return ex, ex - ex ** 2
@@ -135,19 +135,19 @@ def fock_state(state, wires, params):
     # otherwise, we must trace out remaining systems.
     if isinstance(state, BaseFockState):
         # fock state
-        dm = state.reduced_dm(modes=wires)
+        dm = state.reduced_dm(modes=device_wires.tolist())
         ex = dm[tuple([n[i // 2] for i in range(len(n) * 2)])].real
 
     elif isinstance(state, BaseGaussianState):
         # Reduced Gaussian state
-        mu, cov = state.reduced_gaussian(modes=wires)
+        mu, cov = state.reduced_gaussian(modes=device_wires.tolist())
 
         # scale so that hbar = 2
         mu /= np.sqrt(sf.hbar / 2)
         cov /= sf.hbar / 2
 
         # create reduced Gaussian state
-        new_state = BaseGaussianState((mu, cov), len(wires))
+        new_state = BaseGaussianState((mu, cov), len(device_wires))
         ex = new_state.fock_prob(n)
 
     var = ex - ex ** 2
@@ -184,18 +184,23 @@ def homodyne(phi=None):
         value and variance
     """
     if phi is not None:
-        return lambda state, wires, params: state.quad_expectation(wires[0], phi)
+        return lambda state, device_wires, params: state.quad_expectation(
+            device_wires.labels[0], phi
+        )
 
-    return lambda state, wires, params: state.quad_expectation(wires[0], *params)
+    return lambda state, device_wires, params: state.quad_expectation(
+        device_wires.labels[0], *params
+    )
 
 
-def poly_xp(state, wires, params):
+def poly_xp(state, all_wires, wires, params):
     r"""Computes the expectation value of an observable that is a second-order
     polynomial in :math:`\{\hat{x}_i, \hat{p}_i\}_i`.
 
     Args:
         state (strawberryfields.backends.states.BaseState): the quantum state
-        wires (Sequence[int]): measured modes
+        all_wires (Wires): all modes on the device
+        wires (Wires): measured modes for this observable
         params (Sequence[array]): Q is a matrix or vector of coefficients
             using the :math:`(\I, \x_1,\p_1, \x_2,\p_2, \dots)` ordering
 
@@ -206,7 +211,7 @@ def poly_xp(state, wires, params):
 
     # HACK, we need access to the Poly instance in order to expand the matrix!
     op = pennylane.ops.PolyXP(Q, wires=wires, do_queue=False)
-    Q = op.heisenberg_obs(state.num_modes)
+    Q = op.heisenberg_obs(all_wires)
 
     if Q.ndim == 1:
         d = np.r_[Q[1::2], Q[2::2]]

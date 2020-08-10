@@ -30,6 +30,8 @@ from strawberryfields.utils.post_processing import (
     samples_variance,
 )
 
+from pennylane.wires import Wires
+
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -42,9 +44,13 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     configuration file.
 
     Args:
-        wires (int): the number of modes to initialize the device in
         shots (int): number of circuit evaluations/random samples used to
             estimate expectation values of observables
+        wires (Iterable[Number, str]): Iterable that contains unique labels for the
+            modes as numbers or strings (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``).
+            The number of labels must match the number of modes accessible on the backend.
+            If not provided, modes are addressed as consecutive integers ``[0, 1, ...]``, and their number
+            is inferred from the backend.
         backend (str): name of the remote backend to be used
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
@@ -83,12 +89,29 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, *, backend, shots=1000, hbar=2, sf_token=None):
+    def __init__(self, *, backend, wires=None, shots=1000, hbar=2, sf_token=None):
         self.backend = backend
         eng = sf.RemoteEngine(self.backend)
 
-        # Infer the number of modes from the device specs
-        wires = eng.device_spec.modes
+        self.num_wires = eng.device_spec.modes
+
+        if wires is None:
+            # infer the number of modes from the device specs
+            # and use consecutive integer wire labels
+            wires = range(self.num_wires)
+
+        if isinstance(wires, int):
+            raise ValueError(
+                "Device has a fixed number of {} modes. The wires argument can only be used "
+                "to specify an iterable of wire labels.".format(self.num_wires)
+            )
+
+        if self.num_wires != len(wires):
+            raise ValueError(
+                "Device has a fixed number of {} modes and "
+                "cannot be created with {} wires.".format(self.num_wires, len(wires))
+            )
+
         super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
         self.eng = eng
 
@@ -121,8 +144,8 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     ):  # pylint: disable=unused-argument, missing-function-docstring
         if observable == "Identity":
             return np.ones(self.shots)
-        wires = np.array(wires)
-        selected_samples = self.samples[:, wires]
+        device_wires = self.map_wires(wires)
+        selected_samples = self.samples[:, device_wires]
         return np.prod(selected_samples, axis=1)
 
     def expval(self, observable, wires, par):
@@ -150,11 +173,11 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
             all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
             return all_probs
 
-        all_wires = np.arange(self.num_wires)
-        wires_to_trace_out = np.setdiff1d(all_wires, wires)
+        wires_to_trace_out = Wires.unique_wires([self.wires, wires])
+        device_wires_to_trace_out = self.map_wires(wires_to_trace_out)
 
-        if wires_to_trace_out.size > 0:
-            all_probs = np.sum(all_probs, axis=tuple(wires_to_trace_out))
+        if len(device_wires_to_trace_out) > 0:
+            all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
 
         all_probs = all_probs.flat
         N = len(wires)

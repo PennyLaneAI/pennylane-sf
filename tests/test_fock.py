@@ -20,9 +20,8 @@ import strawberryfields as sf
 
 import pennylane as qml
 from pennylane import numpy as np
+from pennylane.wires import Wires
 from scipy.special import factorial as fac
-from scipy.special import gamma
-
 
 psi = np.array(
     [
@@ -77,7 +76,7 @@ def SF_expectation_reference(sf_expectation, cutoff_dim, wires, *args):
         sf.ops.S2gate(0.1) | q
 
     state = eng.run(prog).state
-    return sf_expectation(state, wires, args)[0]
+    return sf_expectation(state, Wires(wires), args)[0]
 
 
 class TestFock:
@@ -574,6 +573,23 @@ class TestExpectation:
         expected = SF_gate_reference_trace(r1, r2)
         assert np.allclose(circuit(r1, r2), expected, atol=tol, rtol=0)
 
+    def test_trace_subsystems(self, tol):
+        """Test that Identity expectation is one on a subset of wires"""
+        cutoff_dim = 15
+        r1 = 0.01
+        r2 = 0.04
+
+        hbar = 2
+        dev = qml.device("strawberryfields.fock", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
+
+        @qml.qnode(dev)
+        def circuit(x, y):
+            qml.Squeezing(x, 0, wires=0)
+            qml.Squeezing(y, 0, wires=1)
+            return qml.expval(qml.Identity(wires=[0]))
+
+        assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
+
 
 class TestVariance:
     """Test for the device variance"""
@@ -628,6 +644,23 @@ class TestVariance:
         gradF = circuit.jacobian([n, a], method="F")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
+
+    def test_polyxp_variance(self, tol):
+        """Tests that variance for PolyXP measurement works"""
+        dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=15)
+
+        @qml.qnode(dev)
+        def circuit(r, phi):
+            qml.Squeezing(r, 0, wires=0)
+            qml.Rotation(phi, wires=0)
+            return qml.var(qml.PolyXP(np.array([0, 1, 0]), wires=0))
+
+        r = 0.105
+        phi = -0.654
+
+        var = circuit(r, phi)
+        expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
+        assert np.allclose(var, expected, atol=tol, rtol=0)
 
 
 class TestProbability:
