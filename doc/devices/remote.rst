@@ -113,6 +113,13 @@ The Strawberry Fields Remote device accepts the following device arguments.
 	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
 	Default value is :math:`\hbar=2`.
 
+``wires``
+    Iterable that contains unique labels for the modes as numbers or strings
+    (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``). The number of labels must
+    match the number of modes accessible on the backend. If not provided, modes
+    are addressed as consecutive integers ``[0, 1, ...]``, and their number is
+    inferred from the backend.
+
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 
