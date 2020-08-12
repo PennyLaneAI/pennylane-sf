@@ -315,25 +315,37 @@ class TestStrawberryFieldsGBS:
 
         assert np.allclose(jac, jac_expected)
 
-    def test_jacobian_subset_wires(self):
+    def test_jacobian_subset_wires(self, monkeypatch):
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
-
         A = 0.1767767 * np.ones((4, 4))
-        params = np.ones(4)
+        dev._WAW = A
+        params = np.array([1, 2, 3, 4])
+        n_mean = np.ones(4) / 4
+        dev._params = params
+
+        indices = np.indices([3, 3, 3, 3]).reshape(4, -1).T
+        probs = np.arange(3 ** 4)
+        jac_expected = np.zeros((3 ** 4, 4))
+
+        for i, ind in enumerate(indices):
+            jac_expected[i] = probs[i] * (ind - n_mean) / params
+
+        jac_expected = np.array(np.split(jac_expected, 9))
+        jac_expected = np.sum(jac_expected, axis=0)
+
         op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
 
-        ob = qml.Identity(wires=[0, 2])
+        ob = qml.Identity(wires=range(4))
         ob.return_type = Probability
         obs = [ob]
-
         variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
 
+        # with monkeypatch.context() as m:
+        #     m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: probs)
         jac = dev.jacobian(op, obs, variable_deps)
-        probs = dev.probability()
 
-        jac_expected = np.zeros((81, 4))
-
-        for i, (sample, prob) in enumerate(probs.items()):
-            jac_expected[i] = (np.array(sample) - 0.25) * prob
-
-        # assert np.allclose(jac, jac_expected)
+        # print(indices)
+        # indices = (0, 2)
+        # other_indices = (1, 3)
+        # jac_traced_expected = np.sum(jac_expected.reshape(3, 3, 3, 3, 4), axis=other_indices)
+        # print(jac_traced_expected)
