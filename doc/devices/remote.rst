@@ -97,7 +97,7 @@ This will return a NumPy array of shape ``(len(sampled_modes), shots)``.
 Device options
 ~~~~~~~~~~~~~~
 
-The Strawberry Fields Fock device accepts additional arguments beyond the PennyLane default device arguments.
+The Strawberry Fields Remote device accepts the following device arguments.
 
 ``backend``
     The remote Strawberry Fields backend to use. Authentication is required for connection.
@@ -108,6 +108,17 @@ The Strawberry Fields Fock device accepts additional arguments beyond the PennyL
 ``shots=10``
     The number of circuit evaluations/random samples used to estimate
     expectation values and variances of observables.
+
+``hbar=2``
+	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
+	Default value is :math:`\hbar=2`.
+
+``wires``
+    Iterable that contains unique labels for the modes as numbers or strings
+    (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``). The number of labels must
+    match the number of modes accessible on the backend. If not provided, modes
+    are addressed as consecutive integers ``[0, 1, ...]``, and their number is
+    inferred from the backend.
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~

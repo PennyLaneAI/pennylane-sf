@@ -41,6 +41,7 @@ from collections import OrderedDict
 import numpy as np
 
 from pennylane import Device
+from pennylane.wires import Wires
 import strawberryfields as sf
 from strawberryfields.backends.states import BaseFockState, BaseGaussianState
 
@@ -51,7 +52,9 @@ class StrawberryFieldsSimulator(Device):
     r"""Abstract StrawberryFields simulator device for PennyLane.
 
     Args:
-        wires (int): the number of modes to initialize the device in
+        wires (int or Iterable[Number, str]]): Number of subsystems represented by the device,
+            or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
+            or strings (``['ancilla', 'q1', 'q2']``).
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
         shots (int): Number of circuit evaluations/random samples used
@@ -61,7 +64,7 @@ class StrawberryFieldsSimulator(Device):
             relation :math:`[x, p] = i \hbar`
     """
     name = "Strawberry Fields Simulator PennyLane plugin"
-    pennylane_requires = ">=0.7.0"
+    pennylane_requires = ">=0.11.0"
     version = __version__
     author = "Josh Izaac"
 
@@ -92,7 +95,7 @@ class StrawberryFieldsSimulator(Device):
 
         Args:
             operation (str): name of the operation
-            wires (Sequence[int]): subsystems the operation is applied on
+            wires (Wires): subsystems the operation is applied on
             par (tuple): parameters for the operation
         """
         # convert PennyLane parameter conventions to
@@ -102,8 +105,11 @@ class StrawberryFieldsSimulator(Device):
         else:
             sf_par = par
 
+        # translate to consecutive wires used by device
+        device_wires = self.map_wires(wires)
+
         op = self._operation_map[operation](*sf_par)
-        op | [self.q[i] for i in wires]  # pylint: disable=pointless-statement
+        op | [self.q[i] for i in device_wires.labels]  # pylint: disable=pointless-statement
 
     @abc.abstractmethod
     def pre_measure(self):
@@ -115,13 +121,23 @@ class StrawberryFieldsSimulator(Device):
 
         Args:
             observable (str): name of the observable
-            wires (Sequence[int]): subsystems the observable is evaluated on
+            wires (Wires): subsystems the observable is evaluated on
             par (tuple): parameters for the observable
 
         Returns:
             float: expectation value
         """
-        ex, var = self._observable_map[observable](self.state, wires, par)
+        # translate to consecutive wires used by device
+        device_wires = self.map_wires(wires)
+
+        # The different "expectation" functions require different inputs,
+        # which is at the moment solved by having dummy arguments.
+        # This one-size-fits all "observable_map" logic should be revised.
+        if observable == "PolyXP":
+            # the poly_xp function currently requires the original wires of the observable
+            ex, var = self._observable_map[observable](self.state, self.wires, wires, par)
+        else:
+            ex, var = self._observable_map[observable](self.state, device_wires, par)
 
         if not self.analytic:
             # estimate the expectation value
@@ -136,13 +152,23 @@ class StrawberryFieldsSimulator(Device):
 
         Args:
             observable (str): name of the observable
-            wires (Sequence[int]): subsystems the observable is evaluated on
+            wires (Wires): subsystems the observable is evaluated on
             par (tuple): parameters for the observable
 
         Returns:
             float: variance value
         """
-        _, var = self._observable_map[observable](self.state, wires, par)
+        # translate to consecutive wires used by device
+        device_wires = self.map_wires(wires)
+
+        # The different "expectation" functions require different inputs,
+        # which is at the moment solved by having dummy arguments.
+        # This one-size-fits all "observable_map" logic should be revised.
+        if observable == "PolyXP":
+            # the poly_xp function currently requires the original wires of the observable
+            _, var = self._observable_map[observable](self.state, self.wires, wires, par)
+        else:
+            _, var = self._observable_map[observable](self.state, device_wires, par)
 
         return var
 
@@ -189,7 +215,7 @@ class StrawberryFieldsSimulator(Device):
         state from the last run of the device.
 
         Args:
-            wires (Sequence[int]): Sequence of wires to return
+            wires (Iterable[Number, str], Number, str, Wires): wires to return
                 marginal probabilities for. Wires not provided
                 are traced out of the system.
 
@@ -198,6 +224,12 @@ class StrawberryFieldsSimulator(Device):
             to the resulting probability. The dictionary should be sorted such that the
             state tuples are in lexicographical order.
         """
+        wires = wires or self.wires
+        # convert to a wires object
+        wires = Wires(wires)
+        # translate to wires used by device
+        device_wires = self.map_wires(wires)
+
         N = len(wires)
         cutoff = getattr(self, "cutoff", 10)
 
@@ -207,12 +239,12 @@ class StrawberryFieldsSimulator(Device):
 
         else:
             if isinstance(self.state, BaseFockState):
-                rdm = self.state.reduced_dm(modes=wires)
+                rdm = self.state.reduced_dm(modes=device_wires.tolist())
                 new_state = BaseFockState(rdm, N, pure=False, cutoff_dim=cutoff)
 
             elif isinstance(self.state, BaseGaussianState):
                 # Reduced Gaussian state
-                mu, cov = self.state.reduced_gaussian(modes=wires)
+                mu, cov = self.state.reduced_gaussian(modes=device_wires.tolist())
 
                 # scale so that hbar = 2
                 mu /= np.sqrt(sf.hbar / 2)
