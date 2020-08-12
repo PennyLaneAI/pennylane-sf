@@ -37,6 +37,10 @@ from thewalrus.quantum import photon_number_mean_vector
 
 import numpy as np
 
+from pennylane.operation import Probability
+from pennylane.wires import Wires
+import pennylane as qml
+
 import strawberryfields as sf
 from strawberryfields.utils import all_fock_probs_pnr
 
@@ -152,13 +156,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def probability(self, wires=None):
-        wires = wires if wires else range(self.num_wires)
+        wires = wires or self.wires
+        wires = Wires(wires)
 
         if self.analytic:
             return super().probability(wires=wires)
 
         N = len(wires)
-        samples = np.take(self.samples, wires, axis=1)
+        samples = np.take(self.samples, self.wires.indices(wires), axis=1)
 
         probs = all_fock_probs_pnr(samples)
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
@@ -181,16 +186,45 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
-        self.execute(operations, observables, parameters=variable_deps)
-        prob = np.array(list(self.probability().values()))
+        obs_all_wires = qml.Identity(wires=self.wires)
+        obs_all_wires.return_type = Probability
+        prob = self.execute(operations, [obs_all_wires], parameters=variable_deps)[0]
+        requested_wires = observables[0].wires
 
+        jac = self._jacobian_all_wires(prob)
+
+        if requested_wires == self.wires:
+            return jac
+        else:
+            jac = jac.reshape([self.cutoff] * self.num_wires + [self.num_wires])
+
+            all_indices = set(range(self.num_wires))
+            requested_indices = set(self.wires.indices(requested_wires))
+            trace_over_indices = all_indices - requested_indices
+
+            traced_jac = np.sum(jac, axis=tuple(trace_over_indices))
+            traced_jac = traced_jac.reshape(-1, self.num_wires)
+
+            return traced_jac
+
+    def _jacobian_all_wires(self, prob):
+        """Calculates the jacobian of the probability distribution with respect to all wires.
+
+        This function uses Eq. (28) of `this <https://arxiv.org/pdf/2004.04770.pdf>`__ paper.
+
+        Args:
+            prob (array[float]): the probability distribution as a flat array
+
+        Returns:
+            array[float]: the jacobian
+        """
         jac = np.zeros([len(prob), self.num_wires])
 
         n = len(self._WAW)
         disp = np.zeros(2 * n)
         cov = self._calculate_covariance(self._WAW, hbar=self.hbar)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
-
+        print(mean_photons_by_mode)
         for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
             jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
 

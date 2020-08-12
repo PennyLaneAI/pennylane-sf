@@ -257,6 +257,8 @@ class TestStrawberryFieldsGBS:
         assert next(keys) == (1, 0)
 
     def test_calculate_covariance(self):
+        """Test that the _calculate_covariance method returns the correct covariance matrix for a
+        fixed example."""
         x = np.sqrt(0.5)
         A = np.array([[0, x], [x, 0]])
         cov = StrawberryFieldsGBS._calculate_covariance(A, 2)
@@ -270,7 +272,27 @@ class TestStrawberryFieldsGBS:
         )
         assert np.allclose(cov, target)
 
+    def test_jacobian_all_wires(self):
+        """Test that the _jacobian_all_wires method returns the correct jacobian for a fixed
+        input probability distribution"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        dev._WAW = 0.1767767 * np.ones((4, 4))
+        params = np.array([1, 2, 3, 4])
+        n_mean = np.ones(4) / 4
+        dev._params = params
+
+        indices = np.indices([3, 3, 3, 3]).reshape(4, -1).T
+        probs = np.arange(3 ** 4)
+        jac_expected = np.zeros((3 ** 4, 4))
+
+        for i, ind in enumerate(indices):
+            jac_expected[i] = probs[i] * (ind - n_mean) / params
+
+        jac = dev._jacobian_all_wires(probs)
+        assert np.allclose(jac, jac_expected)
+
     def test_jacobian(self):
+        """Test that the jacobian method returns correctly on a fixed example"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
 
         A = 0.1767767 * np.ones((4, 4))
@@ -292,3 +314,26 @@ class TestStrawberryFieldsGBS:
             jac_expected[i] = (np.array(sample) - 0.25) * prob
 
         assert np.allclose(jac, jac_expected)
+
+    def test_jacobian_subset_wires(self):
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(4)
+        op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
+
+        ob = qml.Identity(wires=[0, 2])
+        ob.return_type = Probability
+        obs = [ob]
+
+        variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
+
+        jac = dev.jacobian(op, obs, variable_deps)
+        probs = dev.probability()
+
+        jac_expected = np.zeros((81, 4))
+
+        for i, (sample, prob) in enumerate(probs.items()):
+            jac_expected[i] = (np.array(sample) - 0.25) * prob
+
+        # assert np.allclose(jac, jac_expected)
