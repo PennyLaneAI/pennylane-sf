@@ -134,10 +134,10 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         n_mean_WAW = self._calculate_n_mean(self._WAW)
 
         op = self._operation_map[operation](self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
-        op | [self.q[i] for i in wires]  # pylint: disable=pointless-statement
+        op | [self.q[wires.index(i)] for i in wires]  # pylint: disable=pointless-statement
 
         if not self.analytic:
-            MeasureFock() | [self.q[i] for i in wires]
+            MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
     def pre_measure(self):
         self.eng = sf.Engine(self.backend, backend_options={"cutoff_dim": self.cutoff})
