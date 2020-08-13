@@ -32,20 +32,16 @@ Code details
 ~~~~~~~~~~~~
 """
 from collections import OrderedDict
-from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
-from thewalrus.quantum import photon_number_mean_vector
 
 import numpy as np
-
+import pennylane as qml
+import strawberryfields as sf
 from pennylane.operation import Probability
 from pennylane.wires import Wires
-import pennylane as qml
-
-import strawberryfields as sf
-from strawberryfields.utils import all_fock_probs_pnr
-
-# import gates
 from strawberryfields.ops import GraphEmbed, MeasureFock
+from strawberryfields.utils import all_fock_probs_pnr
+from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
+from thewalrus.quantum import photon_number_mean_vector
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
@@ -84,8 +80,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000,
-                 hbar=2):
+    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000, hbar=2):
         if not analytic and backend != "gaussian":
             raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
 
@@ -131,8 +126,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params, A, _ = par
 
         if len(self._params) != self.num_wires:
-            raise ValueError("The number of variable parameters must be equal to the total number "
-                             "of wires.")
+            raise ValueError(
+                "The number of variable parameters must be equal to the total number " "of wires."
+            )
 
         self._WAW = self._calculate_WAW(*par)
         n_mean_WAW = self._calculate_n_mean(self._WAW)
@@ -224,7 +220,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         disp = np.zeros(2 * n)
         cov = self._calculate_covariance(self._WAW, hbar=self.hbar)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
-        print(mean_photons_by_mode)
+
         for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
             jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
 
@@ -244,8 +240,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         """
         n = len(A)
         I = np.identity(2 * n)
-        o_mat = np.block(
-            [[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]]
-        )
+        o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
         cov = hbar * (np.linalg.inv(I - o_mat) - I / 2)
         return cov

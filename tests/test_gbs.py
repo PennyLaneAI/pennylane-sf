@@ -14,49 +14,118 @@
 """
 Unit tests for the GBS device.
 """
-import numpy as np
 import pennylane as qml
 import pytest
+from pennylane import numpy as np
+from pennylane.operation import Probability
+from pennylane.qnodes.base import ParameterDependency
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
-from pennylane.qnodes.base import ParameterDependency
-from pennylane.operation import Probability
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
 from pennylane_sf.simulator import StrawberryFieldsSimulator
 
+target_cov = np.array(
+    [
+        [
+            2.2071e00,
+            1.2071e00,
+            1.2071e00,
+            1.2071e00,
+            -2.6021e-18,
+            -1.3878e-16,
+            6.9323e-17,
+            -7.8505e-17,
+        ],
+        [
+            1.2071e00,
+            2.2071e00,
+            1.2071e00,
+            1.2071e00,
+            -2.7756e-17,
+            -1.1102e-16,
+            5.5511e-17,
+            -1.1102e-16,
+        ],
+        [
+            1.2071e00,
+            1.2071e00,
+            2.2071e00,
+            1.2071e00,
+            -5.3141e-17,
+            -1.6653e-16,
+            1.0127e-17,
+            -1.3770e-16,
+        ],
+        [
+            1.2071e00,
+            1.2071e00,
+            1.2071e00,
+            2.2071e00,
+            -7.8505e-17,
+            -2.2204e-16,
+            -1.5236e-17,
+            -1.6306e-16,
+        ],
+        [
+            -2.6021e-18,
+            -2.7756e-17,
+            -5.3141e-17,
+            -7.8505e-17,
+            7.9289e-01,
+            -2.0711e-01,
+            -2.0711e-01,
+            -2.0711e-01,
+        ],
+        [
+            -1.3878e-16,
+            -1.1102e-16,
+            -1.6653e-16,
+            -2.2204e-16,
+            -2.0711e-01,
+            7.9289e-01,
+            -2.0711e-01,
+            -2.0711e-01,
+        ],
+        [
+            6.9323e-17,
+            5.5511e-17,
+            1.0127e-17,
+            -1.5236e-17,
+            -2.0711e-01,
+            -2.0711e-01,
+            7.9289e-01,
+            -2.0711e-01,
+        ],
+        [
+            -7.8505e-17,
+            -1.1102e-16,
+            -1.3770e-16,
+            -1.6306e-16,
+            -2.0711e-01,
+            -2.0711e-01,
+            -2.0711e-01,
+            7.9289e-01,
+        ],
+    ]
+)
 
-target_cov = np.array([[ 2.2071e+00,  1.2071e+00,  1.2071e+00,  1.2071e+00, -2.6021e-18,
-        -1.3878e-16,  6.9323e-17, -7.8505e-17],
-       [ 1.2071e+00,  2.2071e+00,  1.2071e+00,  1.2071e+00, -2.7756e-17,
-        -1.1102e-16,  5.5511e-17, -1.1102e-16],
-       [ 1.2071e+00,  1.2071e+00,  2.2071e+00,  1.2071e+00, -5.3141e-17,
-        -1.6653e-16,  1.0127e-17, -1.3770e-16],
-       [ 1.2071e+00,  1.2071e+00,  1.2071e+00,  2.2071e+00, -7.8505e-17,
-        -2.2204e-16, -1.5236e-17, -1.6306e-16],
-       [-2.6021e-18, -2.7756e-17, -5.3141e-17, -7.8505e-17,  7.9289e-01,
-        -2.0711e-01, -2.0711e-01, -2.0711e-01],
-       [-1.3878e-16, -1.1102e-16, -1.6653e-16, -2.2204e-16, -2.0711e-01,
-         7.9289e-01, -2.0711e-01, -2.0711e-01],
-       [ 6.9323e-17,  5.5511e-17,  1.0127e-17, -1.5236e-17, -2.0711e-01,
-        -2.0711e-01,  7.9289e-01, -2.0711e-01],
-       [-7.8505e-17, -1.1102e-16, -1.3770e-16, -1.6306e-16, -2.0711e-01,
-        -2.0711e-01, -2.0711e-01,  7.9289e-01]])
 
-
-samples = np.array([
-    [0, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, 1, 1],
-    [0, 0, 0, 0],
-    [2, 0, 0, 0],
-    [0, 0, 2, 0],
-    [0, 0, 0, 0],
-    [0, 0, 2, 0],
-    [0, 1, 2, 0],
-    [2, 2, 2, 0],
-])
+samples = np.array(
+    [
+        [0, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 1],
+        [0, 0, 0, 0],
+        [2, 0, 0, 0],
+        [0, 0, 2, 0],
+        [0, 0, 0, 0],
+        [0, 0, 2, 0],
+        [0, 1, 2, 0],
+        [2, 2, 2, 0],
+    ]
+)
 
 probs_dict = {
     (0, 0, 0, 0): 0.3,
@@ -76,9 +145,128 @@ probs_dict_subset = {
     (2, 2): 0.1,
 }
 
+A = np.array(
+    [[0.0, 1.0, 1.0, 1.0], [1.0, 0.0, 1.0, 0.0], [1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]
+)
+
+jac_exp = np.array(
+    [
+        [-1.766373e-01, -7.129473e-02, -6.295893e-02, -2.073651e-02],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [-4.510550e-03, 4.569179e-02, 3.798593e-02, -5.295200e-04],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [-1.151800e-04, 2.380030e-03, 1.981050e-03, -1.352000e-05],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [7.542846e-02, -1.517130e-03, -1.339750e-03, 1.935555e-02],
+        [0, 0, 0, 0],
+        [4.525708e-02, -9.102800e-04, 1.899296e-02, -2.647600e-04],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [3.771423e-02, 1.903825e-02, -6.698700e-04, -2.206300e-04],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [1.926120e-03, 9.723100e-04, 8.083300e-04, 4.942600e-04],
+        [0, 0, 0, 0],
+        [2.311340e-03, 1.166770e-03, 1.981050e-03, -1.352000e-05],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [1.926120e-03, 1.983360e-03, 8.083300e-04, -1.127000e-05],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [4.918000e-05, 5.065000e-05, 4.216000e-05, 1.262000e-05],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [3.290180e-03, -3.228000e-05, -2.851000e-05, 8.331500e-04],
+        [0, 0, 0, 0],
+        [3.948220e-03, -3.874000e-05, 8.083300e-04, 4.942600e-04],
+        [0, 0, 0, 0],
+        [1.184470e-03, -1.162000e-05, 4.952600e-04, -3.380000e-06],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [3.290180e-03, 8.102600e-04, -2.851000e-05, 4.118800e-04],
+        [0, 0, 0, 0],
+        [1.974110e-03, 4.861500e-04, 4.041700e-04, -5.630000e-06],
+        [0, 0, 0, 0],
+        [8.402000e-05, 2.069000e-05, 1.720000e-05, 2.128000e-05],
+        [0, 0, 0, 0],
+        [2.016400e-04, 4.966000e-05, 8.431000e-05, 2.524000e-05],
+        [0, 0, 0, 0],
+        [8.225500e-04, 4.132000e-04, -7.130000e-06, -2.350000e-06],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [1.680300e-04, 8.441000e-05, 3.440000e-05, 2.104000e-05],
+        [0, 0, 0, 0],
+        [2.016400e-04, 1.012900e-04, 8.431000e-05, -5.800000e-07],
+        [0, 0, 0, 0],
+        [2.150000e-06, 1.080000e-06, 9.000000e-07, 5.400000e-07],
+    ]
+)
+
+jac_reduced = {
+    (0, 2): np.array(
+        [
+            [-1.76637300e-01, -7.12947257e-02, -6.29589339e-02, -2.07365140e-02],
+            [-4.51055487e-03, 4.56917936e-02, 3.79859282e-02, -5.29521141e-04],
+            [-1.15180119e-04, 2.38003197e-03, 1.98104730e-03, -1.35216863e-05],
+            [1.13142690e-01, 1.75211142e-02, -2.00962457e-03, 1.91349125e-02],
+            [4.91093112e-02, 2.04538952e-03, 2.06096254e-02, 2.18228539e-04],
+            [2.36052583e-03, 1.21741782e-03, 2.02320347e-03, -9.00489456e-07],
+            [7.40290986e-03, 1.19117368e-03, -6.41464311e-05, 1.24268550e-03],
+            [6.17437908e-03, 5.52514954e-04, 1.26409919e-03, 5.30933583e-04],
+            [1.58989291e-03, 1.40405534e-04, 6.64783578e-04, 2.18297708e-05],
+        ]
+    ),
+    (2, 3): np.array(
+        [
+            [-1.38100524e-01, -5.18432783e-02, -6.36359361e-02, -2.09594954e-02],
+            [7.87186422e-02, -7.06875303e-04, -1.36825924e-03, 1.97674273e-02],
+            [3.29018216e-03, -3.22841991e-05, -2.85095249e-05, 8.33152028e-04],
+            [4.46467480e-02, 4.72510284e-02, 5.81913883e-02, -8.11183819e-04],
+            [6.04237030e-03, 1.01797920e-03, 1.65106345e-03, 1.00954969e-03],
+            [8.40170632e-05, 2.06904922e-05, 1.72010659e-05, 2.12751098e-05],
+            [3.58226750e-03, 3.63647394e-03, 4.54166876e-03, -3.09992702e-05],
+            [2.50825688e-04, 1.00303642e-04, 1.26468511e-04, 3.78635906e-05],
+            [2.14543346e-06, 1.07774348e-06, 8.97072326e-07, 5.43274553e-07],
+        ]
+    ),
+}
+
 
 class TestStrawberryFieldsGBS:
-    """Integration tests for StrawberryFieldsGBS."""
+    """Unit tests for StrawberryFieldsGBS."""
 
     @pytest.mark.parametrize("backend", ["fock", "gaussian"])
     @pytest.mark.parametrize("cutoff", [3, 6])
@@ -90,8 +278,9 @@ class TestStrawberryFieldsGBS:
 
     def test_load_device_non_analytic_gaussian(self):
         """Test that the device loads correctly when analytic is False with a gaussian backend"""
-        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, backend="gaussian",
-                         analytic=False)
+        dev = qml.device(
+            "strawberryfields.gbs", wires=2, cutoff_dim=3, backend="gaussian", analytic=False
+        )
         assert dev.cutoff == 3
         assert dev.backend == "gaussian"
 
@@ -99,8 +288,9 @@ class TestStrawberryFieldsGBS:
         """Test that the device raises a ValueError when loaded in non-analytic mode with a
         non-Gaussian backend"""
         with pytest.raises(ValueError, match="Only the Gaussian backend is supported"):
-            qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, backend="fock",
-                             analytic=False)
+            qml.device(
+                "strawberryfields.gbs", wires=2, cutoff_dim=3, backend="fock", analytic=False
+            )
 
     def test_calculate_WAW(self):
         """Test that the _calculate_WAW method calculates correctly when the input adjacency matrix is
@@ -177,7 +367,7 @@ class TestStrawberryFieldsGBS:
         dev.prog = prog
         dev.pre_measure()
         assert dev.eng.backend_name == "gaussian"
-        assert dev.eng.backend_options == {'cutoff_dim': 3}
+        assert dev.eng.backend_options == {"cutoff_dim": 3}
 
     def test_pre_measure_state_and_samples(self, tol):
         """Test that the pre_measure method operates as expected in analytic mode by generating the
@@ -193,21 +383,21 @@ class TestStrawberryFieldsGBS:
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
         assert not dev.samples
 
-    # def test_pre_measure_state_and_samples_non_analytic(self, tol):
-    #     """Test that the pre_measure method operates as expected in non-analytic mode by
-    #     generating the correct output state and samples of the right shape"""
-    #     dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False, shots=2)
-    #     prog = Program(4)
-    #     op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
-    #     op2 = MeasureFock()
-    #     prog.append(op1, prog.register)
-    #     prog.append(op2, prog.register)
-    #     dev.prog = prog
-    #     dev.pre_measure()
-    #
-    #     assert np.allclose(dev.state.displacement(), np.zeros(4))
-    #     assert np.allclose(dev.state.cov(), target_cov, atol=tol)
-    #     assert dev.samples.shape == (2, 4)
+    def test_pre_measure_state_and_samples_non_analytic(self, tol):
+        """Test that the pre_measure method operates as expected in non-analytic mode by
+        generating the correct output state and samples of the right shape"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False, shots=2)
+        prog = Program(4)
+        op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
+        op2 = MeasureFock()
+        prog.append(op1, prog.register)
+        prog.append(op2, prog.register)
+        dev.prog = prog
+        dev.pre_measure()
+
+        assert np.allclose(dev.state.displacement(), np.zeros(4))
+        assert np.allclose(dev.state.cov(), target_cov, atol=tol)
+        assert dev.samples.shape == (2, 4)
 
     def test_probability_analytic(self, monkeypatch):
         """Test that the probability method in analytic mode simply calls the parent method in
@@ -294,9 +484,7 @@ class TestStrawberryFieldsGBS:
     def test_jacobian(self):
         """Test that the jacobian method returns correctly on a fixed example"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
-
-        A = 0.1767767 * np.ones((4, 4))
-        params = np.ones(4)
+        params = np.array([0.25, 0.5, 0.6, 1])
         op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
 
         ob = qml.Identity(wires=range(4))
@@ -306,46 +494,81 @@ class TestStrawberryFieldsGBS:
         variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
 
         jac = dev.jacobian(op, obs, variable_deps)
-        probs = dev.probability()
+        assert np.allclose(jac, jac_exp)
 
-        jac_expected = np.zeros((81, 4))
-
-        for i, (sample, prob) in enumerate(probs.items()):
-            jac_expected[i] = (np.array(sample) - 0.25) * prob
-
-        assert np.allclose(jac, jac_expected)
-
-    def test_jacobian_subset_wires(self, monkeypatch):
+    @pytest.mark.parametrize("wires", jac_reduced)
+    def test_jacobian_wires_reduced(self, wires):
+        """Test that the jacobian method returns correctly on a fixed example on a subset of
+        wires"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
-        A = 0.1767767 * np.ones((4, 4))
-        dev._WAW = A
-        params = np.array([1, 2, 3, 4])
-        n_mean = np.ones(4) / 4
-        dev._params = params
-
-        indices = np.indices([3, 3, 3, 3]).reshape(4, -1).T
-        probs = np.arange(3 ** 4)
-        jac_expected = np.zeros((3 ** 4, 4))
-
-        for i, ind in enumerate(indices):
-            jac_expected[i] = probs[i] * (ind - n_mean) / params
-
-        jac_expected = np.array(np.split(jac_expected, 9))
-        jac_expected = np.sum(jac_expected, axis=0)
-
+        params = np.array([0.25, 0.5, 0.6, 1])
         op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
 
-        ob = qml.Identity(wires=range(4))
+        ob = qml.Identity(wires=wires)
         ob.return_type = Probability
         obs = [ob]
+
         variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
 
-        # with monkeypatch.context() as m:
-        #     m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: probs)
         jac = dev.jacobian(op, obs, variable_deps)
 
-        # print(indices)
-        # indices = (0, 2)
-        # other_indices = (1, 3)
-        # jac_traced_expected = np.sum(jac_expected.reshape(3, 3, 3, 3, 4), axis=other_indices)
-        # print(jac_traced_expected)
+        assert np.allclose(jac, jac_reduced[wires])
+
+
+class TestIntegrationStrawberryFieldsGBS:
+    """Integration tests for StrawberryFieldsGBS."""
+
+    @pytest.mark.parametrize("backend", ["gaussian", "fock"])
+    @pytest.mark.parametrize("wires", range(1, 5))
+    @pytest.mark.parametrize("cutoff_dim", [2, 3])
+    def test_shape(self, wires, cutoff_dim, backend):
+        """Test that the probabilities and jacobian are returned with the expected shape"""
+        dev = qml.device(
+            "strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim, backend=backend
+        )
+        a = np.ones((wires, wires))
+        params = np.ones(wires)
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, a, 1, wires=range(wires))
+            return qml.probs(wires=range(wires))
+
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
+
+        p = vgbs(params)
+        dp = d_vgbs(params)
+
+        assert p.shape == (cutoff_dim ** wires,)
+        assert dp.shape == (cutoff_dim ** wires, wires)
+        assert (p >= 0).all()
+        assert (p <= 1).all()
+        assert np.sum(p) <= 1
+
+    @pytest.mark.parametrize("backend", ["gaussian", "fock"])
+    @pytest.mark.parametrize("wires", range(2, 5))
+    @pytest.mark.parametrize("cutoff_dim", [2, 3])
+    def test_shape_reduced_wires(self, wires, cutoff_dim, backend):
+        """Test that the probabilities and jacobian are returned with the expected shape when
+        probabilities are measured on a subset of wires"""
+        dev = qml.device(
+            "strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim, backend=backend
+        )
+        a = np.ones((wires, wires))
+        params = np.ones(wires)
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, a, 1, wires=range(wires))
+            return qml.probs(wires=[0, 1])
+
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
+
+        p = vgbs(params)
+        dp = d_vgbs(params)
+
+        assert p.shape == (cutoff_dim ** 2,)
+        assert dp.shape == (cutoff_dim ** 2, wires)
+        assert (p >= 0).all()
+        assert (p <= 1).all()
+        assert np.sum(p) <= 1
