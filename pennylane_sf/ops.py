@@ -20,6 +20,7 @@ machine learning and optimization applications.
 from pennylane.operation import AllWires, CVOperation
 
 
+# pylint: disable=too-few-public-methods
 class ParamGraphEmbed(CVOperation):
     r"""ParamGraphEmbed(params, A, n_mean, wires)
     A parametrized embedding of a graph into GBS.

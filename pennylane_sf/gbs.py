@@ -122,6 +122,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         singular_values = np.linalg.svd(A, compute_uv=False)
         return np.sum(singular_values ** 2 / (1 - singular_values ** 2))
 
+    # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
         self._params, A, _ = par
 
@@ -134,7 +135,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         n_mean_WAW = self._calculate_n_mean(self._WAW)
 
         op = self._operation_map[operation](self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
-        op | [self.q[wires.index(i)] for i in wires]  # pylint: disable=pointless-statement
+        op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
@@ -191,17 +192,17 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if requested_wires == self.wires:
             return jac
-        else:
-            jac = jac.reshape([self.cutoff] * self.num_wires + [self.num_wires])
 
-            all_indices = set(range(self.num_wires))
-            requested_indices = set(self.wires.indices(requested_wires))
-            trace_over_indices = all_indices - requested_indices
+        jac = jac.reshape([self.cutoff] * self.num_wires + [self.num_wires])
 
-            traced_jac = np.sum(jac, axis=tuple(trace_over_indices))
-            traced_jac = traced_jac.reshape(-1, self.num_wires)
+        all_indices = set(range(self.num_wires))
+        requested_indices = set(self.wires.indices(requested_wires))
+        trace_over_indices = all_indices - requested_indices
 
-            return traced_jac
+        traced_jac = np.sum(jac, axis=tuple(trace_over_indices))
+        traced_jac = traced_jac.reshape(-1, self.num_wires)
+
+        return traced_jac
 
     def _jacobian_all_wires(self, prob):
         """Calculates the jacobian of the probability distribution with respect to all wires.
@@ -228,7 +229,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     @staticmethod
     def _calculate_covariance(A, hbar):
-        """Calculate the covariance matrix corresponding to an input adjacency matrix.
+        r"""Calculate the covariance matrix corresponding to an input adjacency matrix.
 
         Args:
             A (array[float]): adjacency matrix
