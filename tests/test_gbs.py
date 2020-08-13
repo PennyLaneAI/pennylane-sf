@@ -572,3 +572,34 @@ class TestIntegrationStrawberryFieldsGBS:
         assert (p >= 0).all()
         assert (p <= 1).all()
         assert np.sum(p) <= 1
+
+    def test_example_jacobian(self):
+        """Test that the jacobian is correct on the fixed example"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        params = np.array([0.25, 0.5, 0.6, 1])
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            return qml.probs(wires=range(4))
+
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
+        dp = d_vgbs(params)
+
+        assert np.allclose(dp, jac_exp)
+
+    @pytest.mark.parametrize("wires", jac_reduced)
+    def test_example_jacobian_reduced_wires(self, wires):
+        """Test that the jacobian is correct on the fixed example with a subset of wires"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        params = np.array([0.25, 0.5, 0.6, 1])
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            return qml.probs(wires=wires)
+
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
+        dp = d_vgbs(params)
+
+        assert np.allclose(dp, jac_reduced[wires])
