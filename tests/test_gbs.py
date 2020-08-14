@@ -21,6 +21,7 @@ from pennylane.operation import Probability
 from pennylane.qnodes.base import ParameterDependency
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
+from pennylane.wires import Wires
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
@@ -573,33 +574,35 @@ class TestIntegrationStrawberryFieldsGBS:
         assert (p <= 1).all()
         assert np.sum(p) <= 1
 
-    def test_example_jacobian(self):
+    @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
+    def test_example_jacobian(self, wires):
         """Test that the jacobian is correct on the fixed example"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
 
         @qml.qnode(dev)
         def vgbs(params):
-            ParamGraphEmbed(params, A, 1, wires=range(4))
-            return qml.probs(wires=range(4))
+            ParamGraphEmbed(params, A, 1, wires=wires)
+            return qml.probs(wires=wires)
 
         d_vgbs = qml.jacobian(vgbs, argnum=0)
         dp = d_vgbs(params)
 
         assert np.allclose(dp, jac_exp)
 
-    @pytest.mark.parametrize("wires", jac_reduced)
-    def test_example_jacobian_reduced_wires(self, wires):
+    @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
+    @pytest.mark.parametrize("subset_wires", jac_reduced)
+    def test_example_jacobian_reduced_wires(self, subset_wires, wires):
         """Test that the jacobian is correct on the fixed example with a subset of wires"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
 
         @qml.qnode(dev)
         def vgbs(params):
-            ParamGraphEmbed(params, A, 1, wires=range(4))
-            return qml.probs(wires=wires)
+            ParamGraphEmbed(params, A, 1, wires=wires)
+            return qml.probs(wires=[wires[subset_wires[0]], wires[subset_wires[1]]])
 
         d_vgbs = qml.jacobian(vgbs, argnum=0)
         dp = d_vgbs(params)
 
-        assert np.allclose(dp, jac_reduced[wires])
+        assert np.allclose(dp, jac_reduced[subset_wires])
