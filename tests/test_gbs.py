@@ -19,9 +19,9 @@ import pytest
 from pennylane import numpy as np
 from pennylane.operation import Probability
 from pennylane.qnodes.base import ParameterDependency
+from pennylane.wires import Wires
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
-from pennylane.wires import Wires
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
