@@ -87,6 +87,7 @@ use the "Strawberry Fields" filter on the right panel of the
    devices/fock
    devices/gaussian
    devices/remote
+   devices/gbs
 
 .. toctree::
    :maxdepth: 1
