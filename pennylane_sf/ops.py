@@ -39,7 +39,7 @@ class ParamGraphEmbed(CVOperation):
 
     .. note::
 
-        This operation is only compatible with the :class:`~.GBS` device.
+        This operation is only compatible with the :class:`~.StrawberryFieldsGBS` device.
 
     **Details:**
 
