@@ -951,6 +951,10 @@ class TestGradients:
         r = tf.Variable(R)
         phi = tf.Variable(PHI)
 
+        vacuum = np.zeros((cutoff, cutoff), dtype=np.complex64)
+        vacuum[0, 0] = 1.0 + 0.0j
+        vacuum = tf.constant(vacuum)
+
         with tf.GradientTape(persistent=True) as tape:
             prob00 = circuit(r, phi, vacuum, np.array([0, 0]))
             prob11 = circuit(r, phi, vacuum, np.array([1, 1]))

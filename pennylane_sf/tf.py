@@ -15,7 +15,9 @@
 Strawberry Fields TF backend for PennyLane.
 """
 from collections import OrderedDict
-from collections.abc import Sequence
+from collections.abc import (
+    Sequence,
+)  # pylint provides a false positive pylint: disable=no-name-in-module
 import uuid
 
 import numpy as np
