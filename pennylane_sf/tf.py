@@ -122,6 +122,8 @@ def fock_state(state, device_wires, params):
 class StrawberryFieldsTF(StrawberryFieldsSimulator):
     r"""StrawberryFields TensorFlow device for PennyLane.
 
+    For more details, see :doc:`/devices/tf`.
+
     Args:
         wires (int, Iterable[Number, str]]): Number of subsystems accessible on the device,
             or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
