@@ -3,13 +3,6 @@ PennyLane-Strawberry Fields Plugin
 
 :Release: |release|
 
-.. image:: _static/puzzle_sf.png
-    :align: center
-    :width: 70%
-    :target: javascript:void(0);
-
-|
-
 .. include:: ../README.rst
   :start-after:	header-start-inclusion-marker-do-not-remove
   :end-before: header-end-inclusion-marker-do-not-remove
@@ -37,6 +30,16 @@ PennyLane-SF provides two Strawberry Fields devices for PennyLane:
     :name: 'strawberryfields.remote'
     :description: Remote backends including access to continuous-variable hardware.
     :link: devices/remote.html
+
+.. raw:: html
+
+    <div style='clear:both'></div>
+    </br>
+
+.. devicegalleryitem::
+    :name: 'strawberryfields.tf'
+    :description: TensorFlow simulator that supports backpropagation and all continuous-variable operations.
+    :link: devices/tf.html
 
 .. raw:: html
 
@@ -87,6 +90,7 @@ use the "Strawberry Fields" filter on the right panel of the
    devices/fock
    devices/gaussian
    devices/remote
+   devices/tf
 
 .. toctree::
    :maxdepth: 1

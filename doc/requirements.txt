@@ -3,4 +3,5 @@ ipykernel
 nbsphinx
 pygments-github-lexers
 sphinx-automodapi
+tensorflow
 git+https://github.com/XanaduAI/strawberryfields.git
