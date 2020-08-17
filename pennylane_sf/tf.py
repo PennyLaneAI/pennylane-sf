@@ -26,7 +26,7 @@ from strawberryfields.backends.tfbackend.states import FockStateTF
 
 # import state preparations
 from strawberryfields.ops import (
-    Catstate,
+    # Catstate,
     Coherent,
     DensityMatrix,
     DisplacedSqueezed,
