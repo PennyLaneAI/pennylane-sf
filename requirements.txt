@@ -1,2 +1,3 @@
 git+https://github.com/XanaduAI/strawberryfields.git
 git+https://github.com/PennyLaneAI/pennylane.git
+tensorflow
