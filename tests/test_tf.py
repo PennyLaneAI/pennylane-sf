@@ -16,7 +16,8 @@ Unit tests for the Fock plugin.
 """
 import numpy as np
 import pytest
-import tensorflow as tf
+
+tf = pytest.importorskip("tensorflow", minversion="2")
 
 import strawberryfields as sf
 
