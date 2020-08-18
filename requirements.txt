@@ -1,2 +1,2 @@
-git+https://github.com/XanaduAI/strawberryfields.git
-git+https://github.com/PennyLaneAI/pennylane.git
+strawberryfields>=0.15
+pennylane>=0.11

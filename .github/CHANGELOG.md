@@ -1,21 +1,81 @@
-# Release 0.10.0-dev
+# Release 0.11.0
 
 ### New features since last release
 
-* Added the ability to compute the expectation value of tensor number operators
-  [#37](https://github.com/XanaduAI/pennylane-sf/pull/37)
+* A new device, `strawberryfields.remote`, provides support for Xanadu's photonic
+  hardware from within PennyLane.
+  [(#41)](https://github.com/PennyLaneAI/pennylane-sf/pull/41)
 
-### Breaking changes
+  ```python
+  dev = qml.device('strawberryfields.remote', backend="X8", shots=10, sf_token="XXX")
+  ```
+
+  Once created, the device can be bound to photonic QNode for evaluation
+  and training:
+
+  ```python
+  @qml.qnode(dev)
+  def quantum_function(theta, x):
+      qml.TwoModeSqueezing(1.0, 0.0, wires=[0, 4])
+      qml.TwoModeSqueezing(1.0, 0.0, wires=[1, 5])
+      qml.Beamsplitter(theta, phi, wires=[0, 1])
+      qml.Beamsplitter(theta, phi, wires=[4, 5])
+      return qml.expval(qml.NumberOperator(0))
+  ```
+
+  Samples can also be returned from the hardware using
+
+  ```python
+  return [qml.sample(qml.NumberOperator(i)) for i in [0, 1, 2, 4]]
+  ```
+
+  For more details, please see the [remote device documentation](https://pennylane-sf.readthedocs.io/en/latest/devices/remote.html)
+
+* The Strawberry Fields devices now support returning Fock state
+  probabilities.
+  [(#39)](https://github.com/PennyLaneAI/pennylane-sf/pull/39)
+
+  ```python
+  @qml.qnode(dev)
+  def quantum_function(theta, x):
+      qml.TwoModeSqueezing(1.0, 0.0, wires=[0, 1])
+      return qml.probs(wires=0)
+  ```
+
+  If a subset of wires are requested, the marginal probabilities
+  will be computed and returned. The returned probabilities will have
+  the shape `[cutoff] * wires`.
+
+  If not specified when instantiated, the cutoff for the Gaussian
+  simulator is by default 10.
+
+* Added the ability to compute the expectation value and variance of tensor number operators
+  [(#37)](https://github.com/XanaduAI/pennylane-sf/pull/37)
+  [(#42)](https://github.com/PennyLaneAI/pennylane-sf/pull/42)
+
+* The Strawberry Fields devices now support custom wire labels.
+  [(#48)](https://github.com/PennyLaneAI/pennylane-sf/pull/48)
+
+  ```python
+  dev = qml.device('strawberryfields.gaussian', wires=['alice', 1])
+
+  @qml.qnode(dev)
+  def circuit(x):
+      qml.Displacement(x, 0, wires='alice')
+      qml.Beamsplitter(wires=['alice', 1])
+      return qml.probs(wires=[0, 1])
+  ```
 
 ### Improvements
 
-### Documentation
-
-### Bug fixes
+* PennyLane-SF now supports the latest version of Strawberry Fields (v0.15)
+  [(#44)](https://github.com/PennyLaneAI/pennylane-sf/pull/44)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Josh Izaac, Maria Schuld, Antal Száva
 
 ---
 
