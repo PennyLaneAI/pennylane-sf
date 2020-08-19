@@ -606,3 +606,17 @@ class TestIntegrationStrawberryFieldsGBS:
         dp = d_vgbs(params)
 
         assert np.allclose(dp, jac_reduced[subset_wires])
+
+    def test_two_embed(self):
+        """Test that the device raises an error if more than one ParamGraphEmbed is used"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        params = np.array([0.25, 0.5, 0.6, 1])
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            return qml.probs(wires=range(4))
+
+        with pytest.raises(ValueError, match="The StrawberryFieldsGBS device accepts a single"):
+            vgbs(params)

@@ -125,6 +125,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         singular_values = np.linalg.svd(A, compute_uv=False)
         return np.sum(singular_values ** 2 / (1 - singular_values ** 2))
 
+    def execute(self, queue, observables, parameters={}, **kwargs):
+        if len(queue) > 1:
+            raise ValueError("The StrawberryFieldsGBS device accepts a single application of ParamGraphEmbed")
+        return super().execute(queue, observables, parameters={}, **kwargs)
+
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
         self._params, A, _ = par
