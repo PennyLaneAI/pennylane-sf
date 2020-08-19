@@ -128,7 +128,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def execute(self, queue, observables, parameters={}, **kwargs):
         if len(queue) > 1:
             raise ValueError("The StrawberryFieldsGBS device accepts a single application of ParamGraphEmbed")
-        return super().execute(queue, observables, parameters={}, **kwargs)
+        return super().execute(queue, observables, parameters, **kwargs)
 
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
@@ -142,7 +142,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = self.calculate_WAW(*par)
         n_mean_WAW = self.calculate_n_mean(self._WAW)
 
-        op = self._operation_map[operation](self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
         op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
