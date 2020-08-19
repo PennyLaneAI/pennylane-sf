@@ -113,6 +113,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def calculate_n_mean(A):
         """Calculate the mean number of photons for an adjacency matrix encoded into GBS.
 
+        Note that for ``A`` to be directly encoded into GBS, its singular values must not exceed
+        one.
+
         Args:
             A (array[float]): adjacency matrix
 
