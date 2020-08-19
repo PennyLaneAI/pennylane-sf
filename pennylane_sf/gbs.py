@@ -92,7 +92,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     @staticmethod
     def calculate_WAW(params, A, n_mean):
-        """Calculate the :math:`WAW` matrix.
+        """Calculates the :math:`WAW` matrix.
 
         Rescales :math:`A` so that when encoded in GBS the mean photon number is equal to
         ``n_mean``.
@@ -111,7 +111,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     @staticmethod
     def calculate_n_mean(A):
-        """Calculate the mean number of photons for an adjacency matrix encoded into GBS.
+        """Calculates the mean number of photons for an adjacency matrix encoded into GBS.
 
         Note that for ``A`` to be directly encoded into GBS, its singular values must not exceed
         one.
@@ -177,7 +177,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         return probs
 
     def jacobian(self, operations, observables, variable_deps):
-        """Calculate the Jacobian of the device.
+        """Calculates the Jacobian of the device.
 
         Args:
             operations (list[~pennylane.operation.Operation]): operations to be applied to the
@@ -191,23 +191,30 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
+
+        requested_wires = observables[0].wires
+
+        # Create dummy observable to measure probabilities over all wires
         obs_all_wires = qml.Identity(wires=self.wires)
         obs_all_wires.return_type = Probability
         prob = self.execute(operations, [obs_all_wires], parameters=variable_deps)[0]
-        requested_wires = observables[0].wires
 
         jac = self._jacobian_all_wires(prob)
 
         if requested_wires == self.wires:
             return jac
 
+        # Unflatten into a [cutoff, cutoff, ..., cutoff, num_params] dimensional tensor
         jac = jac.reshape([self.cutoff] * self.num_wires + [self.num_wires])
 
+        # Find indices to trace over
         all_indices = set(range(self.num_wires))
         requested_indices = set(self.wires.indices(requested_wires))
         trace_over_indices = all_indices - requested_indices
 
         traced_jac = np.sum(jac, axis=tuple(trace_over_indices))
+
+        # Flatten into [cutoff ** num_requested_wires, num_params] dimensional tensor
         traced_jac = traced_jac.reshape(-1, self.num_wires)
 
         return traced_jac
@@ -237,7 +244,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     @staticmethod
     def calculate_covariance(A, hbar):
-        r"""Calculate the covariance matrix corresponding to an input adjacency matrix.
+        r"""Calculates the covariance matrix corresponding to an input adjacency matrix.
 
         Args:
             A (array[float]): adjacency matrix
