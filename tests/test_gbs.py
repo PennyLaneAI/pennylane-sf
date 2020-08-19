@@ -303,7 +303,7 @@ class TestStrawberryFieldsGBS:
         assert np.allclose(waw, const * A)
 
     def test_calculate_n_mean(self):
-        """Test that the _calculate_n_mean calculates correctly"""
+        """Test that _calculate_n_mean computes the mean photon number correctly"""
         A = 0.1767767 * np.ones((4, 4))
         n_mean = StrawberryFieldsGBS._calculate_n_mean(A)
         assert np.allclose(n_mean, 1)
