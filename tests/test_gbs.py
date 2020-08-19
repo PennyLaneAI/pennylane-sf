@@ -294,18 +294,18 @@ class TestStrawberryFieldsGBS:
             )
 
     def test_calculate_WAW(self):
-        """Test that the _calculate_WAW method calculates correctly when the input adjacency matrix is
+        """Test that the calculate_WAW method calculates correctly when the input adjacency matrix is
         already normalized to have a mean number of photons equal to 1."""
         const = 2
         A = 0.1767767 * np.ones((4, 4))
         params = const * np.ones(4)
-        waw = StrawberryFieldsGBS._calculate_WAW(params, A, 1)
+        waw = StrawberryFieldsGBS.calculate_WAW(params, A, 1)
         assert np.allclose(waw, const * A)
 
     def test_calculate_n_mean(self):
-        """Test that _calculate_n_mean computes the mean photon number correctly"""
+        """Test that calculate_n_mean computes the mean photon number correctly"""
         A = 0.1767767 * np.ones((4, 4))
-        n_mean = StrawberryFieldsGBS._calculate_n_mean(A)
+        n_mean = StrawberryFieldsGBS.calculate_n_mean(A)
         assert np.allclose(n_mean, 1)
 
     def test_apply_wrong_dim(self):
@@ -448,11 +448,11 @@ class TestStrawberryFieldsGBS:
         assert next(keys) == (1, 0)
 
     def test_calculate_covariance(self):
-        """Test that the _calculate_covariance method returns the correct covariance matrix for a
+        """Test that the calculate_covariance method returns the correct covariance matrix for a
         fixed example."""
         x = np.sqrt(0.5)
         A = np.array([[0, x], [x, 0]])
-        cov = StrawberryFieldsGBS._calculate_covariance(A, 2)
+        cov = StrawberryFieldsGBS.calculate_covariance(A, 2)
         target = np.array(
             [
                 [3.0, 0.0, 0.0, 2.82842712],

@@ -91,7 +91,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = None
 
     @staticmethod
-    def _calculate_WAW(params, A, n_mean):
+    def calculate_WAW(params, A, n_mean):
         """Calculate the :math:`WAW` matrix.
 
         Rescales :math:`A` so that when encoded in GBS the mean photon number is equal to
@@ -103,14 +103,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             n_mean (float): mean number of photons
 
         Returns:
-            array[float]: the :math`WAW` matrix
+            array[float]: the :math:`WAW` matrix
         """
         A *= rescale(A, n_mean)
         W = np.diag(np.sqrt(params))
         return W @ A @ W
 
     @staticmethod
-    def _calculate_n_mean(A):
+    def calculate_n_mean(A):
         """Calculate the mean number of photons for an adjacency matrix encoded into GBS.
 
         Args:
@@ -128,11 +128,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if len(self._params) != self.num_wires:
             raise ValueError(
-                "The number of variable parameters must be equal to the total number " "of wires."
+                "The number of variable parameters must be equal to the total number of wires."
             )
 
-        self._WAW = self._calculate_WAW(*par)
-        n_mean_WAW = self._calculate_n_mean(self._WAW)
+        self._WAW = self.calculate_WAW(*par)
+        n_mean_WAW = self.calculate_n_mean(self._WAW)
 
         op = self._operation_map[operation](self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
         op | [self.q[wires.index(i)] for i in wires]
@@ -219,7 +219,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         n = len(self._WAW)
         disp = np.zeros(2 * n)
-        cov = self._calculate_covariance(self._WAW, hbar=self.hbar)
+        cov = self.calculate_covariance(self._WAW, hbar=self.hbar)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
 
         for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
@@ -228,7 +228,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         return jac
 
     @staticmethod
-    def _calculate_covariance(A, hbar):
+    def calculate_covariance(A, hbar):
         r"""Calculate the covariance matrix corresponding to an input adjacency matrix.
 
         Args:
