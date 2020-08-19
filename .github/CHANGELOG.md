@@ -68,7 +68,7 @@
 
 ### Improvements
 
-* PennyLane-SF now supports the latest version of Strawberry Fields (v0.15)
+* PennyLane-SF has been updated to support the latest version of Strawberry Fields (v0.15)
   [(#44)](https://github.com/PennyLaneAI/pennylane-sf/pull/44)
 
 ### Contributors
