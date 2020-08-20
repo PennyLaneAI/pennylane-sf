@@ -62,8 +62,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
-        hbar (float): the convention chosen in the canonical commutation
-            relation :math:`[x, p] = i \hbar`
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
@@ -80,11 +78,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000, hbar=2):
+    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000):
         if not analytic and backend != "gaussian":
             raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
 
-        super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
+        super().__init__(wires, analytic=analytic, shots=shots, hbar=2)
         self.cutoff = cutoff_dim
         self.backend = backend
         self._params = None

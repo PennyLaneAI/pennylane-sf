@@ -125,10 +125,6 @@ The GBS device accepts additional arguments beyond the PennyLane default device 
 	The number of circuit evaluations/random samples used to estimate probabilities.
 	Only used when ``analytic=False``, otherwise probabilities are exact.
 
-``hbar=2``
-	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
-	Default value is :math:`\hbar=2`.
-
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~
 
