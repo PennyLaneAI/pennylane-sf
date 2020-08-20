@@ -269,29 +269,18 @@ jac_reduced = {
 class TestStrawberryFieldsGBS:
     """Unit tests for StrawberryFieldsGBS."""
 
-    @pytest.mark.parametrize("backend", ["fock", "gaussian"])
     @pytest.mark.parametrize("cutoff", [3, 6])
-    def test_load_device(self, backend, cutoff):
+    def test_load_device(self, cutoff):
         """Test that the device loads correctly when analytic is True"""
-        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=cutoff, backend=backend)
+        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=cutoff)
         assert dev.cutoff == cutoff
-        assert dev.backend == backend
+        assert dev.analytic
 
-    def test_load_device_non_analytic_gaussian(self):
-        """Test that the device loads correctly when analytic is False with a gaussian backend"""
-        dev = qml.device(
-            "strawberryfields.gbs", wires=2, cutoff_dim=3, backend="gaussian", analytic=False
-        )
+    def test_load_device_non_analytic(self):
+        """Test that the device loads correctly when analytic is False"""
+        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=False)
         assert dev.cutoff == 3
-        assert dev.backend == "gaussian"
-
-    def test_load_device_non_analytic_fock(self):
-        """Test that the device raises a ValueError when loaded in non-analytic mode with a
-        non-Gaussian backend"""
-        with pytest.raises(ValueError, match="Only the Gaussian backend is supported"):
-            qml.device(
-                "strawberryfields.gbs", wires=2, cutoff_dim=3, backend="fock", analytic=False
-            )
+        assert not dev.analytic
 
     def test_calculate_WAW(self):
         """Test that the calculate_WAW method calculates correctly when the input adjacency matrix is
@@ -519,14 +508,11 @@ class TestStrawberryFieldsGBS:
 class TestIntegrationStrawberryFieldsGBS:
     """Integration tests for StrawberryFieldsGBS."""
 
-    @pytest.mark.parametrize("backend", ["gaussian", "fock"])
     @pytest.mark.parametrize("wires", range(1, 5))
     @pytest.mark.parametrize("cutoff_dim", [2, 3])
-    def test_shape(self, wires, cutoff_dim, backend):
+    def test_shape(self, wires, cutoff_dim):
         """Test that the probabilities and jacobian are returned with the expected shape"""
-        dev = qml.device(
-            "strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim, backend=backend
-        )
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim)
         a = np.ones((wires, wires))
         params = np.ones(wires)
 
@@ -546,15 +532,12 @@ class TestIntegrationStrawberryFieldsGBS:
         assert (p <= 1).all()
         assert np.sum(p) <= 1
 
-    @pytest.mark.parametrize("backend", ["gaussian", "fock"])
     @pytest.mark.parametrize("wires", range(2, 5))
     @pytest.mark.parametrize("cutoff_dim", [2, 3])
-    def test_shape_reduced_wires(self, wires, cutoff_dim, backend):
+    def test_shape_reduced_wires(self, wires, cutoff_dim):
         """Test that the probabilities and jacobian are returned with the expected shape when
         probabilities are measured on a subset of wires"""
-        dev = qml.device(
-            "strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim, backend=backend
-        )
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim)
         a = np.ones((wires, wires))
         params = np.ones(wires)
 

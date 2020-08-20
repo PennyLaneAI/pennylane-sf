@@ -19,8 +19,9 @@ Strawberry Fields variational GBS device
 
 .. currentmodule:: pennylane_sf.gbs
 
-The Strawberry Fields variational GBS device provides a way to encode variational parameters into
-GBS so that the gradient with respect to the output probability distribution is accessible.
+The Strawberry Fields variational GBS device is a simulator that provides a way to encode
+variational parameters into GBS so that the gradient with respect to the output probability
+distribution is accessible.
 
 Classes
 -------
@@ -50,15 +51,14 @@ from .simulator import StrawberryFieldsSimulator
 class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     r"""StrawberryFields variational GBS device for PennyLane.
 
-    This device provides a method to embed variational parameters into GBS such that the analytic
-    gradient of the probability distribution is accessible.
+    This device provides a simulator that can embed variational parameters into GBS such that the
+    analytic gradient of the probability distribution is accessible.
 
     Args:
         wires (int): the number of modes to initialize the device in
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
         cutoff_dim (int): Fock-space truncation dimension
-        backend (str): name of the remote backend to be used
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
@@ -78,13 +78,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, backend="gaussian", shots=1000):
-        if not analytic and backend != "gaussian":
-            raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
-
+    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
-        self.backend = backend
         self._params = None
         self._WAW = None
 
@@ -151,12 +147,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
     def pre_measure(self):
-        self.eng = sf.Engine(self.backend, backend_options={"cutoff_dim": self.cutoff})
+        self.eng = sf.Engine("gaussian", backend_options={"cutoff_dim": self.cutoff})
 
         if self.analytic:
             results = self.eng.run(self.prog)
         else:
-            # NOTE: currently, only the gaussian backend supports shots > 1
             results = self.eng.run(self.prog, shots=self.shots)
 
         self.state = results.state
