@@ -82,7 +82,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if not analytic and backend != "gaussian":
             raise ValueError("Only the Gaussian backend is supported in non-analytic mode.")
 
-        super().__init__(wires, analytic=analytic, shots=shots, hbar=2)
+        super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
         self.backend = backend
         self._params = None
