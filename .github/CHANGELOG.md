@@ -2,6 +2,44 @@
 
 ### New features since last release
 
+* A new device, `strawberryfields.gbs`, provides support for training of the Gaussian boson
+  sampling (GBS) distribution.
+  [(#47)](https://github.com/PennyLaneAI/pennylane-sf/pull/47)
+
+  ```python
+  dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4)
+  ```
+
+  This device allows the adjacency matrix ``A`` of a graph to be trained. The QNode must have a
+  fixed structure: 
+
+  ```python
+  from pennylane_sf.ops import ParamGraphEmbed
+  import numpy as np
+  
+  A = np.array([
+      [0.0, 1.0, 1.0, 1.0],
+      [1.0, 0.0, 1.0, 0.0],
+      [1.0, 1.0, 0.0, 0.0],
+      [1.0, 0.0, 0.0, 0.0]])
+  n_mean = 2.5
+  
+  @qml.qnode(dev)
+  def quantum_function(x):
+      ParamGraphEmbed(x, A, n_mean, wires=range(4))
+      return qml.probs(wires=range(4))
+  ```
+  
+  Here, ``n_mean`` is the initial mean number of photons in the output GBS samples. The GBS
+  probability distribution for a choice of trainable parameters ``x`` xan then be accessed:
+  
+  ```pycon
+  >>> x = 0.9 * np.ones(4)
+  >>> quantum_function(x)
+  ```
+
+  For more details, please see the [gbs device documentation](https://pennylane-sf.readthedocs.io/en/latest/devices/gbs.html)
+
 ### Breaking changes
 
 ### Improvements
@@ -13,6 +51,8 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Juan Miguel Arazzola, Thomas Bromley, Josh Izaac.
 
 ---
 
