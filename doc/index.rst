@@ -43,6 +43,16 @@ PennyLane-SF provides three Strawberry Fields devices for PennyLane:
     <div style='clear:both'></div>
     </br>
 
+.. devicegalleryitem::
+    :name: 'strawberryfields.gbs'
+    :description: Specialized simulator giving access to analytic gradients in Gaussian boson sampling.
+    :link: devices/gbs.html
+
+.. raw:: html
+
+    <div style='clear:both'></div>
+    </br>
+
 .. note::
 
     The Strawberry Fields plugin only supports :ref:`continuous-variable (CV) operations <intro_ref_ops_cv>`,
