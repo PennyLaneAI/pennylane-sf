@@ -31,7 +31,7 @@
   ```
   
   Here, ``n_mean`` is the initial mean number of photons in the output GBS samples. The GBS
-  probability distribution for a choice of trainable parameters ``x`` xan then be accessed:
+  probability distribution for a choice of trainable parameters ``x`` can then be accessed:
   
   ```pycon
   >>> x = 0.9 * np.ones(4)
