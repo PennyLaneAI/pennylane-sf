@@ -39,7 +39,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     This device provides a simulator that can embed variational parameters into GBS such that the
     analytic gradient of the probability distribution is accessible.
-    
+
     For more details see :doc:`/devices/gbs`.
 
     Args:
