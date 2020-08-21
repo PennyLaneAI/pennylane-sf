@@ -14,7 +14,7 @@ backend. This simulator device has the following features:
 
   The advantage of this representation is that *any* continuous-variable operation can be
   represented. However, the **simulations are approximations**, whose accuracy, the simulation time,
-  andrequired memory increases with the cutoff dimension.
+  and required memory increases with the cutoff dimension.
 
 .. warning::
 

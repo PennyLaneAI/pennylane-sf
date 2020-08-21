@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Unit tests for the Fock plugin.
+Unit tests for the TF plugin.
 """
 import numpy as np
 import pytest
@@ -121,7 +121,7 @@ class TestTF:
     def test_nonzero_shots(self):
         """Test that the tf plugin provides correct result for high shot number"""
         shots = 10 ** 2
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots)
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots, analytic=False)
 
         @qml.qnode(dev, interface="tf", method="backprop")
         def circuit(x):
@@ -134,7 +134,7 @@ class TestTF:
         for _ in range(100):
             runs.append(circuit(x))
 
-        expected_var = np.sqrt(1 / shots)
+        expected_var = np.sqrt(1 / (shots * 100))
         assert np.allclose(np.mean(runs), x, atol=expected_var)
 
 

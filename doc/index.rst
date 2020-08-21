@@ -14,7 +14,7 @@ straight away in PennyLane, without the need to import any additional packages.
 Devices
 =======
 
-PennyLane-SF provides four Strawberry Fields devices for PennyLane:
+PennyLane-SF provides various Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.fock'

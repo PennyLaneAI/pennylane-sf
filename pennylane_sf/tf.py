@@ -133,7 +133,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
         cutoff_dim (int): Fock-space truncation dimension
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
-            this setting is ignored.
+            this setting is ignored when calculating expectation values.
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
