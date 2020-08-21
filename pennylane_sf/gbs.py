@@ -53,6 +53,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     This device provides a simulator that can embed variational parameters into GBS such that the
     analytic gradient of the probability distribution is accessible.
+    
+    For more details see :doc:`/devices/gbs`.
 
     Args:
         wires (int): the number of modes to initialize the device in
@@ -124,7 +126,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         parameters = parameters or {}
         if len(queue) > 1:
             raise ValueError(
-                "The StrawberryFieldsGBS device accepts a single application of ParamGraphEmbed"
+                "The StrawberryFieldsGBS device accepts only a single application of ParamGraphEmbed"
             )
         return super().execute(queue, observables, parameters, **kwargs)
 
