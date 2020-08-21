@@ -608,5 +608,5 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, A, 1, wires=range(4))
             return qml.probs(wires=range(4))
 
-        with pytest.raises(ValueError, match="The StrawberryFieldsGBS device accepts a single"):
+        with pytest.raises(ValueError, match="The StrawberryFieldsGBS device accepts only"):
             vgbs(params)
