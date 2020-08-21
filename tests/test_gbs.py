@@ -297,6 +297,13 @@ class TestStrawberryFieldsGBS:
         n_mean = StrawberryFieldsGBS.calculate_n_mean(A)
         assert np.allclose(n_mean, 1)
 
+    def test_calculate_n_mean_singular_values_large(self):
+        """Test that calculate_n_mean raises a ValueError when not all of the singular values are
+        less than one"""
+        A = np.ones((4, 4))
+        with pytest.raises(ValueError, match="Singular values of matrix A must be less than 1"):
+            StrawberryFieldsGBS.calculate_n_mean(A)
+
     def test_apply_wrong_dim(self):
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
         op = "ParamGraphEmbed"

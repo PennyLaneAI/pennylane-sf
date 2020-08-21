@@ -12,25 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Strawberry Fields variational GBS device
-========================================
-
-**Module name:** :mod:`pennylane_sf.gbs`
-
-.. currentmodule:: pennylane_sf.gbs
+This module contains the variational GBS device.
 
 The Strawberry Fields variational GBS device is a simulator that provides a way to encode
 variational parameters into GBS so that the gradient with respect to the output probability
 distribution is accessible.
-
-Classes
--------
-
-.. autosummary::
-   StrawberryFieldsGBS
-
-Code details
-~~~~~~~~~~~~
 """
 from collections import OrderedDict
 
@@ -107,8 +93,10 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def calculate_n_mean(A):
         """Calculates the mean number of photons for an adjacency matrix encoded into GBS.
 
-        Note that for ``A`` to be directly encoded into GBS, its singular values must not exceed
-        one.
+        .. warning::
+
+            Note that for ``A`` to be directly encoded into GBS, its singular values must
+            be less than one.
 
         Args:
             A (array[float]): adjacency matrix
@@ -117,6 +105,10 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             float: mean number of photons
         """
         singular_values = np.linalg.svd(A, compute_uv=False)
+
+        if not all(singular_values < 1):
+            raise ValueError("Singular values of matrix A must be less than 1")
+
         return np.sum(singular_values ** 2 / (1 - singular_values ** 2))
 
     # pylint: disable=missing-function-docstring

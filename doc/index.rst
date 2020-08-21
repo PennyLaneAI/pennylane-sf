@@ -15,13 +15,13 @@ PennyLane-Strawberry Fields Plugin
   :end-before: header-end-inclusion-marker-do-not-remove
 
 
-Once the PennyLane-SF plugin is installed, the two provided Strawberry Fields devices can be accessed
+Once the PennyLane-SF plugin is installed, the provided Strawberry Fields devices can be accessed
 straight away in PennyLane, without the need to import any additional packages.
 
 Devices
 =======
 
-PennyLane-SF provides three Strawberry Fields devices for PennyLane:
+PennyLane-SF provides the following Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.fock'
