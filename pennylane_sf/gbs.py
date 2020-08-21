@@ -226,8 +226,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         cov = self.calculate_covariance(self._WAW, hbar=self.hbar)
         mean_photons_by_mode = photon_number_mean_vector(disp, cov, hbar=self.hbar)
 
-        for i, s in enumerate(np.ndindex(*[self.cutoff] * self.num_wires)):
-            jac[i] = (s - mean_photons_by_mode) * prob[i] / self._params
+        basis_states = np.array(list(np.ndindex(*[self.cutoff] * self.num_wires)))
+        jac = (basis_states - mean_photons_by_mode) * np.expand_dims(prob, 1) / self._params
 
         return jac
 
