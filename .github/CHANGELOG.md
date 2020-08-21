@@ -52,7 +52,7 @@
 
 This release contains contributions from (in alphabetical order):
 
-Juan Miguel Arazzola, Thomas Bromley, Josh Izaac.
+Juan Miguel Arrazola, Thomas Bromley, Josh Izaac.
 
 ---
 
