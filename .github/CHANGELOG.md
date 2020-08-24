@@ -2,6 +2,42 @@
 
 ### New features since last release
 
+* A new device, `strawberryfields.tf`, provides support for using Strawberry Fields TF
+  backend from within PennyLane.
+  [(#50)](https://github.com/PennyLaneAI/pennylane-sf/pull/50)
+
+  ```python
+  dev = qml.device('strawberryfields.tf', wires=2, cutoff_dim=10)
+  ```
+
+  This device supports classical backpropagation when using the TensorFlow
+  interface:
+
+  ```python
+    @qml.qnode(dev, interface="tf", diff_method="backprop")
+    def circuit(x, theta):
+        qml.Displacement(x, 0, wires=0)
+        qml.Beamsplitter(theta, 0, wires=[0, 1])
+        return qml.probs(wires=0)
+  ```
+
+  Gradients will be computed using TensorFlow backpropagation:
+
+  ```pycon
+  >>> x = tf.Variable(1.0)
+  >>> theta = tf.Variable(0.543)
+  >>> with tf.GradientTape() as tape:
+  ...     res = circuit(x, theta)
+  >>> jac = tape.jacobian(res, x)
+  >>> print(jac)
+  <tf.Tensor: shape=(1, 10), dtype=float32, numpy=
+  array([[-7.0436597e-01,  1.8805575e-01,  3.2707882e-01,  1.4299491e-01,
+           3.7763387e-02,  7.2306832e-03,  1.0900890e-03,  1.3535164e-04,
+           1.3895189e-05,  9.9099987e-07]], dtype=float32)>
+  ```
+
+  For more details, please see the [TF device documentation](https://pennylane-sf.readthedocs.io/en/latest/devices/tf.html)
+
 ### Breaking changes
 
 ### Improvements
