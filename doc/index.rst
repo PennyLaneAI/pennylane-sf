@@ -15,13 +15,13 @@ PennyLane-Strawberry Fields Plugin
   :end-before: header-end-inclusion-marker-do-not-remove
 
 
-Once the PennyLane-SF plugin is installed, the two provided Strawberry Fields devices can be accessed
+Once the PennyLane-SF plugin is installed, the provided Strawberry Fields devices can be accessed
 straight away in PennyLane, without the need to import any additional packages.
 
 Devices
 =======
 
-PennyLane-SF provides three Strawberry Fields devices for PennyLane:
+PennyLane-SF provides the following Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.fock'
@@ -37,6 +37,16 @@ PennyLane-SF provides three Strawberry Fields devices for PennyLane:
     :name: 'strawberryfields.remote'
     :description: Remote backends including access to continuous-variable hardware.
     :link: devices/remote.html
+
+.. raw:: html
+
+    <div style='clear:both'></div>
+    </br>
+
+.. devicegalleryitem::
+    :name: 'strawberryfields.gbs'
+    :description: Specialized simulator giving access to analytic gradients in Gaussian boson sampling.
+    :link: devices/gbs.html
 
 .. raw:: html
 
@@ -87,6 +97,7 @@ use the "Strawberry Fields" filter on the right panel of the
    devices/fock
    devices/gaussian
    devices/remote
+   devices/gbs
 
 .. toctree::
    :maxdepth: 1
@@ -94,3 +105,4 @@ use the "Strawberry Fields" filter on the right panel of the
    :hidden:
 
    code
+   ops
