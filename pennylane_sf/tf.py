@@ -291,7 +291,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
             for _, par_dep_list in parameters.items():
                 if not par_dep_list:
                     # parameter is not used within circuit
-                    v = tf.Variable(0, dtype=tf.float32)
+                    v = tf.Variable(0, dtype=tf.float64)
                     variables.append(v)
                     continue
 
@@ -303,7 +303,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
                 # Convert the resulting value to a TensorFlow tensor.
                 val = first.op.data[first.par_idx].val
                 mult = first.op.data[first.par_idx].mult
-                v = tf.Variable(val / mult, dtype=tf.float32)
+                v = tf.Variable(val / mult, dtype=tf.float64)
 
                 # Mark the variable to be watched by the gradient tape,
                 # and append it to the variable list.
@@ -345,8 +345,8 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
             self.reset()
 
             res = self.execute(new_queue, observables, parameters=parameters)
-            res = tf.squeeze(tf.stack(res))
+            res = tf.cast(tf.squeeze(tf.stack(res)), dtype=tf.float64)
 
         jac = tape.jacobian(res, variables, experimental_use_pfor=False)
-        jac = tf.stack([i if i is not None else tf.zeros(res.shape, dtype=tf.float32) for i in jac])
-        return np.float32(jac.numpy().T)
+        jac = tf.stack([i if i is not None else tf.zeros(res.shape, dtype=tf.float64) for i in jac])
+        return jac.numpy().T
