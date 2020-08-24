@@ -5,8 +5,7 @@ The ``strawberryfields.tf`` device gives access to Strawberry Field's ``tf`` sta
 backend. This simulator device has the following features:
 
 * The simulator is written using TensorFlow, so supports classical backpropagation using
-  PennyLane. Simply use ``interface="tf"`` when creating your QNode; ``diff_method="backprop"``
-  will be set by default.
+  PennyLane. Simply use ``interface="tf"`` when creating your QNode.
 
 * Quantum states are represented in the Fock basis :math:`\left| 0 \right>, \left| 1 \right>, \left|
   2 \right>, \dots, \left| \mathrm{D -1} \right>`, where :math:`D` is the user-given value for
