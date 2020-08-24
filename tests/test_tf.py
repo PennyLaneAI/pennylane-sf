@@ -1028,7 +1028,7 @@ class TestDeviceGradients:
         assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
 
     def test_gradient_second_order_cv(self, tol):
-        """Test variance of a second order CV variance"""
+        """Test gradient of a second order CV variance"""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
         @qml.qnode(dev, interface="autograd", method="device")
@@ -1044,6 +1044,26 @@ class TestDeviceGradients:
         # circuit jacobians
         grad = qml.grad(circuit)(weights)
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
+        assert np.allclose(grad, expected, atol=tol, rtol=0)
+
+    def test_parameter_not_used_in_circuit(self, tol):
+        """Test gradient of a second order CV variance. Also check 0 is returned
+        for gradient of parameter not used in circuit"""
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
+
+        @qml.qnode(dev, interface="autograd", method="device")
+        def circuit(weights):
+            qml.ThermalState(weights[0], wires=0)
+            qml.Displacement(weights[1], 0, wires=0)
+            return qml.var(qml.NumberOperator(0))
+
+        n = 0.12
+        a = 0.105
+        weights = qml.numpy.array([n, a, 0.543], requires_grad=True)
+
+        # circuit jacobians
+        grad = qml.grad(circuit)(weights)
+        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1), 0])
         assert np.allclose(grad, expected, atol=tol, rtol=0)
 
 

@@ -348,5 +348,5 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
             res = tf.squeeze(tf.stack(res))
 
         jac = tape.jacobian(res, variables, experimental_use_pfor=False)
-        jac = tf.stack([i if i is not None else tf.zeros(res.shape, dtype=tf.float64) for i in jac])
+        jac = tf.stack([i if i is not None else tf.zeros(res.shape, dtype=tf.float32) for i in jac])
         return np.float32(jac.numpy().T)
