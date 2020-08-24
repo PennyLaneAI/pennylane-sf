@@ -273,7 +273,9 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
         probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
         return probs
 
-    def jacobian(self, queue, observables, parameters):
+    def jacobian(
+        self, queue, observables, parameters
+    ):  # pylint: disable=missing-function-docstring
         op_params = {}
         new_queue = []
         variables = []
