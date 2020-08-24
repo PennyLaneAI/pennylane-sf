@@ -41,6 +41,7 @@ info = {
             'strawberryfields.remote = pennylane_sf:StrawberryFieldsRemote',
             'strawberryfields.fock = pennylane_sf:StrawberryFieldsFock',
             'strawberryfields.gaussian = pennylane_sf:StrawberryFieldsGaussian',
+            'strawberryfields.gbs = pennylane_sf:StrawberryFieldsGBS',
             'strawberryfields.tf = pennylane_sf.tf:StrawberryFieldsTF'
             ],
         },
