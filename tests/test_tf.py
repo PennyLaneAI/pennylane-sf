@@ -134,7 +134,7 @@ class TestTF:
         for _ in range(100):
             runs.append(circuit(x))
 
-        expected_var = np.sqrt(1 / (shots * 100))
+        expected_var = np.sqrt(1 / shots)
         assert np.allclose(np.mean(runs), x, atol=expected_var)
 
 
@@ -697,7 +697,7 @@ class TestProbability:
         assert np.allclose(res, ref_probs, atol=tol, rtol=0)
 
 
-class TestGradients:
+class TestPassthruGradients:
     """Test various gradients working correctly with the backprop method"""
 
     def test_gradient_coherent(self, tol):
@@ -969,6 +969,82 @@ class TestGradients:
             r_grad, 2 * (np.sinh(R) - np.sinh(R) ** 3) / np.cosh(R) ** 5, atol=tol, rtol=0
         )
         assert np.allclose(phi_grad, 0.0, atol=tol, rtol=0)
+
+
+class TestDeviceGradients:
+    """Test various gradients working correctly with the device diff method"""
+
+    def test_gradient_coherent(self, tol):
+        """Test that the jacobian of the probability for a coherent states is
+        approximated well with finite differences"""
+        cutoff = 10
+
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev, interface="autograd", method="device")
+        def circuit(a, phi):
+            qml.Displacement(a, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        a = qml.numpy.array(0.4, requires_grad=True)
+        phi = qml.numpy.array(-0.12, requires_grad=True)
+
+        n = np.arange(cutoff)
+
+        grad = qml.jacobian(circuit)(a, phi)
+        expected_gradient = np.zeros_like(grad)
+        expected_gradient[:, 0] = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
+        assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
+
+    def test_gradient_squeezed(self, tol):
+        """Test that the jacobian of the probability for a squeezed states is
+        approximated well with finite differences"""
+        cutoff = 5
+
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
+
+        @qml.qnode(dev, interface="autograd", method="device")
+        def circuit(r, phi):
+            qml.Squeezing(r, phi, wires=0)
+            return qml.probs(wires=[0])
+
+        r = qml.numpy.array(0.4, requires_grad=True)
+        phi = qml.numpy.array(-0.12, requires_grad=True)
+
+        n = np.arange(cutoff)
+
+        # differentiate with respect to parameter r
+        grad = qml.jacobian(circuit)(r, phi)
+        assert grad.shape == (cutoff, 2)
+
+        expected_gradient = (
+            np.abs(np.tanh(r)) ** n
+            * (1 + 2 * n - np.cosh(2 * r))
+            * fac(n)
+            / (2 ** (n + 1) * np.cosh(r) ** 2 * np.sinh(r) * fac(n / 2) ** 2)
+        )
+        expected_gradient[n % 2 != 0] = 0
+        expected_gradient = np.vstack([expected_gradient, np.zeros([cutoff])]).T
+        assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
+
+    def test_gradient_second_order_cv(self, tol):
+        """Test variance of a second order CV variance"""
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
+
+        @qml.qnode(dev, interface="autograd", method="device")
+        def circuit(weights):
+            qml.ThermalState(weights[0], wires=0)
+            qml.Displacement(weights[1], 0, wires=0)
+            return qml.var(qml.NumberOperator(0))
+
+        n = 0.12
+        a = 0.105
+        weights = qml.numpy.array([n, a], requires_grad=True)
+
+        # circuit jacobians
+        grad = qml.grad(circuit)(weights)
+        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
+        assert np.allclose(grad, expected, atol=tol, rtol=0)
 
 
 class TestHighLevelIntegration:
