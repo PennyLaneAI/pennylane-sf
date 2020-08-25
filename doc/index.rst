@@ -3,13 +3,6 @@ PennyLane-Strawberry Fields Plugin
 
 :Release: |release|
 
-.. image:: _static/puzzle_sf.png
-    :align: center
-    :width: 70%
-    :target: javascript:void(0);
-
-|
-
 .. include:: ../README.rst
   :start-after:	header-start-inclusion-marker-do-not-remove
   :end-before: header-end-inclusion-marker-do-not-remove
@@ -21,7 +14,7 @@ straight away in PennyLane, without the need to import any additional packages.
 Devices
 =======
 
-PennyLane-SF provides the following Strawberry Fields devices for PennyLane:
+PennyLane-SF provides various Strawberry Fields devices for PennyLane:
 
 .. devicegalleryitem::
     :name: 'strawberryfields.fock'
@@ -47,6 +40,11 @@ PennyLane-SF provides the following Strawberry Fields devices for PennyLane:
     :name: 'strawberryfields.gbs'
     :description: Specialized simulator giving access to analytic gradients in Gaussian boson sampling.
     :link: devices/gbs.html
+
+.. devicegalleryitem::
+    :name: 'strawberryfields.tf'
+    :description: TensorFlow simulator that supports backpropagation and all continuous-variable operations.
+    :link: devices/tf.html
 
 .. raw:: html
 
@@ -98,6 +96,7 @@ use the "Strawberry Fields" filter on the right panel of the
    devices/gaussian
    devices/remote
    devices/gbs
+   devices/tf
 
 .. toctree::
    :maxdepth: 1

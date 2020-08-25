@@ -22,44 +22,6 @@ sys.path.insert(0, os.path.abspath('..'))
 sys.path.insert(0, os.path.abspath('_ext'))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath('.')), 'doc'))
 
-#-------------------------------------------------------------------------
-# Mock out all modules that aren't required for compiling of documentation
-class Mock(MagicMock):
-    __name__ = 'foo'
-
-    @classmethod
-    def __getattr__(cls, name):
-        return MagicMock()
-
-class TypeMock(type):
-    pass
-
-MOCK_MODULES = [
-    'tensorflow'
-    ]
-
-mock_math_fn = Mock(__name__='foo')
-mock_fns = {"sin": mock_math_fn,
-               "cos": mock_math_fn,
-               "exp": mock_math_fn,
-               "sqrt": mock_math_fn,
-               "arctan": mock_math_fn,
-               "arccosh": mock_math_fn,
-               "sign": mock_math_fn,
-               "arctan2": mock_math_fn,
-               "arcsinh": mock_math_fn,
-               "cosh": mock_math_fn,
-               "tanh": mock_math_fn,
-               "log": mock_math_fn,
-               "matmul": mock_math_fn,
-               "Tensor": list,
-               "Variable": list,
-               "ndarray": list}
-
-mock = Mock(**mock_fns)
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = mock
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
