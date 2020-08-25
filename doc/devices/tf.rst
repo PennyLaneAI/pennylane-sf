@@ -186,7 +186,6 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
     ~pennylane.P
     ~pennylane.QuadOperator
     ~pennylane.PolyXP
-    ~pennylane.TensorN
 
 .. raw:: html
 
