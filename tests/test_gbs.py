@@ -396,15 +396,15 @@ class TestStrawberryFieldsGBS:
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
         assert dev.samples.shape == (2, 4)
 
-    def test_probability_analytic(self, monkeypatch):
-        """Test that the probability method in analytic mode simply calls the parent method in
-        StrawberryFieldsSimulator. The test monkeypatches StrawberryFieldsSimulator.probability() to
-        just return True."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
-        with monkeypatch.context() as m:
-            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: True)
-            p = dev.probability()
-        assert p
+    # def test_probability_analytic(self, monkeypatch):
+    #     """Test that the probability method in analytic mode simply calls the parent method in
+    #     StrawberryFieldsSimulator. The test monkeypatches StrawberryFieldsSimulator.probability() to
+    #     just return True."""
+    #     dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+    #     with monkeypatch.context() as m:
+    #         m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: True)
+    #         p = dev.probability()
+    #     assert p
 
     def test_probability_non_analytic_all_wires(self):
         """Test that the probability method in non-analytic mode returns the expected dictionary

@@ -71,6 +71,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.cutoff = cutoff_dim
         self._params = None
         self._WAW = None
+        self.A = None
 
     @staticmethod
     def calculate_WAW(params, A, n_mean):
@@ -124,7 +125,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
-        self._params, A, _ = par
+        self._params, self.A, n_mean = par
+        self.A *= rescale(self.A, n_mean)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
@@ -134,7 +136,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = self.calculate_WAW(*par)
         n_mean_WAW = self.calculate_n_mean(self._WAW)
 
-        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
         op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
@@ -154,16 +156,20 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def probability(self, wires=None):
         wires = wires or self.wires
         wires = Wires(wires)
-
-        if self.analytic:
-            return super().probability(wires=wires)
-
         N = len(wires)
-        samples = np.take(self.samples, self.wires.indices(wires), axis=1)
-
-        probs = all_fock_probs_pnr(samples)
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
 
+        if self.analytic:
+            p = super().probability(wires=wires)
+
+            for i, s in enumerate(ind):
+                res = np.prod(np.power(self._params, s))
+                p[tuple(s)] *= res
+
+            return super().probability(wires=wires)
+
+        samples = np.take(self.samples, self.wires.indices(wires), axis=1)
+        probs = all_fock_probs_pnr(samples)
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
