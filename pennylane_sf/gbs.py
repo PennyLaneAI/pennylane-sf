@@ -72,6 +72,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params = None
         self._WAW = None
         self.A = None
+        self.Z = None
 
     @staticmethod
     def calculate_WAW(params, A, n_mean):
@@ -127,6 +128,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def apply(self, operation, wires, par):
         self._params, self.A, n_mean = par
         self.A *= rescale(self.A, n_mean)
+        self.Z = self.calculate_z(self.A)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
@@ -134,9 +136,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             )
 
         self._WAW = self.calculate_WAW(*par)
-        n_mean_WAW = self.calculate_n_mean(self._WAW)
+        # n_mean_WAW = self.calculate_n_mean(self._WAW)
 
-        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
+        op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
         op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
@@ -160,13 +162,16 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
 
         if self.analytic:
+            W = np.diag(np.sqrt(self._params))
+            Z1 = self.calculate_z(W @ self.A @ W)
             p = super().probability(wires=wires)
 
             for i, s in enumerate(ind):
                 res = np.prod(np.power(self._params, s))
-                p[tuple(s)] *= res
+                # print(res)
+                p[tuple(s)] = res * p[tuple(s)] * Z1 / self.Z
 
-            return super().probability(wires=wires)
+            return p
 
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
         probs = all_fock_probs_pnr(samples)
@@ -256,3 +261,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
         cov = hbar * (np.linalg.inv(I - o_mat) - I / 2)
         return cov
+
+    @staticmethod
+    def calculate_z(A):
+        """TODO"""
+        n = len(A)
+        I = np.identity(2 * n)
+        o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
+        return np.sqrt(np.linalg.det(I - o_mat))
