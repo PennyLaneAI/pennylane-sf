@@ -304,6 +304,8 @@ class TestStrawberryFieldsGBS:
             StrawberryFieldsGBS.calculate_n_mean(A)
 
     def test_apply_wrong_dim(self):
+        """Test that the apply method raises a ValueError when the number of variable parameters
+        does not match the number of modes"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
         op = "ParamGraphEmbed"
         wires = list(range(4))
