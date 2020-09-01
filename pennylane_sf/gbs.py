@@ -123,7 +123,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def apply(self, operation, wires, par):
         self._params, self.A, n_mean = par
         self.A *= rescale(self.A, n_mean)
-        self.Z = self.calculate_z(self.A)
+        self.Z = self._calculate_z_inv(self.A)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
@@ -156,7 +156,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             p = super().probability(wires=self.wires)  # Use full probability distribution
-            Z = self.calculate_z(self._WAW)
+            Z = self._calculate_z_inv(self._WAW)
 
             ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
             for i, s in enumerate(ind_all_wires):
@@ -266,8 +266,15 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         return cov
 
     @staticmethod
-    def calculate_z(A):
-        """TODO"""
+    def _calculate_z_inv(A):
+        """Calculates the 1/Z normalization coefficient from GBS.
+
+        Args:
+            A (array): adjacency matrix
+
+        Returns:
+            float: the coefficient
+        """
         n = len(A)
         I = np.identity(2 * n)
         o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
