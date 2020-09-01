@@ -155,20 +155,23 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         ind = np.ndindex(*[self.cutoff] * len(wires))
 
         if self.analytic:
-            p = super().probability(wires=self.wires)
-            Z1 = self.calculate_z(self._WAW)
+            p = super().probability(wires=self.wires)  # Use full probability distribution
+            Z = self.calculate_z(self._WAW)
 
             ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
             for i, s in enumerate(ind_all_wires):
                 res = np.prod(np.power(self._params, s))
-                p[tuple(s)] = res * p[tuple(s)] * Z1 / self.Z
+                p[tuple(s)] = res * p[tuple(s)] * Z / self.Z
 
-            p = np.array(list(p.values()))
+            if len(wires) == self.num_wires:  # Return p if we do not need marginals
+                return p
+
+            p = np.array(list(p.values()))  # Convert from dictionary to flat array
             p = p.reshape([self.cutoff] * self.num_wires)
 
             all_indices = set(range(self.num_wires))
             requested_indices = set(self.wires.indices(wires))
-            trace_over_indices = all_indices - requested_indices
+            trace_over_indices = all_indices - requested_indices  # Find indices to trace over
             p = np.sum(p, axis=tuple(trace_over_indices)).ravel()
 
             return {tuple(index): p[i] for i, index in enumerate(ind)}
