@@ -168,7 +168,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
             for i, s in enumerate(ind):
                 res = np.prod(np.power(self._params, s))
-                # print(res)
                 p[tuple(s)] = res * p[tuple(s)] * Z1 / self.Z
 
             return p
