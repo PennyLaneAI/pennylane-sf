@@ -162,16 +162,31 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         ind = np.indices([self.cutoff] * N).reshape(N, -1).T
 
         if self.analytic:
+            N = len(self.wires)
+            ind_full = np.indices([self.cutoff] * N).reshape(N, -1).T
             W = np.diag(np.sqrt(self._params))
             Z1 = self.calculate_z(W @ self.A @ W)
-            p = super().probability(wires=wires)
+            p = super().probability(wires=self.wires)
 
-            for i, s in enumerate(ind):
+            for i, s in enumerate(ind_full):
                 res = np.prod(np.power(self._params, s))
                 p[tuple(s)] = res * p[tuple(s)] * Z1 / self.Z
 
-            return p
+            probs = np.array(list(p.values()))
+            probs = probs.reshape([self.cutoff] * self.num_wires)
 
+            all_indices = set(range(self.num_wires))
+            requested_indices = set(self.wires.indices(wires))
+            trace_over_indices = all_indices - requested_indices
+
+            probs = np.sum(probs, axis=tuple(trace_over_indices))
+
+            new_p = {}
+
+            for i, index in enumerate(ind):
+                new_p[tuple(index)] = np.ravel(probs)[i]
+
+            return new_p
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
         probs = all_fock_probs_pnr(samples)
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
