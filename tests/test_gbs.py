@@ -283,12 +283,11 @@ class TestStrawberryFieldsGBS:
         assert not dev.analytic
 
     def test_calculate_WAW(self):
-        """Test that the calculate_WAW method calculates correctly when the input adjacency matrix is
-        already normalized to have a mean number of photons equal to 1."""
+        """Test that the calculate_WAW method calculates correctly"""
         const = 2
         A = 0.1767767 * np.ones((4, 4))
         params = const * np.ones(4)
-        waw = StrawberryFieldsGBS.calculate_WAW(params, A, 1)
+        waw = StrawberryFieldsGBS.calculate_WAW(params, A)
         assert np.allclose(waw, const * A)
 
     def test_calculate_n_mean(self):
