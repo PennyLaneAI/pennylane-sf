@@ -510,6 +510,12 @@ class TestStrawberryFieldsGBS:
 
         assert np.allclose(jac, jac_reduced[wires])
 
+    def test_calculate_z_inv(self):
+        """Test that the _calculate_z_inv returns correctly on a fixed example"""
+        A = 0.1767767 * np.ones((4, 4))
+        z_inv = StrawberryFieldsGBS._calculate_z_inv(A)
+        assert np.allclose(z_inv, 1 / np.sqrt(2))
+
 
 class TestIntegrationStrawberryFieldsGBS:
     """Integration tests for StrawberryFieldsGBS."""
