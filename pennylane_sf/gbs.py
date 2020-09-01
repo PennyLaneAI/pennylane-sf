@@ -235,8 +235,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         Returns:
             array[float]: the jacobian
         """
-        jac = np.zeros([len(prob), self.num_wires])
-
         n = len(self._WAW)
         disp = np.zeros(2 * n)
         cov = self.calculate_covariance(self._WAW, hbar=self.hbar)
