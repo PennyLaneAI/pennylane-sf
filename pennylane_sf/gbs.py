@@ -43,7 +43,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     For more details see :doc:`/devices/gbs`.
 
     Args:
-        wires (int): the number of modes to initialize the device in
+        wires (int or Iterable[Number, str]]): the number of modes to initialize the device in
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
         cutoff_dim (int): Fock-space truncation dimension
@@ -163,6 +163,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.samples = results.samples
 
     def _probability_A(self):
+        """Calculate the GBS probability distribution of :math:`A`.
+
+        Stores previous calculations in the ``p_dict`` attribute, which maps a hashed version of
+        :math:`A` to the corresponding probability distribution.
+
+        Returns:
+            array: the probability distribution of :math:`A`
+        """
         A_hashed = hash(self.A.tobytes())
 
         if self.p_dict.get(A_hashed):
@@ -174,6 +182,15 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         return p
 
     def _reparametrize_probability(self, p):
+        """Takes an input probability distribution of :math:`A` and rescales it to the probability 
+        distribution of :math:`WAW`.
+
+        Args:
+            p (array): the probability distribution of :math:`A`
+
+        Returns:
+            array: the probability distribution of :math:``WAW`
+        """
         Z = self._calculate_z_inv(self._WAW)
         ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
 
@@ -183,7 +200,19 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         return p
 
-    def _trace_over_wires(self, wires, array):
+    def _marginal_over_wires(self, wires, array):
+        """Calculates the marginal distribution over the specified wires by summing over the
+        remaining.
+
+        The flat input array is reshaped to have ``self.num_wires + 1`` axes.
+
+        Args:
+            wires (int or Iterable[Number, str]]): the wires to find marginals over
+            array (array): the input array
+
+        Returns:
+            array: the traced-over array
+        """
         trailing = int(array.size / self.cutoff ** self.num_wires)
 
         array = array.reshape([self.cutoff] * self.num_wires + [trailing])
@@ -210,7 +239,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
                 return p
 
             p = np.array(list(p.values()))  # Convert from dictionary to flat array
-            p = self._trace_over_wires(wires, p)
+            p = self._marginal_over_wires(wires, p)
             return {tuple(index): p[i] for i, index in enumerate(ind)}
 
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
@@ -250,7 +279,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if requested_wires == self.wires:
             return jac
 
-        return self._trace_over_wires(requested_wires, jac).reshape(-1, self.num_wires)
+        return self._marginal_over_wires(requested_wires, jac).reshape(-1, self.num_wires)
 
     def _jacobian_all_wires(self, prob):
         """Calculates the jacobian of the probability distribution with respect to all wires.
