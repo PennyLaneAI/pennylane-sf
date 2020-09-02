@@ -472,7 +472,7 @@ class TestStrawberryFieldsGBS:
         dev_probs_dict = dev.probability(wires=[0, 2])
 
         p = list(dev_probs_dict.values())
-        assert np.allclose(p, probs_exact_subset)
+        assert np.allclose(p, probs_exact_subset, atol=0.05)
 
     def test_probability_non_analytic_all_wires(self):
         """Test that the probability method in non-analytic mode returns the expected dictionary
