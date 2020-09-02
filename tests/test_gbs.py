@@ -22,10 +22,10 @@ from pennylane.qnodes.base import ParameterDependency
 from pennylane.wires import Wires
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
+from strawberryfields.backends.states import BaseGaussianState
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
-from pennylane_sf.simulator import StrawberryFieldsSimulator
 
 target_cov = np.array(
     [
@@ -127,6 +127,56 @@ samples = np.array(
         [2, 2, 2, 0],
     ]
 )
+
+probs_exact = np.array([7.07106781e-01, 0.00000000e+00, 1.10485435e-02, 0.00000000e+00,
+       2.20970869e-02, 0.00000000e+00, 1.10485435e-02, 0.00000000e+00,
+       1.55370142e-03, 0.00000000e+00, 2.20970869e-02, 0.00000000e+00,
+       2.20970869e-02, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       3.10740285e-03, 0.00000000e+00, 1.10485435e-02, 0.00000000e+00,
+       1.55370142e-03, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       1.55370142e-03, 0.00000000e+00, 6.06914619e-04, 0.00000000e+00,
+       2.20970869e-02, 0.00000000e+00, 2.20970869e-02, 0.00000000e+00,
+       3.10740285e-03, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       2.20970869e-02, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       6.21480569e-03, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       1.21382924e-03, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       3.10740285e-03, 0.00000000e+00, 1.21382924e-03, 0.00000000e+00,
+       1.21382924e-03, 0.00000000e+00, 1.10485435e-02, 0.00000000e+00,
+       1.55370142e-03, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       1.55370142e-03, 0.00000000e+00, 6.06914619e-04, 0.00000000e+00,
+       3.10740285e-03, 0.00000000e+00, 3.10740285e-03, 0.00000000e+00,
+       1.21382924e-03, 0.00000000e+00, 1.21382924e-03, 0.00000000e+00,
+       1.55370142e-03, 0.00000000e+00, 6.06914619e-04, 0.00000000e+00,
+       1.21382924e-03, 0.00000000e+00, 6.06914619e-04, 0.00000000e+00,
+       4.64669005e-04])
+
+cov_probs = np.array([[ 2.20710678e+00,  1.20710678e+00,  1.20710678e+00,
+         1.20710678e+00, -3.97251676e-16, -4.44089210e-16,
+        -2.83947481e-16, -4.31775426e-16],
+       [ 1.20710678e+00,  2.20710678e+00,  1.20710678e+00,
+         1.20710678e+00, -3.33066907e-16, -4.44089210e-16,
+        -2.22044605e-16, -3.60822483e-16],
+       [ 1.20710678e+00,  1.20710678e+00,  2.20710678e+00,
+         1.20710678e+00, -4.06412160e-16, -5.55111512e-16,
+        -3.84522386e-16, -5.32350332e-16],
+       [ 1.20710678e+00,  1.20710678e+00,  1.20710678e+00,
+         2.20710678e+00, -4.31775426e-16, -5.82867088e-16,
+        -4.09885652e-16, -5.57713598e-16],
+       [-3.97251676e-16, -3.33066907e-16, -4.06412160e-16,
+        -4.31775426e-16,  7.92893219e-01, -2.07106781e-01,
+        -2.07106781e-01, -2.07106781e-01],
+       [-4.44089210e-16, -4.44089210e-16, -5.55111512e-16,
+        -5.82867088e-16, -2.07106781e-01,  7.92893219e-01,
+        -2.07106781e-01, -2.07106781e-01],
+       [-2.83947481e-16, -2.22044605e-16, -3.84522386e-16,
+        -4.09885652e-16, -2.07106781e-01, -2.07106781e-01,
+         7.92893219e-01, -2.07106781e-01],
+       [-4.31775426e-16, -3.60822483e-16, -5.32350332e-16,
+        -5.57713598e-16, -2.07106781e-01, -2.07106781e-01,
+        -2.07106781e-01,  7.92893219e-01]])
+
+probs_exact_subset = np.array([0.75592895, 0.05399492, 0.0192839 , 0.05399492, 0.0385678 ,
+       0.01074389, 0.0192839 , 0.01074389, 0.00578517])
 
 probs_dict = {
     (0, 0, 0, 0): 0.3,
@@ -397,15 +447,26 @@ class TestStrawberryFieldsGBS:
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
         assert dev.samples.shape == (2, 4)
 
-    # def test_probability_analytic(self, monkeypatch):
-    #     """Test that the probability method in analytic mode simply calls the parent method in
-    #     StrawberryFieldsSimulator. The test monkeypatches StrawberryFieldsSimulator.probability() to
-    #     just return True."""
-    #     dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
-    #     with monkeypatch.context() as m:
-    #         m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: True)
-    #         p = dev.probability()
-    #     assert p
+    def test_probability_analytic(self, monkeypatch):
+        """Test that the probability method returns the correct result for a fixed example"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+
+        dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
+        dev_probs_dict = dev.probability()
+
+        p = list(dev_probs_dict.values())
+        assert np.allclose(p, probs_exact)
+
+    def test_probability_analytic_subset_wires(self, monkeypatch):
+        """Test that the probability method returns the correct result for a fixed example when
+        measuring on a subset of wires"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+
+        dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
+        dev_probs_dict = dev.probability(wires=[0, 2])
+
+        p = list(dev_probs_dict.values())
+        assert np.allclose(p, probs_exact_subset)
 
     def test_probability_non_analytic_all_wires(self):
         """Test that the probability method in non-analytic mode returns the expected dictionary
