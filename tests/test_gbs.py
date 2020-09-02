@@ -23,6 +23,7 @@ from pennylane.wires import Wires
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
 from strawberryfields.backends.states import BaseGaussianState
+from pennylane_sf.simulator import StrawberryFieldsSimulator
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
@@ -475,6 +476,42 @@ class TestStrawberryFieldsGBS:
         dev.prog = prog
         dev.pre_measure()
         assert np.allclose(dev.samples, samples)
+
+    def test_probability_A_no_cache(self, monkeypatch):
+        """Test that the _probability_A method calculates the probability distribution when the
+        key of A is not present in the _p_dict attribute"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        A = 0.1767767 * np.ones((4, 4))
+        dev.A = A
+        with monkeypatch.context() as m:
+            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: A)
+            dev._probability_A()
+        exp_hash = hash(A.tostring())
+        assert len(dev._p_dict) == 1
+        assert np.allclose(dev._p_dict[exp_hash], A)
+
+    def test_probability_A_cache(self, monkeypatch):
+        """Test that the _probability_A method accesses items in the cache dictionary"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        A = 0.1767767 * np.ones((4, 4))
+        dev.A = A
+        dev._p_dict = {hash(A.tostring()): A}
+        with monkeypatch.context() as m:
+            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: None)
+            p = dev._probability_A()
+        assert np.allclose(A, p)
+
+    def test_reparametrize_probability(self):
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        A = 0.1767767 * np.ones((4, 4))
+        dev._WAW = A
+        dev.Z = 1
+        dev._params = np.arange(4)
+
+        p = list(np.arange(3 ** 4))
+        p_dict = {tuple(index): p[i] for i, index in enumerate(np.ndindex(*[3] * 4))}
+        p_reparam = dev._reparametrize_probability(p_dict)
+        print(p_reparam)
 
     def test_probability_analytic(self, monkeypatch):
         """Test that the probability method returns the correct result for a fixed example"""

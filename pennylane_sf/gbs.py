@@ -78,7 +78,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = None
         self.A = None
         self.Z = None
-        self.p_dict = {}
+        self._p_dict = {}
 
     @staticmethod
     def calculate_WAW(params, A):
@@ -165,19 +165,19 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def _probability_A(self):
         """Calculate the GBS probability distribution of :math:`A`.
 
-        Stores previous calculations in the ``p_dict`` attribute, which maps a hashed version of
+        Stores previous calculations in the ``_p_dict`` attribute, which maps a hashed version of
         :math:`A` to the corresponding probability distribution.
 
         Returns:
             array: the probability distribution of :math:`A`
         """
-        A_hashed = hash(self.A.tobytes())
+        A_hashed = hash(self.A.tostring())
 
-        if self.p_dict.get(A_hashed):
-            p = self.p_dict.get(A_hashed).copy()
+        if self._p_dict.get(A_hashed) is not None:
+            p = self._p_dict.get(A_hashed).copy()
         else:
             p = super().probability(wires=self.wires)  # Use full probability distribution
-            self.p_dict[A_hashed] = p.copy()
+            self._p_dict[A_hashed] = p.copy()
 
         return p
 
@@ -194,7 +194,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         Z = self._calculate_z_inv(self._WAW)
         ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
 
-        for i, s in enumerate(ind_all_wires):
+        for s in ind_all_wires:
             res = np.prod(np.power(self._params, s))
             p[tuple(s)] = res * p[tuple(s)] * Z / self.Z
 
