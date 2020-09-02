@@ -26,7 +26,6 @@ from strawberryfields.backends.states import BaseGaussianState
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
-from pennylane_sf.simulator import StrawberryFieldsSimulator
 
 target_cov = np.array(
     [
@@ -178,15 +177,6 @@ cov_probs = np.array([[ 2.20710678e+00,  1.20710678e+00,  1.20710678e+00,
 
 probs_exact_subset = np.array([0.75592895, 0.05399492, 0.0192839 , 0.05399492, 0.0385678 ,
        0.01074389, 0.0192839 , 0.01074389, 0.00578517])
-
-cov_probs_subset = np.array([[ 2.20710678e+00,  1.20710678e+00, -3.97251676e-16,
-        -2.83947481e-16],
-       [ 1.20710678e+00,  2.20710678e+00, -4.06412160e-16,
-        -3.84522386e-16],
-       [-3.97251676e-16, -4.06412160e-16,  7.92893219e-01,
-        -2.07106781e-01],
-       [-2.83947481e-16, -3.84522386e-16, -2.07106781e-01,
-         7.92893219e-01]])
 
 probs_dict = {
     (0, 0, 0, 0): 0.3,
@@ -465,6 +455,17 @@ class TestStrawberryFieldsGBS:
 
         p = list(dev_probs_dict.values())
         assert np.allclose(p, probs_exact)
+
+    def test_probability_analytic_subset_wires(self, monkeypatch):
+        """Test that the probability method returns the correct result for a fixed example when
+        measuring on a subset of wires"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+
+        dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
+        dev_probs_dict = dev.probability(wires=[0, 2])
+
+        p = list(dev_probs_dict.values())
+        assert np.allclose(p, probs_exact_subset)
 
     def test_probability_non_analytic_all_wires(self):
         """Test that the probability method in non-analytic mode returns the expected dictionary
