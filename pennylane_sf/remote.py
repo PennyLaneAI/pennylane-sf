@@ -162,10 +162,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         return samples_variance(self.samples)
 
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
-        all_probs = all_fock_probs_pnr(self.samples)
+        fock_probs = all_fock_probs_pnr(self.samples)
+        cutoff = fock_probs.shape[0]
+        diff = self.cutoff - cutoff
+        all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
 
         if wires is None:
-
             all_probs = all_probs.flat
             N = self.num_wires
             ind = np.indices([self.cutoff] * N).reshape(N, -1).T
