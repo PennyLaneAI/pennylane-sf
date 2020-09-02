@@ -640,10 +640,11 @@ class TestIntegrationStrawberryFieldsGBS:
         assert (p <= 1).all()
         assert np.sum(p) <= 1
 
+    @pytest.mark.parametrize("cache", [True, False])
     @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
-    def test_example_jacobian(self, wires):
+    def test_example_jacobian(self, wires, cache):
         """Test that the jacobian is correct on the fixed example"""
-        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3, use_cache=cache)
         params = np.array([0.25, 0.5, 0.6, 1])
 
         @qml.qnode(dev)
@@ -656,11 +657,12 @@ class TestIntegrationStrawberryFieldsGBS:
 
         assert np.allclose(dp, jac_exp)
 
+    @pytest.mark.parametrize("cache", [True, False])
     @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
     @pytest.mark.parametrize("subset_wires", jac_reduced)
-    def test_example_jacobian_reduced_wires(self, subset_wires, wires):
+    def test_example_jacobian_reduced_wires(self, subset_wires, wires, cache):
         """Test that the jacobian is correct on the fixed example with a subset of wires"""
-        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3, use_cache=cache)
         params = np.array([0.25, 0.5, 0.6, 1])
 
         @qml.qnode(dev)
