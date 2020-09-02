@@ -451,6 +451,7 @@ class TestStrawberryFieldsGBS:
         """Test that the probability method returns the correct result for a fixed example"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
         dev._WAW = 0.1767767 * np.ones((4, 4))
+        dev.A = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
         dev.Z = 1 / np.sqrt(2)
 
@@ -465,6 +466,7 @@ class TestStrawberryFieldsGBS:
         measuring on a subset of wires"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
         dev._WAW = 0.1767767 * np.ones((4, 4))
+        dev.A = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
         dev.Z = 1 / np.sqrt(2)
 

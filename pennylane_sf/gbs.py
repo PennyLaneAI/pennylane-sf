@@ -50,6 +50,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
+        use_cache (bool): TODO, also add to docs page
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
@@ -66,13 +67,15 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000):
+    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=True):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
+        self.use_cache = use_cache
         self._params = None
         self._WAW = None
         self.A = None
         self.Z = None
+        self.p_dict = {}
 
     @staticmethod
     def calculate_WAW(params, A):
@@ -131,8 +134,13 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             )
 
         self._WAW = self.calculate_WAW(self._params, self.A)
+        n_mean_WAW = self.calculate_n_mean(self._WAW)
 
-        op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
+        if self.use_cache:
+            op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
+        else:
+            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
+
         op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
@@ -155,7 +163,17 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         ind = np.ndindex(*[self.cutoff] * len(wires))
 
         if self.analytic:
-            p = super().probability(wires=self.wires)  # Use full probability distribution
+            if not self.use_cache:
+                return super().probability(wires=wires)
+
+            A_hashed = hash(self.A.tobytes())
+
+            if self.p_dict.get(A_hashed):
+                p = self.p_dict.get(A_hashed).copy()
+            else:
+                p = super().probability(wires=self.wires)  # Use full probability distribution
+                self.p_dict[A_hashed] = p.copy()
+
             Z = self._calculate_z_inv(self._WAW)
 
             ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
