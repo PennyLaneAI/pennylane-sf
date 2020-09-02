@@ -668,9 +668,18 @@ class TestStrawberryFieldsGBS:
 
         assert np.allclose(np.array(list(p_reparam.values())), p_target)
 
-    def test_probability_analytic(self, monkeypatch):
-        """Test that the probability method returns the correct result for a fixed example"""
+    def test_marginal_over_wires(self):
+        """Test if the _marginal_over_wires operates correctly on a fixed example. Note that the
+        need for a larger atol is because probs_exact_subset is calculated exactly from the
+        reduced state, while p_marg is a sum over probabilities up to a cutoff."""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        p_marg = dev._marginal_over_wires([0, 2], probs_exact)
+        assert np.allclose(p_marg, probs_exact_subset, atol=0.05)
+
+    @pytest.mark.parametrize("use_cache", [True, False])
+    def test_probability_analytic(self, use_cache):
+        """Test that the probability method returns the correct result for a fixed example"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True, use_cache=use_cache)
         dev._WAW = 0.1767767 * np.ones((4, 4))
         dev.A = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
@@ -682,10 +691,11 @@ class TestStrawberryFieldsGBS:
         p = list(dev_probs_dict.values())
         assert np.allclose(p, probs_exact)
 
-    def test_probability_analytic_subset_wires(self, monkeypatch):
+    @pytest.mark.parametrize("use_cache", [True, False])
+    def test_probability_analytic_subset_wires(self, use_cache):
         """Test that the probability method returns the correct result for a fixed example when
         measuring on a subset of wires"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True, use_cache=use_cache)
         dev._WAW = 0.1767767 * np.ones((4, 4))
         dev.A = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
