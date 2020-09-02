@@ -319,18 +319,22 @@ jac_reduced = {
 class TestStrawberryFieldsGBS:
     """Unit tests for StrawberryFieldsGBS."""
 
+    @pytest.mark.parametrize("use_cache", [True, False])
+    @pytest.mark.parametrize("analytic", [True, False])
     @pytest.mark.parametrize("cutoff", [3, 6])
-    def test_load_device(self, cutoff):
-        """Test that the device loads correctly when analytic is True"""
-        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=cutoff)
+    def test_load_device(self, cutoff, analytic, use_cache):
+        """Test that the device loads correctly"""
+        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=cutoff, analytic=analytic,
+                         use_cache=use_cache)
         assert dev.cutoff == cutoff
-        assert dev.analytic
+        assert dev.analytic is analytic
+        assert dev.use_cache is use_cache
 
-    def test_load_device_non_analytic(self):
-        """Test that the device loads correctly when analytic is False"""
-        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=False)
-        assert dev.cutoff == 3
-        assert not dev.analytic
+    def test_load_device_with_samples(self):
+        """Test that the device loads correctly with input samples"""
+        a = np.ones((10, 2))
+        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=False, samples=a)
+        assert np.allclose(dev.samples, a)
 
     def test_calculate_WAW(self):
         """Test that the calculate_WAW method calculates correctly"""
@@ -368,14 +372,15 @@ class TestStrawberryFieldsGBS:
         with pytest.raises(ValueError, match="The number of variable parameters must be"):
             dev.apply(op, wires, par)
 
-    def test_apply_analytic(self):
+    @pytest.mark.parametrize("use_cache", [True, False])
+    def test_apply_analytic(self, use_cache):
         """Test that the apply method constructs the correct program"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=use_cache)
         op = "ParamGraphEmbed"
         wires = list(range(4))
 
         A = 0.1767767 * np.ones((4, 4))
-        params = np.ones(4)
+        params = 0.5 * np.ones(4)
         n_mean = 1
         par = [params, A, n_mean]
 
@@ -385,15 +390,20 @@ class TestStrawberryFieldsGBS:
         circ = dev.prog.circuit
         assert len(circ) == 1
         assert isinstance(circ[0].op, GraphEmbed)
+        if use_cache:
+            assert np.allclose(circ[0].op.p[0], A)
+        else:
+            assert np.allclose(circ[0].op.p[0], 0.5 * A)
 
-    def test_apply_non_analytic(self):
+    @pytest.mark.parametrize("use_cache", [True, False])
+    def test_apply_non_analytic(self, use_cache):
         """Test that the apply method constructs the correct program when in non-analytic mode"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False, use_cache=use_cache)
         op = "ParamGraphEmbed"
         wires = list(range(4))
 
         A = 0.1767767 * np.ones((4, 4))
-        params = np.ones(4)
+        params = 0.5 * np.ones(4)
         n_mean = 1
         par = [params, A, n_mean]
 
@@ -403,6 +413,10 @@ class TestStrawberryFieldsGBS:
         circ = dev.prog.circuit
         assert len(circ) == 2
         assert isinstance(circ[0].op, GraphEmbed)
+        if use_cache:
+            assert np.allclose(circ[0].op.p[0], A)
+        else:
+            assert np.allclose(circ[0].op.p[0], 0.5 * A)
         assert isinstance(circ[1].op, MeasureFock)
 
     def test_pre_measure_eng(self, tol):
@@ -446,6 +460,21 @@ class TestStrawberryFieldsGBS:
         assert np.allclose(dev.state.displacement(), np.zeros(4))
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
         assert dev.samples.shape == (2, 4)
+
+    def test_pre_measure_non_analytic_cache(self):
+        """Test that the pre_measure method does not overwrite existing samples if present in
+        non-analytic mode when use_cache is ``True``"""
+        samples = -1 * np.ones((10, 4))
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False,
+                         samples=samples, use_cache=True)
+        prog = Program(4)
+        op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
+        op2 = MeasureFock()
+        prog.append(op1, prog.register)
+        prog.append(op2, prog.register)
+        dev.prog = prog
+        dev.pre_measure()
+        assert np.allclose(dev.samples, samples)
 
     def test_probability_analytic(self, monkeypatch):
         """Test that the probability method returns the correct result for a fixed example"""

@@ -137,11 +137,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             )
 
         self._WAW = self.calculate_WAW(self._params, self.A)
-        n_mean_WAW = self.calculate_n_mean(self._WAW)
 
         if self.use_cache:
             op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
         else:
+            n_mean_WAW = self.calculate_n_mean(self._WAW)
             op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
 
         op | [self.q[wires.index(i)] for i in wires]
@@ -154,7 +154,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self.use_cache and self.samples:
+        elif self.use_cache and self.samples is not None:
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
