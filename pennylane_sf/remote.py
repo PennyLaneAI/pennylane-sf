@@ -151,12 +151,12 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def expval(self, observable, wires, par):
         if observable == "Identity":
             return 1
-        return samples_expectation(self.samples)
+        return samples_expectation(self.samples, modes=self.map_wires(wires))
 
     def var(self, observable, wires, par):
         if observable == "Identity":
             return 0
-        return samples_variance(self.samples)
+        return samples_variance(self.samples, modes=self.map_wires(wires))
 
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
         all_probs = all_fock_probs_pnr(self.samples)
