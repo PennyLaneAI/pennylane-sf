@@ -218,7 +218,7 @@ class TestExpval:
         expected_expval = 100
 
         monkeypatch.setattr(
-            "pennylane_sf.remote.samples_expectation", lambda *args: expected_expval
+            "pennylane_sf.remote.samples_expectation", lambda *args, **kwargs: expected_expval
         )
         a = quantum_function(1.0, 0)
 
@@ -240,6 +240,17 @@ class TestExpval:
 
         assert a == 1
 
+    @pytest.mark.parametrize("mode, expectation", ((0, 2.3), (1, 2.0)))
+    def test_expvals(self, monkeypatch, mode, expectation):
+        """Test that the expectation value is evaluated correctly when applied to MOCK_SAMPLES"""
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
+        dev.samples = MOCK_SAMPLES
+        w = dev.wires[mode]
+        result = dev.expval(qml.NumberOperator, w, None)
+        assert np.allclose(result, expectation)
+
 
 class TestVariance:
     """Test that variances are correctly returned from the hardware device."""
@@ -260,7 +271,8 @@ class TestVariance:
 
         expected_var = 100
 
-        monkeypatch.setattr("pennylane_sf.remote.samples_variance", lambda *args: expected_var)
+        monkeypatch.setattr("pennylane_sf.remote.samples_variance", lambda *args,
+                                                                           **kwargs: expected_var)
         var = quantum_function(1.0, 0)
 
         assert var == expected_var
@@ -279,6 +291,17 @@ class TestVariance:
 
         a = quantum_function(1.0, 0)
         assert a == 0
+
+    @pytest.mark.parametrize("mode, var", ((0, 1.61), (1, 1.2)))
+    def test_vars(self, monkeypatch, mode, var):
+        """Test that the variance is evaluated correctly when applied to MOCK_SAMPLES"""
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
+        dev.samples = MOCK_SAMPLES
+        w = dev.wires[mode]
+        result = dev.var(qml.NumberOperator, w, None)
+        assert np.allclose(result, var)
 
 
 class TestProbs:
