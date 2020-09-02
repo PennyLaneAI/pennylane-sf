@@ -450,6 +450,9 @@ class TestStrawberryFieldsGBS:
     def test_probability_analytic(self, monkeypatch):
         """Test that the probability method returns the correct result for a fixed example"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        dev._WAW = 0.1767767 * np.ones((4, 4))
+        dev._params = np.ones(4)
+        dev.Z = 1 / np.sqrt(2)
 
         dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
         dev_probs_dict = dev.probability()
@@ -461,6 +464,9 @@ class TestStrawberryFieldsGBS:
         """Test that the probability method returns the correct result for a fixed example when
         measuring on a subset of wires"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        dev._WAW = 0.1767767 * np.ones((4, 4))
+        dev._params = np.ones(4)
+        dev.Z = 1 / np.sqrt(2)
 
         dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
         dev_probs_dict = dev.probability(wires=[0, 2])
