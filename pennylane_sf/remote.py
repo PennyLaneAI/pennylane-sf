@@ -44,14 +44,15 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     configuration file.
 
     Args:
-        shots (int): number of circuit evaluations/random samples used to
-            estimate expectation values of observables
+        backend (str): name of the remote backend to be used
         wires (Iterable[Number, str]): Iterable that contains unique labels for the
             modes as numbers or strings (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``).
             The number of labels must match the number of modes accessible on the backend.
             If not provided, modes are addressed as consecutive integers ``[0, 1, ...]``, and their number
             is inferred from the backend.
-        backend (str): name of the remote backend to be used
+        cutoff_dim (int): Fock-space truncation dimension
+        shots (int): number of circuit evaluations/random samples used to
+            estimate expectation values of observables
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
@@ -89,11 +90,13 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, *, backend, wires=None, shots=1000, hbar=2, sf_token=None):
+    def __init__(self, *, backend, wires=None, cutoff_dim=10, shots=1000, hbar=2, sf_token=None):
         self.backend = backend
+        self.cutoff = cutoff_dim
         eng = sf.RemoteEngine(self.backend)
 
         self.num_wires = eng.device_spec.modes
+
 
         if wires is None:
             # infer the number of modes from the device specs
@@ -161,15 +164,11 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
         all_probs = all_fock_probs_pnr(self.samples)
 
-        # Extract the cutoff value by checking the number of Fock states we
-        # obtained probabilities for
-        cutoff = all_probs.shape[0]
-
         if wires is None:
 
             all_probs = all_probs.flat
             N = self.num_wires
-            ind = np.indices([cutoff] * N).reshape(N, -1).T
+            ind = np.indices([self.cutoff] * N).reshape(N, -1).T
             all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
             return all_probs
 
@@ -182,6 +181,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         all_probs = all_probs.flat
         N = len(wires)
 
-        ind = np.indices([cutoff] * N).reshape(N, -1).T
+        ind = np.indices([self.cutoff] * N).reshape(N, -1).T
         all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
         return all_probs
