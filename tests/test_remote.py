@@ -290,7 +290,7 @@ class TestProbs:
         wires = [0, 1]
         shots = 10
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=5)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -330,14 +330,8 @@ class TestProbs:
 
         probs = quantum_function(1.0, 0)
 
-        # all_fock_probs uses a cutoff equal to 1 + the maximum number of
-        # photons detected (including no photons detected)
-        cutoff = 1 + np.max(MOCK_SAMPLES)
-
-        # Check that the shape of the expected probabilities indeed matches the cutoff
-        # The combination of yields a shape of (cutoff, cutoff)
-        assert probs.shape == cutoff ** len(wires)
-        assert np.allclose(probs, expected_probs, atol=tol)
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, probs, atol=tol)
 
     def test_mocked_probability(self, monkeypatch, tol):
         """Tests that pre-defined probabilities are correctly propagated
@@ -346,7 +340,7 @@ class TestProbs:
         wires = [0, 1]
         shots = 10
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=5)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -393,20 +387,16 @@ class TestProbs:
         )
         probs = quantum_function(1.0, 0)
 
-        # all_fock_probs uses a cutoff equal to 1 + the maximum number of
-        # photons detected (including no photons detected)
-        cutoff = 1 + np.max(MOCK_SAMPLES)
-
         # Check that the shape of the expected probabilities indeed matches the cutoff
         # The combination of yields a shape of (cutoff, cutoff)
-        assert probs.shape == cutoff ** len(wires)
+        assert probs.shape == (dev.cutoff ** len(wires),)
         assert np.allclose(probs, expected_probs, atol=tol)
 
     def test_modes_none(self, monkeypatch):
         """Tests that probabilities are returned using SF without any further
         processing when no specific modes were specified."""
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = pennylane_sf.StrawberryFieldsRemote(backend="X8")
+        dev = pennylane_sf.StrawberryFieldsRemote(backend="X8", cutoff_dim=5)
 
         mock_returned_probs = np.array(
             [
