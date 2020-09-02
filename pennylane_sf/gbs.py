@@ -51,6 +51,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
         use_cache (bool): TODO, also add to docs page
+        samples (array): TODO
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
@@ -67,10 +68,12 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=True):
+    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False,
+                 samples=None):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
         self.use_cache = use_cache
+        self.samples = samples
         self._params = None
         self._WAW = None
         self.A = None
@@ -151,6 +154,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
+        elif self.use_cache and self.samples:
+            return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
 
@@ -210,6 +215,10 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
         probs = all_fock_probs_pnr(samples)
+
+        if self.use_cache:
+            probs = self._reparametrize_probability(probs)
+
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
