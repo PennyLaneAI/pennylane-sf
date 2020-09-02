@@ -157,6 +157,38 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.state = results.state
         self.samples = results.samples
 
+    def _probability_A(self):
+        A_hashed = hash(self.A.tobytes())
+
+        if self.p_dict.get(A_hashed):
+            p = self.p_dict.get(A_hashed).copy()
+        else:
+            p = super().probability(wires=self.wires)  # Use full probability distribution
+            self.p_dict[A_hashed] = p.copy()
+
+        return p
+
+    def _reparametrize_probability(self, p):
+        Z = self._calculate_z_inv(self._WAW)
+        ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
+
+        for i, s in enumerate(ind_all_wires):
+            res = np.prod(np.power(self._params, s))
+            p[tuple(s)] = res * p[tuple(s)] * Z / self.Z
+
+        return p
+
+    def _trace_over_wires(self, wires, array):
+        trailing = int(array.size / self.cutoff ** self.num_wires)
+
+        array = array.reshape([self.cutoff] * self.num_wires + [trailing])
+
+        all_indices = set(range(self.num_wires))
+        requested_indices = set(self.wires.indices(wires))
+
+        trace_over_indices = all_indices - requested_indices  # Find indices to trace over
+        return np.sum(array, axis=tuple(trace_over_indices)).ravel()
+
     def probability(self, wires=None):
         wires = wires or self.wires
         wires = Wires(wires)
@@ -166,32 +198,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             if not self.use_cache:
                 return super().probability(wires=wires)
 
-            A_hashed = hash(self.A.tobytes())
-
-            if self.p_dict.get(A_hashed):
-                p = self.p_dict.get(A_hashed).copy()
-            else:
-                p = super().probability(wires=self.wires)  # Use full probability distribution
-                self.p_dict[A_hashed] = p.copy()
-
-            Z = self._calculate_z_inv(self._WAW)
-
-            ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
-            for i, s in enumerate(ind_all_wires):
-                res = np.prod(np.power(self._params, s))
-                p[tuple(s)] = res * p[tuple(s)] * Z / self.Z
+            p = self._probability_A()
+            p = self._reparametrize_probability(p)
 
             if len(wires) == self.num_wires:  # Return p if we do not need marginals
                 return p
 
             p = np.array(list(p.values()))  # Convert from dictionary to flat array
-            p = p.reshape([self.cutoff] * self.num_wires)
-
-            all_indices = set(range(self.num_wires))
-            requested_indices = set(self.wires.indices(wires))
-            trace_over_indices = all_indices - requested_indices  # Find indices to trace over
-            p = np.sum(p, axis=tuple(trace_over_indices)).ravel()
-
+            p = self._trace_over_wires(wires, p)
             return {tuple(index): p[i] for i, index in enumerate(ind)}
 
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
@@ -227,20 +241,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if requested_wires == self.wires:
             return jac
 
-        # Unflatten into a [cutoff, cutoff, ..., cutoff, num_params] dimensional tensor
-        jac = jac.reshape([self.cutoff] * self.num_wires + [self.num_wires])
-
-        # Find indices to trace over
-        all_indices = set(range(self.num_wires))
-        requested_indices = set(self.wires.indices(requested_wires))
-        trace_over_indices = all_indices - requested_indices
-
-        traced_jac = np.sum(jac, axis=tuple(trace_over_indices))
-
-        # Flatten into [cutoff ** num_requested_wires, num_params] dimensional tensor
-        traced_jac = traced_jac.reshape(-1, self.num_wires)
-
-        return traced_jac
+        return self._trace_over_wires(requested_wires, jac).reshape(-1, self.num_wires)
 
     def _jacobian_all_wires(self, prob):
         """Calculates the jacobian of the probability distribution with respect to all wires.
