@@ -97,7 +97,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
         self.num_wires = eng.device_spec.modes
 
-
         if wires is None:
             # infer the number of modes from the device specs
             # and use consecutive integer wire labels
