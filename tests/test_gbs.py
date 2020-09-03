@@ -24,6 +24,8 @@ from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.program import Program
 from strawberryfields.backends.states import BaseGaussianState
 from pennylane_sf.simulator import StrawberryFieldsSimulator
+import strawberryfields as sf
+from collections import namedtuple
 
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
@@ -852,6 +854,49 @@ class TestCachingStrawberryFieldsGBS:
             p3 = vgbs(0.4 * params)
             p3_exp = list(dev._reparametrize_probability(p1_dict.copy()).values())
             assert np.allclose(p3, p3_exp)
+
+    def test_caching_samples(self, mocker):
+        """Test caching in non-analytic mode. Samples should be generated upon first call and
+        then not generated subsequently."""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True,
+                         analytic=False, shots=10)
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(4)
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            return qml.probs(wires=range(4))
+
+        vgbs(params)
+        samps = dev.samples_cache.copy()
+
+        spy = mocker.spy(sf.Engine, "run")
+        vgbs(0.5 * params)
+        samps2 = dev.samples_cache.copy()
+        assert np.allclose(samps, samps2)
+        spy.assert_not_called()
+
+    # def test_caching_samples_at_input(self, mocker):
+    #     """Test caching in non-analytic mode with pre-generate input samples. No call to the
+    #     QNode should result in more samples being generated."""
+    #     dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True,
+    #                      analytic=False, samples=samples)
+    #     A = 0.1767767 * np.ones((4, 4))
+    #     params = np.ones(4)
+    #
+    #     @qml.qnode(dev)
+    #     def vgbs(params):
+    #         ParamGraphEmbed(params, A, 1, wires=range(4))
+    #         return qml.probs(wires=range(4))
+    #
+    #     spy = mocker.spy(sf.Engine, "run")
+    #     vgbs(params)
+    #     samps = dev.samples_cache.copy()
+    #     vgbs(0.5 * params)
+    #     samps2 = dev.samples_cache.copy()
+    #     assert np.allclose(samps, samps2)
+    #     spy.assert_not_called()
 
 
 class TestIntegrationStrawberryFieldsGBS:
