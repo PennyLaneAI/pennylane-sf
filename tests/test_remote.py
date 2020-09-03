@@ -290,7 +290,7 @@ class TestProbs:
         wires = [0, 1]
         shots = 10
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=5)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -331,7 +331,62 @@ class TestProbs:
         probs = quantum_function(1.0, 0)
 
         assert probs.shape == (dev.cutoff ** len(wires),)
-        assert np.allclose(probs, probs, atol=tol)
+        assert np.allclose(probs, expected_probs, atol=tol)
+
+    def test_mocked_engine_run_all_fock_probs_larger_cutoff(self, monkeypatch, tol):
+        """Test that the probabilities are returned as expected in the special case that the
+        cutoff dimension is larger than the implied cutoff dimension of the samples."""
+        wires = [0, 1]
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=10)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi, wires=[0, 1])
+            qml.Beamsplitter(theta, phi, wires=[4, 5])
+            return qml.probs(wires=wires)
+
+        expected_probs = np.array(
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.1,
+                0.0,
+                0.3,
+                0.0,
+                0.0,
+                0.0,
+                0.1,
+                0.0,
+                0.1,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.1,
+                0.0,
+                0.1,
+                0.1,
+                0.1,
+                0.0,
+            ]
+        )
+
+        probs = quantum_function(1.0, 0)
+
+        # with dev.cutoff = 10, probs will be a 100-dimensional flat array. Since expected_probs
+        # is a 25-dimensional flat array, we first reshape to a 5x5 matrix and then pad to get a
+        # 10x10 matrix, finally flattening
+        expected_probs = expected_probs.reshape((5, 5))
+        expected_probs = np.pad(expected_probs, [(0, 5), (0, 5)]).ravel()
+
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, expected_probs, atol=tol)
 
     def test_mocked_probability(self, monkeypatch, tol):
         """Tests that pre-defined probabilities are correctly propagated
@@ -340,7 +395,7 @@ class TestProbs:
         wires = [0, 1]
         shots = 10
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=5)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -387,8 +442,6 @@ class TestProbs:
         )
         probs = quantum_function(1.0, 0)
 
-        # Check that the shape of the expected probabilities indeed matches the cutoff
-        # The combination of yields a shape of (cutoff, cutoff)
         assert probs.shape == (dev.cutoff ** len(wires),)
         assert np.allclose(probs, expected_probs, atol=tol)
 
@@ -396,7 +449,7 @@ class TestProbs:
         """Tests that probabilities are returned using SF without any further
         processing when no specific modes were specified."""
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = pennylane_sf.StrawberryFieldsRemote(backend="X8", cutoff_dim=5)
+        dev = pennylane_sf.StrawberryFieldsRemote(backend="X8")
 
         mock_returned_probs = np.array(
             [

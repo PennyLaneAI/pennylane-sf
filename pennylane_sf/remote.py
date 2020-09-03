@@ -90,7 +90,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, *, backend, wires=None, cutoff_dim=10, shots=1000, hbar=2, sf_token=None):
+    def __init__(self, *, backend, wires=None, cutoff_dim=5, shots=1000, hbar=2, sf_token=None):
         self.backend = backend
         self.cutoff = cutoff_dim
         eng = sf.RemoteEngine(self.backend)
