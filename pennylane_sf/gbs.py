@@ -80,6 +80,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params = None
         self._WAW = None
         self.A = None
+        self.A_scaled = None
         self.Z_inv = None
         self._p_dict = {}
 
