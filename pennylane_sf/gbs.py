@@ -80,7 +80,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params = None
         self._WAW = None
         self.A = None
-        self.Z = None
+        self.Z_inv = None
         self._p_dict = {}
 
     @staticmethod
@@ -132,7 +132,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def apply(self, operation, wires, par):
         self._params, self.A, n_mean = par
         self.A *= rescale(self.A, n_mean)
-        self.Z = self._calculate_z_inv(self.A)
+        self.Z_inv = self._calculate_z_inv(self.A)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
@@ -194,12 +194,12 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         Returns:
             array: the probability distribution of :math:`WAW`
         """
-        Z = self._calculate_z_inv(self._WAW)
+        Z_inv = self._calculate_z_inv(self._WAW)
         ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
 
         for s in ind_all_wires:
             res = np.prod(np.power(self._params, s))
-            p[tuple(s)] = res * p[tuple(s)] * Z / self.Z
+            p[tuple(s)] = res * p[tuple(s)] * Z_inv / self.Z_inv
 
         return p
 
@@ -250,7 +250,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         fock_probs = all_fock_probs_pnr(samples)
         cutoff = fock_probs.shape[0]
         diff = self.cutoff - cutoff
-        probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
+        probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
         if self.use_cache:
             probs = self._reparametrize_probability(probs)

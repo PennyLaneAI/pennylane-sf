@@ -654,7 +654,7 @@ class TestStrawberryFieldsGBS:
         dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=True)
         A = 0.35355339 * np.ones((2, 2))
         dev._WAW = 0.9 * A
-        dev.Z = 1 / np.sqrt(2)
+        dev.Z_inv = 1 / np.sqrt(2)
         dev._params = 0.9 * np.ones(2)
 
         p = np.array(
@@ -683,7 +683,7 @@ class TestStrawberryFieldsGBS:
         dev._WAW = 0.1767767 * np.ones((4, 4))
         dev.A = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
-        dev.Z = 1 / np.sqrt(2)
+        dev.Z_inv = 1 / np.sqrt(2)
 
         dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
         dev_probs_dict = dev.probability()
@@ -699,7 +699,7 @@ class TestStrawberryFieldsGBS:
         dev._WAW = 0.1767767 * np.ones((4, 4))
         dev.A = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
-        dev.Z = 1 / np.sqrt(2)
+        dev.Z_inv = 1 / np.sqrt(2)
 
         dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
         dev_probs_dict = dev.probability(wires=[0, 2])
