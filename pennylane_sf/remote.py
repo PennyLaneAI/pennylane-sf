@@ -163,7 +163,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
         fock_probs = all_fock_probs_pnr(self.samples)
         cutoff = fock_probs.shape[0]
-        diff = self.cutoff - cutoff
+        diff = max(self.cutoff - cutoff, 0)
         all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
 
         if wires is None:
