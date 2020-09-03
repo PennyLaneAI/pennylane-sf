@@ -21,19 +21,21 @@ distribution is accessible.
 from collections import OrderedDict
 
 import numpy as np
-import pennylane as qml
 import strawberryfields as sf
-from pennylane.operation import Probability
-from pennylane.wires import Wires
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.utils import all_fock_probs_pnr
 from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 from thewalrus.quantum import photon_number_mean_vector
 
+import pennylane as qml
+from pennylane.operation import Probability
+from pennylane.wires import Wires
+
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
 
 
+# pylint: disable=too-many-instance-attributes
 class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     r"""StrawberryFields variational GBS device for PennyLane.
 
@@ -68,8 +70,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False,
-                 samples=None):
+    def __init__(
+        self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False, samples=None
+    ):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
         self.use_cache = use_cache
@@ -182,7 +185,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         return p
 
     def _reparametrize_probability(self, p):
-        """Takes an input probability distribution of :math:`A` and rescales it to the probability 
+        """Takes an input probability distribution of :math:`A` and rescales it to the probability
         distribution of :math:`WAW`.
 
         Args:
