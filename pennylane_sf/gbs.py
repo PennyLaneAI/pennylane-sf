@@ -76,7 +76,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
         self.use_cache = use_cache
-        self.samples = samples
+        self.samples_cache = samples
         self._params = None
         self._WAW = None
         self.A = None
@@ -158,13 +158,13 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self.use_cache and self.samples is not None:
+        elif self.use_cache and self.samples_cache is not None:
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
 
         self.state = results.state
-        self.samples = results.samples
+        self.samples_cache = results.samples
 
     def _probability_A(self):
         """Calculate the GBS probability distribution of :math:`A`.
@@ -246,11 +246,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             p = self._marginal_over_wires(wires, p)
             return {tuple(index): p[i] for i, index in enumerate(ind)}
 
-        samples = np.take(self.samples, self.wires.indices(wires), axis=1)
+        samples = np.take(self.samples_cache, self.wires.indices(wires), axis=1)
 
         fock_probs = all_fock_probs_pnr(samples)
         cutoff = fock_probs.shape[0]
-        diff = self.cutoff - cutoff
+        diff = max(self.cutoff - cutoff, 0)
         probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
         if self.use_cache:
