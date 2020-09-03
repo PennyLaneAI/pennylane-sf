@@ -159,6 +159,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if self.analytic:
             results = self.eng.run(self.prog)
         elif self.use_cache and self.samples_cache is not None:
+            self.reset = lambda: None
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
