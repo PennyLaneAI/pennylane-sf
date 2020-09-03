@@ -633,10 +633,11 @@ class TestStrawberryFieldsGBS:
         dev.A = A
         with monkeypatch.context() as m:
             m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: A)
-            dev._probability_A()
+            out = dev._probability_A()
         exp_hash = hash(A.tostring())
         assert len(dev._p_dict) == 1
         assert np.allclose(dev._p_dict[exp_hash], A)
+        assert np.allclose(out, A)
 
     def test_probability_A_cache(self, monkeypatch):
         """Test that the _probability_A method accesses items in the cache dictionary"""
