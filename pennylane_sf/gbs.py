@@ -56,7 +56,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             subsequent evaluations.
         samples (array): pre-generated samples using the input adjacency matrix specified by
             :class:`ParamGraphEmbed`. Probabilities will be inferred from these samples if
-            ``use_cache is True`` and ``analytic is False``, resulting in faster evaluation of the
+            ``use_cache=True`` and ``analytic=False``, resulting in faster evaluation of the
             circuit and its derivative.
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"

@@ -129,6 +129,14 @@ The GBS device accepts additional arguments beyond the PennyLane default device 
 	The number of circuit evaluations/random samples used to estimate probabilities.
 	Only used when ``analytic=False``, otherwise probabilities are exact.
 
+``use_cache``
+    Indicates whether to cache data from previous evaluations to speed up subsequent evaluations.
+
+``samples``
+    Allows pre-generated samples of the input adjacency matrix to be provided in non-analytic mode.
+    When ``use_cache=True``, these samples will be used to infer the probability distribution for
+    any choice of trainable parameter.
+
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~
 
