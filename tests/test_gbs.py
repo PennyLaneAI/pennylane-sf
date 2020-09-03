@@ -630,7 +630,7 @@ class TestStrawberryFieldsGBS:
         key of A is not present in the _p_dict attribute"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
         A = 0.1767767 * np.ones((4, 4))
-        dev.A = A
+        dev.A_scaled = A
         with monkeypatch.context() as m:
             m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: A)
             out = dev._probability_A()
@@ -643,7 +643,7 @@ class TestStrawberryFieldsGBS:
         """Test that the _probability_A method accesses items in the cache dictionary"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
         A = 0.1767767 * np.ones((4, 4))
-        dev.A = A
+        dev.A_scaled = A
         dev._p_dict = {hash(A.tostring()): A}
         with monkeypatch.context() as m:
             m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: None)
@@ -682,7 +682,7 @@ class TestStrawberryFieldsGBS:
         """Test that the probability method returns the correct result for a fixed example"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True, use_cache=use_cache)
         dev._WAW = 0.1767767 * np.ones((4, 4))
-        dev.A = 0.1767767 * np.ones((4, 4))
+        dev.A_scaled = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
         dev.Z_inv = 1 / np.sqrt(2)
 
@@ -698,7 +698,7 @@ class TestStrawberryFieldsGBS:
         measuring on a subset of wires"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True, use_cache=use_cache)
         dev._WAW = 0.1767767 * np.ones((4, 4))
-        dev.A = 0.1767767 * np.ones((4, 4))
+        dev.A_scaled = 0.1767767 * np.ones((4, 4))
         dev._params = np.ones(4)
         dev.Z_inv = 1 / np.sqrt(2)
 
@@ -818,6 +818,40 @@ class TestStrawberryFieldsGBS:
         A = 0.1767767 * np.ones((4, 4))
         z_inv = StrawberryFieldsGBS._calculate_z_inv(A)
         assert np.allclose(z_inv, 1 / np.sqrt(2))
+
+
+class TestCachingStrawberryFieldsGBS:
+    """Tests for the caching functionality of StrawberryFieldsGBS."""
+
+    def test_caching_analytic(self, monkeypatch):
+        """Test that the probability distribution of the input adjacency matrix is cached on
+        first calculation and then subsequent calculations access the cache and reparametrize"""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True)
+        A = 0.1767767 * np.ones((4, 4))
+        params = np.ones(4)
+
+        @qml.qnode(dev)
+        def vgbs(params):
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            return qml.probs(wires=range(4))
+
+        p1 = vgbs(params)
+        hash_A = hash(A.tostring())
+        cached_p = dev._p_dict[hash_A]
+
+        assert np.allclose(p1, list(cached_p.values()))
+
+        p1_dict = {tuple(sample): p1[i] for i, sample in enumerate(np.ndindex(*[3, 3, 3, 3]))}
+
+        with monkeypatch.context() as m:
+            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: None)
+            p2 = vgbs(0.9 * params)
+            p2_exp = list(dev._reparametrize_probability(p1_dict.copy()).values())
+            assert np.allclose(p2, p2_exp)
+
+            p3 = vgbs(0.4 * params)
+            p3_exp = list(dev._reparametrize_probability(p1_dict.copy()).values())
+            assert np.allclose(p3, p3_exp)
 
 
 class TestIntegrationStrawberryFieldsGBS:

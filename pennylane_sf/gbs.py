@@ -131,21 +131,22 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
         self._params, self.A, n_mean = par
-        self.A *= rescale(self.A, n_mean)
-        self.Z_inv = self._calculate_z_inv(self.A)
+        self.A_scaled = self.A.copy()
+        self.A_scaled *= rescale(self.A_scaled, n_mean)
+        self.Z_inv = self._calculate_z_inv(self.A_scaled)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
                 "The number of variable parameters must be equal to the total number of wires."
             )
 
-        self._WAW = self.calculate_WAW(self._params, self.A)
+        self._WAW = self.calculate_WAW(self._params, self.A_scaled)
 
         if self.use_cache:
-            op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
+            op = GraphEmbed(self.A_scaled, mean_photon_per_mode=n_mean / len(self.A_scaled))
         else:
             n_mean_WAW = self.calculate_n_mean(self._WAW)
-            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
+            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A_scaled))
 
         op | [self.q[wires.index(i)] for i in wires]
 
@@ -189,7 +190,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         distribution of :math:`WAW`.
 
         Args:
-            p (array): the probability distribution of :math:`A`
+            p (OrderedDict): the probability distribution of :math:`A`
 
         Returns:
             array: the probability distribution of :math:`WAW`
