@@ -130,7 +130,8 @@ The GBS device accepts additional arguments beyond the PennyLane default device 
 	Only used when ``analytic=False``, otherwise probabilities are exact.
 
 ``use_cache``
-    Indicates whether to cache data from previous evaluations to speed up subsequent evaluations.
+    Indicates whether to cache data from previous evaluations to speed up calculation of the
+    probability distribution for other choices of trainable parameter.
 
 ``samples``
     Allows pre-generated samples of the input adjacency matrix to be provided in non-analytic mode.

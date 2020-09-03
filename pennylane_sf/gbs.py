@@ -53,7 +53,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
         use_cache (bool): indicates whether to cache data from previous evaluations to speed up
-            subsequent evaluations.
+            calculation of the probability distribution for other choices of trainable parameter.
         samples (array): pre-generated samples using the input adjacency matrix specified by
             :class:`ParamGraphEmbed`. Probabilities will be inferred from these samples if
             ``use_cache=True`` and ``analytic=False``, resulting in faster evaluation of the
