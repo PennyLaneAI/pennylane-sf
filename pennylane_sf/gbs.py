@@ -192,7 +192,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             p (array): the probability distribution of :math:`A`
 
         Returns:
-            array: the probability distribution of :math:``WAW`
+            array: the probability distribution of :math:`WAW`
         """
         Z = self._calculate_z_inv(self._WAW)
         ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
@@ -246,7 +246,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             return {tuple(index): p[i] for i, index in enumerate(ind)}
 
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
-        probs = all_fock_probs_pnr(samples)
+
+        fock_probs = all_fock_probs_pnr(samples)
+        cutoff = fock_probs.shape[0]
+        diff = self.cutoff - cutoff
+        probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
 
         if self.use_cache:
             probs = self._reparametrize_probability(probs)
