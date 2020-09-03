@@ -110,7 +110,9 @@ class TestDevice:
         with pytest.raises(ValueError, match="Device has a fixed number of"):
             qml.device("strawberryfields.remote", wires=8, backend="X8", shots=10)
 
-        dev_iterable_wires = qml.device("strawberryfields.remote", wires=range(8), backend="X8", shots=10)
+        dev_iterable_wires = qml.device(
+            "strawberryfields.remote", wires=range(8), backend="X8", shots=10
+        )
         assert dev_iterable_wires.wires == Wires(range(8))
 
         with pytest.raises(ValueError, match="Device has a fixed number of"):
