@@ -157,7 +157,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     def reset(self):
         # There is no engine to reset in this case
-        if self.use_cache and self.samples is not None:
+        if not self.analytic and self.use_cache and self.samples is not None:
             return
         super().reset()
 

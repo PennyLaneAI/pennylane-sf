@@ -734,7 +734,8 @@ class TestCachingStrawberryFieldsGBS:
         p2 = vgbs(0.5 * params)
         samps2 = dev.samples.copy()
         p2_expected = dev._reparametrize_probability(p1.reshape((3, 3, 3, 3))).ravel()
-        assert np.allclose(samps, samps2)
+        assert np.allclose(samps, samples)
+        assert np.allclose(samps2, samples)
         assert np.allclose(p2_expected, p2)
         spy.assert_not_called()
 
