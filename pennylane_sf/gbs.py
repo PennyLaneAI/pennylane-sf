@@ -86,16 +86,21 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._p_dict = {}
 
     @staticmethod
-    def calculate_WAW(params, A):
+    def calculate_WAW(params, A, n_mean):
         """Calculates the :math:`WAW` matrix.
+
+        Rescales :math:`A` so that when encoded in GBS the mean photon number is equal to
+        ``n_mean``.
 
         Args:
             params (array[float]): variable parameters
             A (array[float]): adjacency matrix
+            n_mean (float): mean number of photons
 
         Returns:
             array[float]: the :math:`WAW` matrix
         """
+        A *= rescale(A, n_mean)
         W = np.diag(np.sqrt(params))
         return W @ A @ W
 
