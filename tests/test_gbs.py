@@ -14,21 +14,22 @@
 """
 Unit tests for the GBS device.
 """
-import pennylane as qml
+from collections import namedtuple
+
 import pytest
+import strawberryfields as sf
+from strawberryfields.backends.states import BaseGaussianState
+from strawberryfields.ops import GraphEmbed, MeasureFock
+from strawberryfields.program import Program
+
+import pennylane as qml
 from pennylane import numpy as np
 from pennylane.operation import Probability
 from pennylane.qnodes.base import ParameterDependency
 from pennylane.wires import Wires
-from strawberryfields.ops import GraphEmbed, MeasureFock
-from strawberryfields.program import Program
-from strawberryfields.backends.states import BaseGaussianState
-from pennylane_sf.simulator import StrawberryFieldsSimulator
-import strawberryfields as sf
-from collections import namedtuple
-
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
+from pennylane_sf.simulator import StrawberryFieldsSimulator
 
 target_cov = np.array(
     [
@@ -694,8 +695,9 @@ class TestCachingStrawberryFieldsGBS:
     def test_caching_samples(self, mocker):
         """Test caching in non-analytic mode. Samples should be generated upon first call and
         then not generated subsequently."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True,
-                         analytic=False, shots=10)
+        dev = qml.device(
+            "strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True, analytic=False, shots=10
+        )
         A = 0.1767767 * np.ones((4, 4))
         params = np.ones(4)
 
@@ -718,8 +720,14 @@ class TestCachingStrawberryFieldsGBS:
     def test_caching_samples_at_input(self, mocker):
         """Test caching in non-analytic mode with pre-generated input samples. No call to the
         QNode should result in more samples being generated."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True,
-                         analytic=False, samples=samples)
+        dev = qml.device(
+            "strawberryfields.gbs",
+            wires=4,
+            cutoff_dim=3,
+            use_cache=True,
+            analytic=False,
+            samples=samples,
+        )
         A = 0.1767767 * np.ones((4, 4))
         params = np.ones(4)
 
