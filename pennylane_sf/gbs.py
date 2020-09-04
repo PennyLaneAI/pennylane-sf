@@ -82,7 +82,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params = None
         self._WAW = None
         self.A = None
-        self.A_scaled = None
         self.Z_inv = None
         self._p_dict = {}
 
@@ -133,22 +132,17 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
-        self._params, self.A, n_mean = par
-        self.A *= rescale(self.A, n_mean)
-        self.Z_inv = self._calculate_z_inv(self.A)
+        self._params, A, _ = par
 
         if len(self._params) != self.num_wires:
             raise ValueError(
                 "The number of variable parameters must be equal to the total number of wires."
             )
 
-        self._WAW = self.calculate_WAW(self._params, self.A)
+        self._WAW = self.calculate_WAW(*par)
+        n_mean_WAW = self.calculate_n_mean(self._WAW)
 
-        if self.use_cache:
-            op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
-        else:
-            n_mean_WAW = self.calculate_n_mean(self._WAW)
-            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
+        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
 
         op | [self.q[wires.index(i)] for i in wires]
 
