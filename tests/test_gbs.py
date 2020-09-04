@@ -517,7 +517,7 @@ class TestStrawberryFieldsGBS:
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
         assert dev.samples.shape == (2, 4)
 
-    def test_pre_measure_non_analytic_cache(self):
+    def test_pre_measure_non_analytic_cache(self, mocker):
         """Test that the pre_measure method does not overwrite existing samples if present in
         non-analytic mode when use_cache is ``True``"""
         samples = -1 * np.ones((10, 4))
@@ -536,7 +536,9 @@ class TestStrawberryFieldsGBS:
         prog.append(op2, prog.register)
         dev.prog = prog
         dev.pre_measure()
+        spy = mocker.spy(sf.Engine, "run")
         assert np.allclose(dev.samples, samples)
+        spy.assert_not_called()
 
     def test_reparametrize_probability(self):
         """Test the _reparametrize_probability method applied to a fixed 2-mode example"""
@@ -786,11 +788,10 @@ class TestIntegrationStrawberryFieldsGBS:
         assert (p <= 1).all()
         assert np.sum(p) <= 1
 
-    @pytest.mark.parametrize("cache", [True, False])
     @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
-    def test_example_jacobian(self, wires, cache):
+    def test_example_jacobian(self, wires):
         """Test that the jacobian is correct on the fixed example"""
-        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3, use_cache=cache)
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
 
         @qml.qnode(dev)
@@ -803,12 +804,11 @@ class TestIntegrationStrawberryFieldsGBS:
 
         assert np.allclose(dp, jac_exp)
 
-    @pytest.mark.parametrize("cache", [True, False])
     @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
     @pytest.mark.parametrize("subset_wires", jac_reduced)
-    def test_example_jacobian_reduced_wires(self, subset_wires, wires, cache):
+    def test_example_jacobian_reduced_wires(self, subset_wires, wires):
         """Test that the jacobian is correct on the fixed example with a subset of wires"""
-        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3, use_cache=cache)
+        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
 
         @qml.qnode(dev)
