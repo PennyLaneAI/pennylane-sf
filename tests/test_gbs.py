@@ -515,10 +515,9 @@ class TestStrawberryFieldsGBS:
         with pytest.raises(ValueError, match="The number of variable parameters must be"):
             dev.apply(op, wires, par)
 
-    @pytest.mark.parametrize("use_cache", [True, False])
-    def test_apply_analytic(self, use_cache):
+    def test_apply_analytic(self):
         """Test that the apply method constructs the correct program"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=use_cache)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
         op = "ParamGraphEmbed"
         wires = list(range(4))
 
@@ -533,10 +532,7 @@ class TestStrawberryFieldsGBS:
         circ = dev.prog.circuit
         assert len(circ) == 1
         assert isinstance(circ[0].op, GraphEmbed)
-        if use_cache:
-            assert np.allclose(circ[0].op.p[0], A)
-        else:
-            assert np.allclose(circ[0].op.p[0], 0.5 * A)
+        assert np.allclose(circ[0].op.p[0], 0.5 * A)
 
     @pytest.mark.parametrize("use_cache", [True, False])
     def test_apply_non_analytic(self, use_cache):

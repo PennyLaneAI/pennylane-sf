@@ -144,7 +144,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         self._WAW = self.calculate_WAW(self._params, A)
 
-        if self.use_cache:
+        if not self.analytic and self.use_cache:
             op = GraphEmbed(A, mean_photon_per_mode=n_mean / len(A))
         else:
             n_mean_WAW = self.calculate_n_mean(self._WAW)
