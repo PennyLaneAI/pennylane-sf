@@ -650,38 +650,15 @@ class TestStrawberryFieldsGBS:
         p_marg = dev._marginal_over_wires([0, 2], probs_exact)
         assert np.allclose(p_marg, probs_exact_subset, atol=0.05)
 
-    @pytest.mark.parametrize("use_cache", [True, False])
-    def test_probability_analytic(self, use_cache):
-        """Test that the probability method returns the correct result for a fixed example"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True, use_cache=use_cache)
-        dev._WAW = 0.1767767 * np.ones((4, 4))
-        dev.A_scaled = 0.1767767 * np.ones((4, 4))
-        dev.A = np.ones((4, 4))
-        dev._params = np.ones(4)
-        dev.Z_inv = 1 / np.sqrt(2)
-
-        dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
-        dev_probs_dict = dev.probability()
-
-        p = list(dev_probs_dict.values())
-        assert np.allclose(p, probs_exact)
-
-    @pytest.mark.parametrize("use_cache", [True, False])
-    def test_probability_analytic_subset_wires(self, use_cache):
-        """Test that the probability method returns the correct result for a fixed example when
-        measuring on a subset of wires"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True, use_cache=use_cache)
-        dev._WAW = 0.1767767 * np.ones((4, 4))
-        dev.A_scaled = 0.1767767 * np.ones((4, 4))
-        dev.A = np.ones((4, 4))
-        dev._params = np.ones(4)
-        dev.Z_inv = 1 / np.sqrt(2)
-
-        dev.state = BaseGaussianState((np.zeros(8), cov_probs), num_modes=4)
-        dev_probs_dict = dev.probability(wires=[0, 2])
-
-        p = list(dev_probs_dict.values())
-        assert np.allclose(p, probs_exact_subset, atol=0.05)
+    def test_probability_analytic(self, monkeypatch):
+        """Test that the probability method in analytic mode simply calls the parent method in
+        StrawberryFieldsSimulator. The test monkeypatches StrawberryFieldsSimulator.probability() to
+        just return True."""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
+        with monkeypatch.context() as m:
+            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: True)
+            p = dev.probability()
+        assert p
 
     def test_probability_non_analytic_all_wires(self):
         """Test that the probability method in non-analytic mode returns the expected dictionary
