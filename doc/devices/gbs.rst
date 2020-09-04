@@ -117,6 +117,23 @@ has shown how to calculate the derivative of the output GBS probability distribu
 
 where :math:`\mathbf{n}` is a sample given by counting the number of photons observed in each mode.
 
+Moreover, the probability :math:`P(\mathbf{n}, \mathbf{w})` of a sample :math:`\mathbf{n}`
+according to trainable parameters :math:`\mathbf{w}` can be calculated as:
+
+.. math::
+
+    P(\mathbf{n}, \mathbf{w}) = \frac{Z(A)}{Z(WAW)} \prod_{i=1}^{n} w_{i}^{n_{i}}
+
+where :math:`Z` is a normalization coefficient giving the probability of detecting no photons.
+This means that the probability distribution and its derivative can be calculated directly from
+the probability distribution of :math:`A`. This observation is particularly useful for devices in
+non-analytic mode, allowing us to generate a reference set of samples from :math:`A` and rescale
+the resulting probability distribution to give :math:`P(\mathbf{n}, \mathbf{w})` for any choice of
+:math:`\mathbf{w}`.
+
+Caching samples from :math:`A` is possible by setting the ``use_cache=True`` argument. It is also
+possible to input a NumPy array of pre-generated samples using the ``samples`` argument.
+
 Device options
 ~~~~~~~~~~~~~~
 
