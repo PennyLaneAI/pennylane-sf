@@ -156,7 +156,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
     def reset(self):
-
         # There is no engine to reset in this case
         if self.use_cache and self.samples is not None:
             return
@@ -167,7 +166,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self.use_cache and self.samples is not None:
+        elif self.use_cache and self.samples is not None:  # use the cached samples
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
@@ -190,7 +189,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         for s in ind_all_wires:
             res = np.prod(np.power(self._params, s))
-            p[tuple(s)] = res * p[tuple(s)] * Z_inv / self.Z_inv
+            p[tuple(s)] *= res * Z_inv / self.Z_inv
 
         return p
 
