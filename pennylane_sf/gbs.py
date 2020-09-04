@@ -52,6 +52,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
+        use_cache (bool): indicates whether to cache data from previous evaluations to speed up
+            calculation of the probability distribution for other choices of trainable parameter.
         samples (array): TODO pre-generated samples using the input adjacency matrix specified by
             :class:`ParamGraphEmbed`. Probabilities will be inferred from these samples if
             ``use_cache=True`` and ``analytic=False``, resulting in faster evaluation of the
@@ -73,32 +75,28 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
     def __init__(
-        self, wires, *, analytic=True, cutoff_dim, shots=1000, samples=None
+        self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False, samples=None
     ):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
+        self.use_cache = use_cache
         self.samples = samples
-        self._use_cache = samples is not None
+
         self._params = None
         self._WAW = None
         self.Z_inv = None
 
     @staticmethod
-    def calculate_WAW(params, A, n_mean):
+    def calculate_WAW(params, A):
         """Calculates the :math:`WAW` matrix.
-
-        Rescales :math:`A` so that when encoded in GBS the mean photon number is equal to
-        ``n_mean``.
 
         Args:
             params (array[float]): variable parameters
             A (array[float]): adjacency matrix
-            n_mean (float): mean number of photons
 
         Returns:
             array[float]: the :math:`WAW` matrix
         """
-        A *= rescale(A, n_mean)
         W = np.diag(np.sqrt(params))
         return W @ A @ W
 
@@ -135,30 +133,41 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
-        self._params, A, _ = par
+        self._params, A, n_mean = par
+        A *= rescale(A, n_mean)
+        self.Z_inv = self._calculate_z_inv(A)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
                 "The number of variable parameters must be equal to the total number of wires."
             )
 
-        self._WAW = self.calculate_WAW(*par)
-        n_mean_WAW = self.calculate_n_mean(self._WAW)
+        self._WAW = self.calculate_WAW(self._params, A)
 
-        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        if self.use_cache:
+            op = GraphEmbed(A, mean_photon_per_mode=n_mean / len(A))
+        else:
+            n_mean_WAW = self.calculate_n_mean(self._WAW)
+            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
 
         op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
+    def reset(self):
+
+        # There is no program to reset in this case
+        if self._use_cache and self.samples is not None:
+            return
+        super().reset()
+
     def pre_measure(self):
         self.eng = sf.Engine("gaussian", backend_options={"cutoff_dim": self.cutoff})
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self._use_cache:
-            self.reset = lambda: None
+        elif self._use_cache and self.samples is not None:
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
@@ -211,7 +220,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def probability(self, wires=None):
         wires = wires or self.wires
         wires = Wires(wires)
-        ind = np.ndindex(*[self.cutoff] * len(wires))
 
         if self.analytic:
             return super().probability(wires=wires)
@@ -226,6 +234,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if self._use_cache:
             probs = self._reparametrize_probability(probs)
 
+        ind = np.ndindex(*[self.cutoff] * len(wires))
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
