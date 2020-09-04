@@ -52,12 +52,13 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
-        use_cache (bool): indicates whether to cache data from previous evaluations to speed up
-            calculation of the probability distribution for other choices of trainable parameter.
-        samples (array): TODO pre-generated samples using the input adjacency matrix specified by
-            :class:`ParamGraphEmbed`. Probabilities will be inferred from these samples if
-            ``use_cache=True`` and ``analytic=False``, resulting in faster evaluation of the
-            circuit and its derivative.
+        use_cache (bool): indicates whether to use samples from previous evaluations to speed up
+            calculation of the probability distribution. If ``analytic=True``, this setting is
+            ignored.
+        samples (array): pre-generated samples using the input adjacency matrix specified by
+            :class:`ParamGraphEmbed`. In non-analytic mode with ``use_cache=True``, probabilities
+            will be inferred from these samples rather than generating new samples, resulting in
+            faster evaluation of the circuit and its derivative.
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
