@@ -157,8 +157,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     def reset(self):
 
-        # There is no program to reset in this case
-        if self._use_cache and self.samples is not None:
+        # There is no engine to reset in this case
+        if self.use_cache and self.samples is not None:
             return
         super().reset()
 
@@ -167,7 +167,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self._use_cache and self.samples is not None:
+        elif self.use_cache and self.samples is not None:
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
@@ -231,7 +231,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         diff = max(self.cutoff - cutoff, 0)
         probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
-        if self._use_cache:
+        if self.use_cache:
             probs = self._reparametrize_probability(probs)
 
         ind = np.ndindex(*[self.cutoff] * len(wires))

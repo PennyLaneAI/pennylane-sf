@@ -477,7 +477,7 @@ class TestStrawberryFieldsGBS:
         """Test that the device loads correctly with input samples"""
         a = np.ones((10, 2))
         dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=False, samples=a)
-        assert np.allclose(dev.samples_cache, a)
+        assert np.allclose(dev.samples, a)
 
     def test_calculate_WAW(self):
         """Test that the calculate_WAW method calculates correctly"""
@@ -588,7 +588,7 @@ class TestStrawberryFieldsGBS:
 
         assert np.allclose(dev.state.displacement(), np.zeros(4))
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
-        assert not dev.samples_cache
+        assert not dev.samples
 
     def test_pre_measure_state_and_samples_non_analytic(self, tol):
         """Test that the pre_measure method operates as expected in non-analytic mode by
@@ -604,7 +604,7 @@ class TestStrawberryFieldsGBS:
 
         assert np.allclose(dev.state.displacement(), np.zeros(4))
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
-        assert dev.samples_cache.shape == (2, 4)
+        assert dev.samples.shape == (2, 4)
 
     def test_pre_measure_non_analytic_cache(self):
         """Test that the pre_measure method does not overwrite existing samples if present in
@@ -625,38 +625,7 @@ class TestStrawberryFieldsGBS:
         prog.append(op2, prog.register)
         dev.prog = prog
         dev.pre_measure()
-        assert np.allclose(dev.samples_cache, samples)
-
-    def test_probability_A_no_cache(self, monkeypatch):
-        """Test that the _probability_A method calculates the probability distribution when the
-        key of A is not present in the _p_dict attribute"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
-        A_scaled = 0.1767767 * np.ones((4, 4))
-        A = np.ones((4, 4))
-        dev.A_scaled = A_scaled
-        dev.A = A
-
-        with monkeypatch.context() as m:
-            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: A)
-            out = dev._probability_A()
-        exp_hash = hash(A.tostring())
-        assert len(dev._p_dict) == 1
-        assert np.allclose(dev._p_dict[exp_hash], A)
-        assert np.allclose(out, A)
-
-    def test_probability_A_cache(self, monkeypatch):
-        """Test that the _probability_A method accesses items in the cache dictionary"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
-        A_scaled = 0.1767767 * np.ones((4, 4))
-        A = np.ones((4, 4))
-        dev.A_scaled = A_scaled
-        dev.A = A
-
-        dev._p_dict = {hash(A.tostring()): A}
-        with monkeypatch.context() as m:
-            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: None)
-            p = dev._probability_A()
-        assert np.allclose(A, p)
+        assert np.allclose(dev.samples, samples)
 
     def test_reparametrize_probability(self):
         """Test the _reparametrize_probability method applied to a fixed 2-mode example"""
@@ -724,7 +693,7 @@ class TestStrawberryFieldsGBS:
         input. The lexicographic order of the keys in the returned dictionary is also checked."""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False)
 
-        dev.samples_cache = samples
+        dev.samples = samples
         dev_probs_dict = dev.probability()
 
         for sample, prob in probs_dict.items():
@@ -743,7 +712,7 @@ class TestStrawberryFieldsGBS:
         returned dictionary is also checked."""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False)
 
-        dev.samples_cache = samples
+        dev.samples = samples
         dev_probs_dict = dev.probability(wires=[0, 2])
 
         for sample, prob in probs_dict_subset.items():
@@ -833,36 +802,6 @@ class TestStrawberryFieldsGBS:
 class TestCachingStrawberryFieldsGBS:
     """Tests for the caching functionality of StrawberryFieldsGBS."""
 
-    def test_caching_analytic(self, monkeypatch):
-        """Test that the probability distribution of the input adjacency matrix is cached on
-        first calculation and then subsequent calculations access the cache and reparametrize"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True)
-        A = 0.1767767 * np.ones((4, 4))
-        params = np.ones(4)
-
-        @qml.qnode(dev)
-        def vgbs(params):
-            ParamGraphEmbed(params, A, 1, wires=range(4))
-            return qml.probs(wires=range(4))
-
-        p1 = vgbs(params)
-        hash_A = hash(A.tostring())
-        cached_p = dev._p_dict[hash_A]
-
-        assert np.allclose(p1, list(cached_p.values()))
-
-        p1_dict = {tuple(sample): p1[i] for i, sample in enumerate(np.ndindex(*[3, 3, 3, 3]))}
-
-        with monkeypatch.context() as m:
-            m.setattr(StrawberryFieldsSimulator, "probability", lambda *args, **kwargs: None)
-            p2 = vgbs(0.9 * params)
-            p2_exp = list(dev._reparametrize_probability(p1_dict.copy()).values())
-            assert np.allclose(p2, p2_exp)
-
-            p3 = vgbs(0.4 * params)
-            p3_exp = list(dev._reparametrize_probability(p1_dict.copy()).values())
-            assert np.allclose(p3, p3_exp)
-
     def test_caching_samples(self, mocker):
         """Test caching in non-analytic mode. Samples should be generated upon first call and
         then not generated subsequently."""
@@ -877,11 +816,11 @@ class TestCachingStrawberryFieldsGBS:
             return qml.probs(wires=range(4))
 
         vgbs(params)
-        samps = dev.samples_cache.copy()
+        samps = dev.samples.copy()
 
         spy = mocker.spy(sf.Engine, "run")
         vgbs(0.5 * params)
-        samps2 = dev.samples_cache.copy()
+        samps2 = dev.samples.copy()
         assert np.allclose(samps, samps2)
         spy.assert_not_called()
 
@@ -900,9 +839,9 @@ class TestCachingStrawberryFieldsGBS:
 
         spy = mocker.spy(sf.Engine, "run")
         vgbs(params)
-        samps = dev.samples_cache.copy()
+        samps = dev.samples.copy()
         vgbs(0.5 * params)
-        samps2 = dev.samples_cache.copy()
+        samps2 = dev.samples.copy()
         assert np.allclose(samps, samps2)
         spy.assert_not_called()
 
