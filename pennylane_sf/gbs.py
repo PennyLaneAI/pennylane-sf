@@ -77,13 +77,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     ):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
-        self.samples_cache = samples
-        self.use_cache = samples is not None
+        self.samples = samples
+        self._use_cache = samples is not None
         self._params = None
         self._WAW = None
-        self.A = None
         self.Z_inv = None
-        self._p_dict = {}
 
     @staticmethod
     def calculate_WAW(params, A, n_mean):
@@ -147,7 +145,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = self.calculate_WAW(*par)
         n_mean_WAW = self.calculate_n_mean(self._WAW)
 
-        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
+        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
 
         op | [self.q[wires.index(i)] for i in wires]
 
@@ -159,14 +157,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self.use_cache:
+        elif self._use_cache:
             self.reset = lambda: None
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
 
         self.state = results.state
-        self.samples_cache = results.samples
+        self.samples = results.samples
 
     def _reparametrize_probability(self, p):
         """Takes an input probability distribution of :math:`A` and rescales it to the probability
@@ -218,14 +216,14 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if self.analytic:
             return super().probability(wires=wires)
 
-        samples = np.take(self.samples_cache, self.wires.indices(wires), axis=1)
+        samples = np.take(self.samples, self.wires.indices(wires), axis=1)
 
         fock_probs = all_fock_probs_pnr(samples)
         cutoff = fock_probs.shape[0]
         diff = max(self.cutoff - cutoff, 0)
         probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
-        if self.use_cache:
+        if self._use_cache:
             probs = self._reparametrize_probability(probs)
 
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
