@@ -52,9 +52,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
-        use_cache (bool): indicates whether to cache data from previous evaluations to speed up
-            calculation of the probability distribution for other choices of trainable parameter.
-        samples (array): pre-generated samples using the input adjacency matrix specified by
+        samples (array): TODO pre-generated samples using the input adjacency matrix specified by
             :class:`ParamGraphEmbed`. Probabilities will be inferred from these samples if
             ``use_cache=True`` and ``analytic=False``, resulting in faster evaluation of the
             circuit and its derivative.
@@ -75,12 +73,12 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
     def __init__(
-        self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False, samples=None
+        self, wires, *, analytic=True, cutoff_dim, shots=1000, samples=None
     ):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
-        self.use_cache = use_cache
         self.samples_cache = samples
+        self.use_cache = samples is not None
         self._params = None
         self._WAW = None
         self.A = None
@@ -136,22 +134,21 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
         self._params, self.A, n_mean = par
-        self.A_scaled = self.A.copy()
-        self.A_scaled *= rescale(self.A_scaled, n_mean)
-        self.Z_inv = self._calculate_z_inv(self.A_scaled)
+        self.A *= rescale(self.A, n_mean)
+        self.Z_inv = self._calculate_z_inv(self.A)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
                 "The number of variable parameters must be equal to the total number of wires."
             )
 
-        self._WAW = self.calculate_WAW(self._params, self.A_scaled)
+        self._WAW = self.calculate_WAW(self._params, self.A)
 
         if self.use_cache:
-            op = GraphEmbed(self.A_scaled, mean_photon_per_mode=n_mean / len(self.A_scaled))
+            op = GraphEmbed(self.A, mean_photon_per_mode=n_mean / len(self.A))
         else:
             n_mean_WAW = self.calculate_n_mean(self._WAW)
-            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A_scaled))
+            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(self.A))
 
         op | [self.q[wires.index(i)] for i in wires]
 
@@ -163,7 +160,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self.use_cache and self.samples_cache is not None:
+        elif self.use_cache:
             self.reset = lambda: None
             return
         else:
@@ -172,31 +169,12 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self.state = results.state
         self.samples_cache = results.samples
 
-    def _probability_A(self):
-        """Calculate the GBS probability distribution of :math:`A`.
-
-        Stores previous calculations in the ``_p_dict`` attribute, which maps a hashed version of
-        :math:`A` to the corresponding probability distribution.
-
-        Returns:
-            array: the probability distribution of :math:`A`
-        """
-        A_hashed = hash(self.A.tostring())
-
-        if self._p_dict.get(A_hashed) is not None:
-            p = self._p_dict.get(A_hashed).copy()
-        else:
-            p = super().probability(wires=self.wires)  # Use full probability distribution
-            self._p_dict[A_hashed] = p.copy()
-
-        return p
-
     def _reparametrize_probability(self, p):
         """Takes an input probability distribution of :math:`A` and rescales it to the probability
         distribution of :math:`WAW`.
 
         Args:
-            p (OrderedDict): the probability distribution of :math:`A`
+            p (array): the probability distribution of :math:`A`
 
         Returns:
             array: the probability distribution of :math:`WAW`
@@ -239,18 +217,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         ind = np.ndindex(*[self.cutoff] * len(wires))
 
         if self.analytic:
-            if not self.use_cache:
-                return super().probability(wires=wires)
-
-            p = self._probability_A()
-            p = self._reparametrize_probability(p)
-
-            if len(wires) == self.num_wires:  # Return p if we do not need marginals
-                return p
-
-            p = np.array(list(p.values()))  # Convert from dictionary to flat array
-            p = self._marginal_over_wires(wires, p)
-            return {tuple(index): p[i] for i, index in enumerate(ind)}
+            return super().probability(wires=wires)
 
         samples = np.take(self.samples_cache, self.wires.indices(wires), axis=1)
 
