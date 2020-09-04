@@ -550,14 +550,13 @@ class TestStrawberryFieldsGBS:
 
         p = np.array(
             [0.70710678, 0.0, 0.04419417, 0.0, 0.08838835, 0.0, 0.04419417, 0.0, 0.02485922]
-        )
-        p_dict = {tuple(index): p[i] for i, index in enumerate(np.ndindex(*[3] * 2))}
-        p_reparam = dev._reparametrize_probability(p_dict)
+        ).reshape((3, 3))
+        p_reparam = dev._reparametrize_probability(p)
         p_target = np.array(
             [0.77136243, 0.0, 0.03905022, 0.0, 0.07810045, 0.0, 0.03905022, 0.0, 0.01779226]
-        )
+        ).reshape((3, 3))
 
-        assert np.allclose(np.array(list(p_reparam.values())), p_target)
+        assert np.allclose(p_reparam, p_target)
 
     def test_marginal_over_wires(self):
         """Test if the _marginal_over_wires operates correctly on a fixed example. Note that the
@@ -707,6 +706,8 @@ class TestCachingStrawberryFieldsGBS:
 
         vgbs(params)
         samps = dev.samples.copy()
+        circ = dev.prog.circuit
+        assert np.allclose(circ[0].op.p[0], A)
 
         spy = mocker.spy(sf.Engine, "run")
         vgbs(0.5 * params)
@@ -728,11 +729,13 @@ class TestCachingStrawberryFieldsGBS:
             return qml.probs(wires=range(4))
 
         spy = mocker.spy(sf.Engine, "run")
-        vgbs(params)
+        p1 = vgbs(params)
         samps = dev.samples.copy()
-        vgbs(0.5 * params)
+        p2 = vgbs(0.5 * params)
         samps2 = dev.samples.copy()
+        p2_expected = dev._reparametrize_probability(p1.reshape((3, 3, 3, 3))).ravel()
         assert np.allclose(samps, samps2)
+        assert np.allclose(p2_expected, p2)
         spy.assert_not_called()
 
 
