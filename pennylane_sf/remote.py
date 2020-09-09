@@ -171,8 +171,11 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         cutoff = fock_probs.shape[0]
 
         if self.cutoff < cutoff:
-            warnings.warn("Samples were generated where at least one mode had more photons than "
-                          "the number allowed by the cutoff", UserWarning)
+            warnings.warn(
+                "Samples were generated where at least one mode had more photons than "
+                "the number allowed by the cutoff",
+                UserWarning,
+            )
 
             sl = []
             for wire in device_wires:
