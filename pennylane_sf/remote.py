@@ -17,6 +17,7 @@ and provides access to Xanadu's continuous-variable quantum hardware.
 """
 
 from collections import OrderedDict
+import warnings
 
 import numpy as np
 
@@ -161,20 +162,29 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         return samples_variance(self.samples)
 
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
-        fock_probs = all_fock_probs_pnr(self.samples)
-        cutoff = fock_probs.shape[0]
-        diff = max(self.cutoff - cutoff, 0)
-        all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
-
-        if wires is None:
-            all_probs = all_probs.flat
-            N = self.num_wires
-            ind = np.indices([self.cutoff] * N).reshape(N, -1).T
-            all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
-            return all_probs
-
+        wires = wires or self.wires
         wires_to_trace_out = Wires.unique_wires([self.wires, wires])
         device_wires_to_trace_out = self.map_wires(wires_to_trace_out)
+        device_wires = self.map_wires(self.wires)
+
+        fock_probs = all_fock_probs_pnr(self.samples)
+        cutoff = fock_probs.shape[0]
+
+        if self.cutoff < cutoff:
+            warnings.warn("Samples were generated where at least one mode had more photons than "
+                          "the number allowed by the cutoff", UserWarning)
+
+            sl = []
+            for wire in device_wires:
+                if wire in device_wires_to_trace_out:
+                    sl.append(slice(None))
+                else:
+                    sl.append(slice(self.cutoff))
+
+            all_probs = fock_probs[sl]
+        else:
+            diff = max(self.cutoff - cutoff, 0)
+            all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
 
         if len(device_wires_to_trace_out) > 0:
             all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
