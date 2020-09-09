@@ -183,7 +183,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
             all_probs = fock_probs[sl]
         else:
-            diff = max(self.cutoff - cutoff, 0)
+            diff = self.cutoff - cutoff
             all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
 
         if len(device_wires_to_trace_out) > 0:
