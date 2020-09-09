@@ -402,7 +402,8 @@ class TestProbs:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.probs(wires=wires)
 
-        probs = quantum_function(1.0, 0)
+        with pytest.warns(UserWarning, match="Samples were generated where at least one mode"):
+            probs = quantum_function(1.0, 0)
 
         exp_probs = full_probs.reshape([5] * 8)[:3, :3, :3, :3, :3, :3, :3, :3]
 
@@ -423,7 +424,8 @@ class TestProbs:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.probs(wires=wires)
 
-        probs = quantum_function(1.0, 0)
+        with pytest.warns(UserWarning, match="Samples were generated where at least one mode"):
+            probs = quantum_function(1.0, 0)
 
         exp_probs = partial_probs.reshape((5, 5))[:3, :3]
 
