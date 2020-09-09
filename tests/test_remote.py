@@ -357,9 +357,9 @@ class TestProbs:
 
         probs = quantum_function(1.0, 0)
 
-        # with dev.cutoff = 10, partial_probs will be a 100-dimensional flat array. Since
+        # with dev.cutoff = 6, probs will be a 36-dimensional flat array. Since
         # partial_probs is a 25-dimensional flat array, we first reshape to a 5x5 matrix and then
-        # pad to get a 10x10 matrix, finally flattening
+        # pad to get a 6x6 matrix, finally flattening
         exp_probs = np.reshape(partial_probs, (5, 5))
         exp_probs = np.pad(exp_probs, [(0, 1), (0, 1)]).ravel()
 
@@ -388,6 +388,31 @@ class TestProbs:
         assert probs.shape == (dev.cutoff ** len(wires),)
         assert np.allclose(probs, exp_probs, atol=tol)
 
+    def test_probs_subset_modes_low_cutoff(self, monkeypatch, tol):
+        """Tests that probabilities are correctly returned when using a subset of modes and where
+        the device cutoff is below the samples cutoff."""
+        wires = [0, 1]
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=3)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi, wires=[0, 1])
+            qml.Beamsplitter(theta, phi, wires=[4, 5])
+            return qml.probs(wires=wires)
+
+        with pytest.warns(UserWarning, match="Samples were generated where at least one mode"):
+            probs = quantum_function(1.0, 0)
+
+        # with dev.cutoff = 3, probs will be a 9-dimensional flat array. Since
+        # partial_probs is a 25-dimensional flat array, we first reshape to a 5x5 matrix and then
+        # take the first 3 elements on both axes, finally flattening
+        exp_probs = partial_probs.reshape((5, 5))[:3, :3]
+
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, exp_probs.ravel(), atol=tol)
+
     def test_probs_all_modes_low_cutoff(self, monkeypatch, tol):
         """Tests that probabilities are correctly returned when using all modes and where
         the device cutoff is below the samples cutoff."""
@@ -406,28 +431,6 @@ class TestProbs:
             probs = quantum_function(1.0, 0)
 
         exp_probs = full_probs.reshape([5] * 8)[:3, :3, :3, :3, :3, :3, :3, :3]
-
-        assert probs.shape == (dev.cutoff ** len(wires),)
-        assert np.allclose(probs, exp_probs.ravel(), atol=tol)
-
-    def test_probs_subset_modes_low_cutoff(self, monkeypatch, tol):
-        """Tests that probabilities are correctly returned when using a subset of modes and where
-        the device cutoff is below the samples cutoff."""
-        wires = [0, 1]
-        shots = 10
-        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=3)
-
-        @qml.qnode(dev)
-        def quantum_function(theta, phi):
-            qml.Beamsplitter(theta, phi, wires=[0, 1])
-            qml.Beamsplitter(theta, phi, wires=[4, 5])
-            return qml.probs(wires=wires)
-
-        with pytest.warns(UserWarning, match="Samples were generated where at least one mode"):
-            probs = quantum_function(1.0, 0)
-
-        exp_probs = partial_probs.reshape((5, 5))[:3, :3]
 
         assert probs.shape == (dev.cutoff ** len(wires),)
         assert np.allclose(probs, exp_probs.ravel(), atol=tol)
