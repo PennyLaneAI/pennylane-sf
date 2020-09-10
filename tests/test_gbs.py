@@ -614,6 +614,17 @@ class TestStrawberryFieldsGBS:
         assert next(keys) == (0, 2)
         assert next(keys) == (1, 0)
 
+    def test_probability_non_analytic_subset_wires_with_caching(self):
+        """Test that a ValueError is raised when returning probabilities of a subset of wires in
+        sampling and caching modes."""
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False,
+                         use_cache=True)
+
+        dev.samples = samples
+
+        with pytest.raises(ValueError, match="Caching is only supported"):
+            dev.probability(wires=[0, 2])
+
     def test_calculate_covariance(self):
         """Test that the calculate_covariance method returns the correct covariance matrix for a
         fixed example."""

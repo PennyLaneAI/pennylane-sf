@@ -232,6 +232,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
         if self.use_cache:
+            if len(wires) < self.num_wires:
+                raise ValueError("Caching is only supported when returning the probabilities on "
+                                 "all of the wires")
             probs = self._reparametrize_probability(probs)
 
         ind = np.ndindex(*[self.cutoff] * len(wires))
