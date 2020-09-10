@@ -163,6 +163,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
         wires = wires or self.wires
+        wires = Wires(wires)
         wires_to_trace_out = Wires.unique_wires([self.wires, wires])
         device_wires_to_trace_out = self.map_wires(wires_to_trace_out)
         device_wires = self.map_wires(self.wires)
