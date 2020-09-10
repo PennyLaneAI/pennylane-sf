@@ -162,7 +162,7 @@ class TestWiresIntegrationRemote:
         circuit2 = make_x8_circuit_expval(dev2, wires2)
 
         monkeypatch.setattr(
-            "pennylane_sf.remote.samples_expectation", lambda *args: expected_expval
+            "pennylane_sf.remote.samples_expectation", lambda *args, **kwargs: expected_expval
         )
 
         assert np.allclose(circuit1(1.0, 0), circuit2(1.0, 0), tol)

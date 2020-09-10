@@ -57,7 +57,7 @@ is then converted into a QNode which is placed on the
 .. code-block:: python
 
     @qml.qnode(dev)
-    def quantum_function(theta, x):
+    def quantum_function(theta, phi):
         qml.TwoModeSqueezing(1.0, 0.0, wires=[0,4])
         qml.TwoModeSqueezing(1.0, 0.0, wires=[1,5])
         qml.Beamsplitter(theta, phi, wires=[0,1])
