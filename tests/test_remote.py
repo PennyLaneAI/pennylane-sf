@@ -40,6 +40,42 @@ MOCK_SAMPLES = np.array(
     ]
 )
 
+full_probs = np.zeros([5] * 8)
+for s in MOCK_SAMPLES:
+    full_probs[tuple(s)] += 1
+full_probs /= 10
+full_probs = full_probs.ravel()
+
+partial_probs = np.array(
+    [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.1,
+        0.0,
+        0.3,
+        0.0,
+        0.0,
+        0.0,
+        0.1,
+        0.0,
+        0.1,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.1,
+        0.0,
+        0.1,
+        0.1,
+        0.1,
+        0.0,
+    ]
+)
+
 
 MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
 
@@ -310,13 +346,13 @@ class TestVariance:
 class TestProbs:
     """Test that probabilities are correctly returned from the hardware device."""
 
-    def test_mocked_engine_run_all_fock_probs(self, monkeypatch, tol):
-        """Tests that probabilities are correctly summed when specifying a
-        subset of the wires and using a mock SF RemoteEngine."""
-        wires = [0, 1]
+    @pytest.mark.parametrize("exp_prob, wires", [[full_probs, range(8)], [partial_probs, [0, 1]]])
+    def test_probs(self, monkeypatch, tol, wires, exp_prob):
+        """Tests that probabilities are correctly returned when the cutoff dimension of the samples
+        matches the cutoff of the device."""
         shots = 10
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=5)
 
         @qml.qnode(dev)
         def quantum_function(theta, phi):
@@ -324,46 +360,104 @@ class TestProbs:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.probs(wires=wires)
 
-        expected_probs = np.array(
-            [
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.1,
-                0.0,
-                0.3,
-                0.0,
-                0.0,
-                0.0,
-                0.1,
-                0.0,
-                0.1,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.1,
-                0.0,
-                0.1,
-                0.1,
-                0.1,
-                0.0,
-            ]
-        )
+        probs = quantum_function(1.0, 0)
+
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, exp_prob, atol=tol)
+
+    def test_probs_subset_modes_high_cutoff(self, monkeypatch, tol):
+        """Tests that probabilities are correctly returned when using a subset of modes and where
+        the device cutoff is above the samples cutoff."""
+        wires = [0, 1]
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=6)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi, wires=[0, 1])
+            qml.Beamsplitter(theta, phi, wires=[4, 5])
+            return qml.probs(wires=wires)
 
         probs = quantum_function(1.0, 0)
 
-        # all_fock_probs uses a cutoff equal to 1 + the maximum number of
-        # photons detected (including no photons detected)
-        cutoff = 1 + np.max(MOCK_SAMPLES)
+        # with dev.cutoff = 6, probs will be a 36-dimensional flat array. Since
+        # partial_probs is a 25-dimensional flat array, we first reshape to a 5x5 matrix and then
+        # pad to get a 6x6 matrix, finally flattening
+        exp_probs = np.reshape(partial_probs, (5, 5))
+        exp_probs = np.pad(exp_probs, [(0, 1), (0, 1)]).ravel()
 
-        # Check that the shape of the expected probabilities indeed matches the cutoff
-        # The combination of yields a shape of (cutoff, cutoff)
-        assert probs.shape == cutoff ** len(wires)
-        assert np.allclose(probs, expected_probs, atol=tol)
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, exp_probs, atol=tol)
+
+    def test_probs_all_modes_high_cutoff(self, monkeypatch, tol):
+        """Tests that probabilities are correctly returned when using all modes and where
+        the device cutoff is above the samples cutoff."""
+        wires = range(8)
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=6)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi, wires=[0, 1])
+            qml.Beamsplitter(theta, phi, wires=[4, 5])
+            return qml.probs(wires=wires)
+
+        probs = quantum_function(1.0, 0)
+
+        exp_probs = np.reshape(full_probs, (5, 5, 5, 5, 5, 5, 5, 5))
+        exp_probs = np.pad(exp_probs, [(0, 1)] * 8).ravel()
+
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, exp_probs, atol=tol)
+
+    def test_probs_subset_modes_low_cutoff(self, monkeypatch, tol):
+        """Tests that probabilities are correctly returned when using a subset of modes and where
+        the device cutoff is below the samples cutoff."""
+        wires = [0, 1]
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=3)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi, wires=[0, 1])
+            qml.Beamsplitter(theta, phi, wires=[4, 5])
+            return qml.probs(wires=wires)
+
+        with pytest.warns(UserWarning, match="Samples were generated where at least one mode"):
+            probs = quantum_function(1.0, 0)
+
+        # with dev.cutoff = 3, probs will be a 9-dimensional flat array. Since
+        # partial_probs is a 25-dimensional flat array, we first reshape to a 5x5 matrix and then
+        # take the first 3 elements on both axes, finally flattening
+        exp_probs = partial_probs.reshape((5, 5))[:3, :3]
+
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, exp_probs.ravel(), atol=tol)
+
+    def test_probs_all_modes_low_cutoff(self, monkeypatch, tol):
+        """Tests that probabilities are correctly returned when using all modes and where
+        the device cutoff is below the samples cutoff."""
+        wires = range(8)
+        shots = 10
+        monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        dev = qml.device("strawberryfields.remote", backend="X8", shots=shots, cutoff_dim=3)
+
+        @qml.qnode(dev)
+        def quantum_function(theta, phi):
+            qml.Beamsplitter(theta, phi, wires=[0, 1])
+            qml.Beamsplitter(theta, phi, wires=[4, 5])
+            return qml.probs(wires=wires)
+
+        with pytest.warns(UserWarning, match="Samples were generated where at least one mode"):
+            probs = quantum_function(1.0, 0)
+
+        exp_probs = full_probs.reshape([5] * 8)[:3, :3, :3, :3, :3, :3, :3, :3]
+
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, exp_probs.ravel(), atol=tol)
 
     def test_mocked_probability(self, monkeypatch, tol):
         """Tests that pre-defined probabilities are correctly propagated
@@ -380,53 +474,17 @@ class TestProbs:
             qml.Beamsplitter(theta, phi, wires=[4, 5])
             return qml.probs(wires=[0, 1])
 
-        expected_probs = np.array(
-            [
-                0.3,
-                0.0,
-                0.1,
-                0.1,
-                0.0,
-                0.0,
-                0.0,
-                0.1,
-                0.1,
-                0.0,
-                0.0,
-                0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.0,
-                0.1,
-                0.0,
-                0,
-                0.1,
-                0.1,
-                0.0,
-            ]
-        )
-
         # Mocking the probability method of the device which returns a dictionary
         # When Device.execute gets called, the values() are extracted => keys
         # do not matter
         monkeypatch.setattr(
             "pennylane_sf.remote.StrawberryFieldsRemote.probability",
-            lambda *args, **kwargs: {"somekey": expected_probs},
+            lambda *args, **kwargs: {"somekey": partial_probs},
         )
         probs = quantum_function(1.0, 0)
 
-        # all_fock_probs uses a cutoff equal to 1 + the maximum number of
-        # photons detected (including no photons detected)
-        cutoff = 1 + np.max(MOCK_SAMPLES)
-
-        # Check that the shape of the expected probabilities indeed matches the cutoff
-        # The combination of yields a shape of (cutoff, cutoff)
-        assert probs.shape == cutoff ** len(wires)
-        assert np.allclose(probs, expected_probs, atol=tol)
+        assert probs.shape == (dev.cutoff ** len(wires),)
+        assert np.allclose(probs, partial_probs, atol=tol)
 
     def test_modes_none(self, monkeypatch):
         """Tests that probabilities are returned using SF without any further

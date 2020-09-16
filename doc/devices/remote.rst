@@ -120,6 +120,9 @@ The Strawberry Fields Remote device accepts the following device arguments.
     are addressed as consecutive integers ``[0, 1, ...]``, and their number is
     inferred from the backend.
 
+``cutoff_dim``
+    the Fock basis truncation to be applied when computing quantities in the Fock basis (such as probabilities)
+
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 

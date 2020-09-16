@@ -17,6 +17,7 @@ and provides access to Xanadu's continuous-variable quantum hardware.
 """
 
 from collections import OrderedDict
+import warnings
 
 import numpy as np
 
@@ -44,14 +45,15 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     configuration file.
 
     Args:
-        shots (int): number of circuit evaluations/random samples used to
-            estimate expectation values of observables
+        backend (str): name of the remote backend to be used
         wires (Iterable[Number, str]): Iterable that contains unique labels for the
             modes as numbers or strings (i.e., ``['m1', ..., 'm4', 'n1',...,'n4']``).
             The number of labels must match the number of modes accessible on the backend.
             If not provided, modes are addressed as consecutive integers ``[0, 1, ...]``, and their number
             is inferred from the backend.
-        backend (str): name of the remote backend to be used
+        cutoff_dim (int): Fock-space truncation dimension
+        shots (int): number of circuit evaluations/random samples used to
+            estimate expectation values of observables
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
@@ -89,8 +91,9 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         "TensorN": None,
     }
 
-    def __init__(self, *, backend, wires=None, shots=1000, hbar=2, sf_token=None):
+    def __init__(self, *, backend, wires=None, cutoff_dim=5, shots=1000, hbar=2, sf_token=None):
         self.backend = backend
+        self.cutoff = cutoff_dim
         eng = sf.RemoteEngine(self.backend)
 
         self.num_wires = eng.device_spec.modes
@@ -159,22 +162,33 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         return samples_variance(self.samples, modes=self.map_wires(wires))
 
     def probability(self, wires=None):  # pylint: disable=missing-function-docstring
-        all_probs = all_fock_probs_pnr(self.samples)
-
-        # Extract the cutoff value by checking the number of Fock states we
-        # obtained probabilities for
-        cutoff = all_probs.shape[0]
-
-        if wires is None:
-
-            all_probs = all_probs.flat
-            N = self.num_wires
-            ind = np.indices([cutoff] * N).reshape(N, -1).T
-            all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
-            return all_probs
-
+        wires = wires or self.wires
+        wires = Wires(wires)
         wires_to_trace_out = Wires.unique_wires([self.wires, wires])
         device_wires_to_trace_out = self.map_wires(wires_to_trace_out)
+        device_wires = self.map_wires(self.wires)
+
+        fock_probs = all_fock_probs_pnr(self.samples)
+        cutoff = fock_probs.shape[0]
+
+        if self.cutoff < cutoff:
+            warnings.warn(
+                "Samples were generated where at least one mode had more photons than "
+                "the number allowed by the cutoff",
+                UserWarning,
+            )
+
+            sl = []
+            for wire in device_wires:
+                if wire in device_wires_to_trace_out:
+                    sl.append(slice(None))
+                else:
+                    sl.append(slice(self.cutoff))
+
+            all_probs = fock_probs[sl]
+        else:
+            diff = self.cutoff - cutoff
+            all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
 
         if len(device_wires_to_trace_out) > 0:
             all_probs = np.sum(all_probs, axis=device_wires_to_trace_out.labels)
@@ -182,6 +196,6 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         all_probs = all_probs.flat
         N = len(wires)
 
-        ind = np.indices([cutoff] * N).reshape(N, -1).T
+        ind = np.indices([self.cutoff] * N).reshape(N, -1).T
         all_probs = OrderedDict((tuple(k), v) for k, v in zip(ind, all_probs))
         return all_probs
