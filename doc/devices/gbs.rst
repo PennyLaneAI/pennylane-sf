@@ -122,9 +122,9 @@ according to trainable parameters :math:`\mathbf{w}` can be calculated as:
 
 .. math::
 
-    P(\mathbf{n}, \mathbf{w}) = \frac{Z(A)}{Z(WAW)} \prod_{i=1}^{n} w_{i}^{n_{i}}
+    P(\mathbf{n}, \mathbf{w}) = \frac{Z(A)}{Z(WAW)} \prod_{i=1}^{n} w_{i}^{n_{i}},
 
-where :math:`Z` is a normalization coefficient giving the probability of detecting no photons.
+where :math:`Z` is a normalization coefficient.
 This means that the probability distribution and its derivative can be calculated directly from
 the probability distribution of :math:`A`. This observation is particularly useful for devices in
 non-analytic mode, allowing us to generate a reference set of samples from :math:`A` and rescale
