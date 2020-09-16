@@ -131,8 +131,15 @@ non-analytic mode, allowing us to generate a reference set of samples from :math
 the resulting probability distribution to give :math:`P(\mathbf{n}, \mathbf{w})` for any choice of
 :math:`\mathbf{w}`.
 
-Caching samples from :math:`A` is possible by setting the ``use_cache=True`` argument. It is also
-possible to input a NumPy array of pre-generated samples using the ``samples`` argument.
+This behaviour can be realized in the GBS device by setting the ``use_cache=True`` argument (in
+non-analytic mode). When the probability distribution is first evaluated, samples will instead be
+generated from :math:`A` and cached (stored). Subsequent evaluations of the probability
+distribution will then make use of this internal cache rather than generating new samples,
+resulting in a faster evaluation.
+
+It is also possible to input a NumPy array of pre-generated samples from :math:`A` when
+instantiating the GBS device using the ``samples`` argument. This allows the initial generation
+of samples during the first evaluation of the probability distribution to be skipped.
 
 Device options
 ~~~~~~~~~~~~~~
