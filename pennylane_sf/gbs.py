@@ -157,8 +157,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
     def reset(self):
-        # There is no engine to reset in this case
         if not self.analytic and self.use_cache and self.samples is not None:
+            # In this case, we do not reset because we want to keep our samples
             return
         super().reset()
 
