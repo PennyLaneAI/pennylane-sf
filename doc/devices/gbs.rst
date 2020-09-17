@@ -117,8 +117,11 @@ has shown how to calculate the derivative of the output GBS probability distribu
 
 where :math:`\mathbf{n}` is a sample given by counting the number of photons observed in each mode.
 
-Moreover, the probability :math:`P(\mathbf{n}, \mathbf{w})` of a sample :math:`\mathbf{n}`
-according to trainable parameters :math:`\mathbf{w}` can be calculated as:
+Caching
+~~~~~~~
+
+The probability :math:`P(\mathbf{n}, \mathbf{w})` of a sample :math:`\mathbf{n}` according to
+trainable parameters :math:`\mathbf{w}` can be calculated as:
 
 .. math::
 
@@ -132,14 +135,24 @@ the resulting probability distribution to give :math:`P(\mathbf{n}, \mathbf{w})`
 :math:`\mathbf{w}`.
 
 This behaviour can be realized in the GBS device by setting the ``use_cache=True`` argument (in
-non-analytic mode). When the probability distribution is first evaluated, samples will instead be
-generated from :math:`A` and cached (stored). Subsequent evaluations of the probability
-distribution will then make use of this internal cache rather than generating new samples,
-resulting in a faster evaluation.
+non-analytic mode):
+
+>>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4,
+...                  shots=10, use_cache=True, analytic=False)
+
+When the probability distribution using this device and the above ``quantum_function()`` is first
+evaluated, samples will instead be generated from :math:`A` and cached (stored). Subsequent
+evaluations of the probability distribution will then make use of this internal cache rather than
+generating new samples, resulting in a faster evaluation.
 
 It is also possible to input a NumPy array of pre-generated samples from :math:`A` when
-instantiating the GBS device using the ``samples`` argument. This allows the initial generation
-of samples during the first evaluation of the probability distribution to be skipped.
+instantiating the GBS device using the ``samples`` argument:
+
+>>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4,
+...                  samples=my_array, use_cache=True, analytic=False)
+
+This allows the initial generation of samples during the first evaluation of the probability
+distribution to be skipped.
 
 Device options
 ~~~~~~~~~~~~~~
