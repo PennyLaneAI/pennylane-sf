@@ -167,7 +167,7 @@ The GBS device accepts additional arguments beyond the PennyLane default device 
 	Only used when ``analytic=False``, otherwise probabilities are exact.
 
 ``use_cache``
-    Indicates whether to use samples from previous evaluations to speed up calculation of the
+    Indicates whether to use samples from previous evaluations to speed up the calculation of the
     probability distribution. Only used when ``analytic=False``.
 
 ``samples``
