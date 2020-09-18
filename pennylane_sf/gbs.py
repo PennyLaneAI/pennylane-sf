@@ -80,7 +80,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     ):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
-        self.use_cache = use_cache
+        self._use_cache = use_cache
         self.samples = samples
 
         self._params = None
@@ -145,7 +145,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         self._WAW = self.calculate_WAW(self._params, A)
 
-        if not self.analytic and self.use_cache:
+        if not self.analytic and self._use_cache:
             op = GraphEmbed(A, mean_photon_per_mode=n_mean / len(A))
         else:
             n_mean_WAW = self.calculate_n_mean(self._WAW)
@@ -157,7 +157,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
     def reset(self):
-        if not self.analytic and self.use_cache and self.samples is not None:
+        if not self.analytic and self._use_cache and self.samples is not None:
             # In this case, we do not reset because we want to keep our samples
             return
         super().reset()
@@ -167,7 +167,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if self.analytic:
             results = self.eng.run(self.prog)
-        elif self.use_cache and self.samples is not None:  # use the cached samples
+        elif self._use_cache and self.samples is not None:  # use the cached samples
             return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
@@ -231,7 +231,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         diff = max(self.cutoff - cutoff, 0)
         probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
-        if self.use_cache:
+        if self._use_cache:
             if len(wires) < self.num_wires:
                 raise ValueError(
                     "Caching is only supported when returning the probabilities on "
@@ -326,3 +326,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         I = np.identity(2 * n)
         o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
         return np.sqrt(np.linalg.det(I - o_mat))
+
+    @property
+    def use_cache(self):
+        """Indicates whether to use samples from previous evaluations to speed up calculation of
+        the probability distribution. If ``analytic=True``, this setting is ignored."""
+        return self._use_cache

@@ -387,7 +387,7 @@ class TestStrawberryFieldsGBS:
         )
         assert dev.cutoff == cutoff
         assert dev.analytic is analytic
-        assert dev.use_cache is use_cache
+        assert dev._use_cache is use_cache
 
     def test_load_device_with_samples(self):
         """Test that the device loads correctly with input samples"""
