@@ -117,6 +117,43 @@ has shown how to calculate the derivative of the output GBS probability distribu
 
 where :math:`\mathbf{n}` is a sample given by counting the number of photons observed in each mode.
 
+Caching
+~~~~~~~
+
+The probability :math:`P(\mathbf{n}, \mathbf{w})` of a sample :math:`\mathbf{n}` according to
+trainable parameters :math:`\mathbf{w}` can be calculated as:
+
+.. math::
+
+    P(\mathbf{n}, \mathbf{w}) = \frac{Z(A)}{Z(WAW)} \prod_{i=1}^{n} w_{i}^{n_{i}},
+
+where :math:`Z` is a normalization coefficient.
+This means that the probability distribution and its derivative can be calculated directly from
+the probability distribution of :math:`A`. This observation is particularly useful for devices in
+non-analytic mode, allowing us to generate a reference set of samples from :math:`A` and rescale
+the resulting probability distribution to give :math:`P(\mathbf{n}, \mathbf{w})` for any choice of
+:math:`\mathbf{w}`.
+
+This behaviour can be realized in the GBS device by setting the ``use_cache=True`` argument (in
+non-analytic mode):
+
+>>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4,
+...                  shots=10, use_cache=True, analytic=False)
+
+When the probability distribution using this device and the above ``quantum_function()`` is first
+evaluated, samples will instead be generated from :math:`A` and cached (stored). Subsequent
+evaluations of the probability distribution will then make use of this internal cache rather than
+generating new samples, resulting in a faster evaluation.
+
+It is also possible to input a NumPy array of pre-generated samples from :math:`A` when
+instantiating the GBS device using the ``samples`` argument:
+
+>>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4,
+...                  samples=my_array, use_cache=True, analytic=False)
+
+This allows the initial generation of samples during the first evaluation of the probability
+distribution to be skipped.
+
 Device options
 ~~~~~~~~~~~~~~
 
@@ -128,6 +165,15 @@ The GBS device accepts additional arguments beyond the PennyLane default device 
 ``shots=1000``
 	The number of circuit evaluations/random samples used to estimate probabilities.
 	Only used when ``analytic=False``, otherwise probabilities are exact.
+
+``use_cache``
+    Indicates whether to use samples from previous evaluations to speed up the calculation of the
+    probability distribution. Only used when ``analytic=False``.
+
+``samples``
+    Allows pre-generated samples of the input adjacency matrix to be provided in non-analytic mode.
+    When ``use_cache=True``, these samples will be used to infer the probability distribution for
+    any choice of trainable parameter.
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~

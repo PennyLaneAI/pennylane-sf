@@ -21,19 +21,21 @@ distribution is accessible.
 from collections import OrderedDict
 
 import numpy as np
-import pennylane as qml
 import strawberryfields as sf
-from pennylane.operation import Probability
-from pennylane.wires import Wires
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.utils import all_fock_probs_pnr
 from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 from thewalrus.quantum import photon_number_mean_vector
 
+import pennylane as qml
+from pennylane.operation import Probability
+from pennylane.wires import Wires
+
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
 
 
+# pylint: disable=too-many-instance-attributes
 class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     r"""StrawberryFields variational GBS device for PennyLane.
 
@@ -43,13 +45,20 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     For more details see :doc:`/devices/gbs`.
 
     Args:
-        wires (int): the number of modes to initialize the device in
+        wires (int or Iterable[Number, str]]): the number of modes to initialize the device in
         analytic (bool): indicates if the device should calculate expectations
             and variances analytically
         cutoff_dim (int): Fock-space truncation dimension
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``analytic=True``,
             this setting is ignored.
+        use_cache (bool): indicates whether to use samples from previous evaluations to speed up
+            calculation of the probability distribution. If ``analytic=True``, this setting is
+            ignored.
+        samples (array): pre-generated samples using the input adjacency matrix specified by
+            :class:`ParamGraphEmbed`. In non-analytic mode with ``use_cache=True``, probabilities
+            will be inferred from these samples rather than generating new samples, resulting in
+            faster evaluation of the circuit and its derivative.
     """
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
@@ -66,28 +75,29 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, analytic=True, cutoff_dim, shots=1000):
+    def __init__(
+        self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False, samples=None
+    ):
         super().__init__(wires, analytic=analytic, shots=shots)
         self.cutoff = cutoff_dim
+        self._use_cache = use_cache
+        self.samples = samples
+
         self._params = None
         self._WAW = None
+        self.Z_inv = None
 
     @staticmethod
-    def calculate_WAW(params, A, n_mean):
+    def calculate_WAW(params, A):
         """Calculates the :math:`WAW` matrix.
-
-        Rescales :math:`A` so that when encoded in GBS the mean photon number is equal to
-        ``n_mean``.
 
         Args:
             params (array[float]): variable parameters
             A (array[float]): adjacency matrix
-            n_mean (float): mean number of photons
 
         Returns:
             array[float]: the :math:`WAW` matrix
         """
-        A *= rescale(A, n_mean)
         W = np.diag(np.sqrt(params))
         return W @ A @ W
 
@@ -124,32 +134,88 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     # pylint: disable=pointless-statement,expression-not-assigned
     def apply(self, operation, wires, par):
-        self._params, A, _ = par
+        self._params, A, n_mean = par
+        A *= rescale(A, n_mean)
+        self.Z_inv = self._calculate_z_inv(A)
 
         if len(self._params) != self.num_wires:
             raise ValueError(
                 "The number of variable parameters must be equal to the total number of wires."
             )
 
-        self._WAW = self.calculate_WAW(*par)
-        n_mean_WAW = self.calculate_n_mean(self._WAW)
+        self._WAW = self.calculate_WAW(self._params, A)
 
-        op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+        if not self.analytic and self._use_cache:
+            op = GraphEmbed(A, mean_photon_per_mode=n_mean / len(A))
+        else:
+            n_mean_WAW = self.calculate_n_mean(self._WAW)
+            op = GraphEmbed(self._WAW, mean_photon_per_mode=n_mean_WAW / len(A))
+
         op | [self.q[wires.index(i)] for i in wires]
 
         if not self.analytic:
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
+
+    def reset(self):
+        if not self.analytic and self._use_cache and self.samples is not None:
+            # In this case, we do not reset because we want to keep our samples
+            return
+        super().reset()
 
     def pre_measure(self):
         self.eng = sf.Engine("gaussian", backend_options={"cutoff_dim": self.cutoff})
 
         if self.analytic:
             results = self.eng.run(self.prog)
+        elif self._use_cache and self.samples is not None:  # use the cached samples
+            return
         else:
             results = self.eng.run(self.prog, shots=self.shots)
 
         self.state = results.state
         self.samples = results.samples
+
+    def _reparametrize_probability(self, p):
+        """Takes an input probability distribution of :math:`A` and rescales it to the probability
+        distribution of :math:`WAW`.
+
+        Args:
+            p (array): the probability distribution of :math:`A`
+
+        Returns:
+            array: the probability distribution of :math:`WAW`
+        """
+        Z_inv = self._calculate_z_inv(self._WAW)
+        ind_all_wires = np.ndindex(*[self.cutoff] * self.num_wires)
+
+        for s in ind_all_wires:
+            res = np.prod(np.power(self._params, s))
+            p[tuple(s)] *= res * Z_inv / self.Z_inv
+
+        return p
+
+    def _marginal_over_wires(self, wires, array):
+        """Calculates the marginal distribution over the specified wires by summing over the
+        remaining.
+
+        The flat input array is reshaped to have ``self.num_wires + 1`` axes.
+
+        Args:
+            wires (int or Iterable[Number, str]]): the wires to find marginals over
+            array (array): the input array
+
+        Returns:
+            array: the traced-over array
+        """
+        trailing = int(array.size / self.cutoff ** self.num_wires)
+
+        array = array.reshape([self.cutoff] * self.num_wires + [trailing])
+
+        all_indices = set(range(self.num_wires))
+        requested_indices = set(self.wires.indices(wires))
+
+        trace_over_indices = all_indices - requested_indices  # Find indices to trace over
+        return np.sum(array, axis=tuple(trace_over_indices)).ravel()
 
     def probability(self, wires=None):
         wires = wires or self.wires
@@ -158,12 +224,22 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if self.analytic:
             return super().probability(wires=wires)
 
-        N = len(wires)
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
 
-        probs = all_fock_probs_pnr(samples)
-        ind = np.indices([self.cutoff] * N).reshape(N, -1).T
+        fock_probs = all_fock_probs_pnr(samples)
+        cutoff = fock_probs.shape[0]
+        diff = max(self.cutoff - cutoff, 0)
+        probs = np.pad(fock_probs, [(0, diff)] * len(wires))
 
+        if self._use_cache:
+            if len(wires) < self.num_wires:
+                raise ValueError(
+                    "Caching is only supported when returning the probabilities on "
+                    "all of the wires"
+                )
+            probs = self._reparametrize_probability(probs)
+
+        ind = np.ndindex(*[self.cutoff] * len(wires))
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
@@ -195,20 +271,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if requested_wires == self.wires:
             return jac
 
-        # Unflatten into a [cutoff, cutoff, ..., cutoff, num_params] dimensional tensor
-        jac = jac.reshape([self.cutoff] * self.num_wires + [self.num_wires])
-
-        # Find indices to trace over
-        all_indices = set(range(self.num_wires))
-        requested_indices = set(self.wires.indices(requested_wires))
-        trace_over_indices = all_indices - requested_indices
-
-        traced_jac = np.sum(jac, axis=tuple(trace_over_indices))
-
-        # Flatten into [cutoff ** num_requested_wires, num_params] dimensional tensor
-        traced_jac = traced_jac.reshape(-1, self.num_wires)
-
-        return traced_jac
+        return self._marginal_over_wires(requested_wires, jac).reshape(-1, self.num_wires)
 
     def _jacobian_all_wires(self, prob):
         """Calculates the jacobian of the probability distribution with respect to all wires.
@@ -221,8 +284,6 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         Returns:
             array[float]: the jacobian
         """
-        jac = np.zeros([len(prob), self.num_wires])
-
         n = len(self._WAW)
         disp = np.zeros(2 * n)
         cov = self.calculate_covariance(self._WAW, hbar=self.hbar)
@@ -250,3 +311,24 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
         cov = hbar * (np.linalg.inv(I - o_mat) - I / 2)
         return cov
+
+    @staticmethod
+    def _calculate_z_inv(A):
+        """Calculates the 1/Z normalization coefficient from GBS.
+
+        Args:
+            A (array): adjacency matrix
+
+        Returns:
+            float: the coefficient
+        """
+        n = len(A)
+        I = np.identity(2 * n)
+        o_mat = np.block([[np.zeros_like(A), np.conj(A)], [A, np.zeros_like(A)]])
+        return np.sqrt(np.linalg.det(I - o_mat))
+
+    @property
+    def use_cache(self):
+        """Indicates whether to use samples from previous evaluations to speed up calculation of
+        the probability distribution. If ``analytic=True``, this setting is ignored."""
+        return self._use_cache
