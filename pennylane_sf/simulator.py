@@ -107,6 +107,7 @@ class StrawberryFieldsSimulator(Device):
 
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
+        par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
 
         op = self._operation_map[operation](*sf_par)
         op | [self.q[i] for i in device_wires.labels]  # pylint: disable=pointless-statement
@@ -129,6 +130,7 @@ class StrawberryFieldsSimulator(Device):
         """
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
+        par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
 
         # The different "expectation" functions require different inputs,
         # which is at the moment solved by having dummy arguments.
@@ -160,6 +162,7 @@ class StrawberryFieldsSimulator(Device):
         """
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
+        par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
 
         # The different "expectation" functions require different inputs,
         # which is at the moment solved by having dummy arguments.
