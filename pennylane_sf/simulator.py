@@ -107,6 +107,8 @@ class StrawberryFieldsSimulator(Device):
 
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
+
+        # TODO: the following can be removed once tape-mode is the default in PennyLane
         par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
 
         op = self._operation_map[operation](*sf_par)
@@ -130,6 +132,7 @@ class StrawberryFieldsSimulator(Device):
         """
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
+        # TODO: the following can be removed once tape-mode is the default in PennyLane
         par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
 
         # The different "expectation" functions require different inputs,
@@ -162,6 +165,7 @@ class StrawberryFieldsSimulator(Device):
         """
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
+        # TODO: the following can be removed once tape-mode is the default in PennyLane
         par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
 
         # The different "expectation" functions require different inputs,
