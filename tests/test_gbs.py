@@ -500,7 +500,7 @@ class TestStrawberryFieldsGBS:
 
         assert np.allclose(dev.state.displacement(), np.zeros(4))
         assert np.allclose(dev.state.cov(), target_cov, atol=tol)
-        assert not dev.samples
+        assert dev.samples.size == 0
 
     def test_pre_measure_state_and_samples_non_analytic(self, tol):
         """Test that the pre_measure method operates as expected in non-analytic mode by
