@@ -1,3 +1,19 @@
+# Release 0.13.0
+
+### New features since last release
+
+### Improvements
+
+### Bug fixes
+
+### Documentation
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Juan Miguel Arrazola, Thomas Bromley, Josh Izaac.
+
 # Release 0.12.0
 
 ### New features since last release
