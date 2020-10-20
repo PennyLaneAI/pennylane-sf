@@ -1,4 +1,4 @@
-# Release 0.12.0-dev
+# Release 0.12.0
 
 ### New features since last release
 
@@ -76,13 +76,23 @@
 
   For more details, please see the [gbs device documentation](https://pennylane-sf.readthedocs.io/en/latest/devices/gbs.html)
 
-### Breaking changes
-
 ### Improvements
 
-### Documentation
+* Adds the ability for the `StrawberryFieldsGBS` device to use the
+  reparametrization trick in sampling mode.
+  [(#55)](https://github.com/PennyLaneAI/pennylane-sf/pull/55)
 
 ### Bug fixes
+
+* Applies minor fixes to `RemoteEngine`.
+  [(#53)](https://github.com/PennyLaneAI/pennylane-sf/pull/53)
+
+* Sets a fixed cutoff dimension for `RemoteEngine`.
+  [(#54)](https://github.com/PennyLaneAI/pennylane-sf/pull/54)
+
+* Adds unwrapping for operation parameters as indexing into NumPy arrays was
+  added to PennyLane.
+  [(#56)](https://github.com/PennyLaneAI/pennylane-sf/pull/56)
 
 ### Contributors
 
