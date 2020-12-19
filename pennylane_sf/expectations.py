@@ -249,6 +249,7 @@ def fock_diag_obs(state, device_wires, params):
     )
 
 
+# The following snippet is user contributed
 def diagonal_moments(state, modes, order):
     """Calculates high-order moments of photon number for given input state.
 
