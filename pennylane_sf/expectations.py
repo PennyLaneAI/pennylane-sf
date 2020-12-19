@@ -223,3 +223,77 @@ def poly_xp(state, all_wires, wires, params):
     d1 = M[1:, 0]
     d2 = M[0, 1:]
     return state.poly_quad_expectation(M[1:, 1:], d1 + d2, M[0, 0])
+
+
+def fock_diag_obs(state, device_wires, params):
+    """Computes the expectation value of the ``qml.NumberOperator``
+    observable in Strawberry Fields.
+
+    Args:
+        state (strawberryfields.backends.states.BaseState): the quantum state
+        device_wires (Sequence[int]): the measured mode
+        params (Sequence): sequence of parameters, contains the list of orders
+            and optionally the observables used
+
+    Returns:
+        float, float: mean photon number and its variance
+    """
+    observables = params[0]
+    order = params[1]
+    print(observables)
+    if all([obs is pennylane.ops.NumberOperator for obs in observables]):
+        return diagonal_moments(state, device_wires.tolist(), order)
+
+    raise ValueError(
+        f"Only the NumberOperator is supported for constructing a FockDiagonalObservable."
+    )
+
+
+def diagonal_moments(state, modes, order):
+    """Calculates high-order moments of photon number for given input state.
+
+    Requires two lists specifying the *modes* and *moment order*.
+    e.g. :math:`\langle \hat{n}_{0}^{i} \bigotimes \hat{n}_{1}^{j} \bigotimes
+    \hat{n}_{2}^{k} \rangle` will be specified by the following list of modes
+    and orders: `modes=[0,1,2], order=[i,k,j]`.
+
+    **Both lists must have the same length.**
+
+    Args:
+        state (strawberryfields.backends.states.BaseState): the quantum state
+        modes (Sequence[int]): the measured modes
+        order (list): list of moment orders, must contain ``len(modes)`` many
+            elements
+
+    Returns:
+        float: expectation value of the diagonal observable
+    """
+    if len(modes) != len(set(modes)):
+        raise ValueError("There can be no duplicates in the modes specified.")
+    if len(modes) != len(order):
+        raise ValueError("The lists must be the same length.")
+
+    cutoff = state._cutoff  # Fock space cutoff.
+    num_modes = state._modes  # number of modes in the state.
+    values = np.arange(cutoff)
+    traced_modes = tuple(item for item in range(num_modes) if item not in modes)
+
+    if state.is_pure:
+        # state is a tensor of probability amplitudes
+        ps = np.abs(state.ket()) ** 2
+        ps = ps.sum(axis=traced_modes)
+        for k in modes:
+            ps = np.tensordot(values ** order[k], ps, axes=1)
+        return tuple([float(ps), None])
+
+    # state is a tensor of density matrix elements in the SF convention
+    ps = np.real(state.dm())
+    traced_modes = list(traced_modes)
+    traced_modes.sort(reverse=True)
+
+    for mode in traced_modes:
+        ps = np.tensordot(np.identity(cutoff), ps, axes=((0, 1), (2 * mode, 2 * mode + 1)))
+    for k in range(len(modes)):
+        ps = np.tensordot(np.diag(values ** order[k]), ps, axes=((0, 1), (0, 1)))
+
+    return tuple([float(ps), None])

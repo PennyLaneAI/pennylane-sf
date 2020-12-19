@@ -64,7 +64,7 @@ from strawberryfields.ops import (
     Interferometer,
 )
 
-from .expectations import identity, mean_photon, number_expectation, homodyne, fock_state, poly_xp
+from .expectations import identity, mean_photon, number_expectation, homodyne, fock_state, poly_xp, fock_diag_obs
 from .simulator import StrawberryFieldsSimulator
 
 
@@ -119,6 +119,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         "QuadOperator": homodyne(),
         "PolyXP": poly_xp,
         "FockStateProjector": fock_state,
+        "FockDiagonalObservable": fock_diag_obs,
         "Identity": identity,
     }
 
