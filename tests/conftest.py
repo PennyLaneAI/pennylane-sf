@@ -17,6 +17,9 @@ import pytest
 # defaults
 TOLERANCE = 1e-5
 
+# TODO: remove before merging!
+import pennylane as qml
+qml.enable_tape()
 
 @pytest.fixture
 def tol():
