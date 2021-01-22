@@ -243,7 +243,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
-    def jacobian(self, operations, observables, variable_deps):
+    def jacobian(self, *args):
         """Calculates the Jacobian of the device.
 
         Args:
@@ -258,6 +258,13 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
+
+        if len(args) == 1:
+            tape = args[0]
+            operations, observables, variable_deps = tape.operations, tape.observables, tape.graph.variable_deps
+        else:
+            operations, observables, variable_deps = args
+
 
         requested_wires = observables[0].wires
 
