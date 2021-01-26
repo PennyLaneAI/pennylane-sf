@@ -261,10 +261,13 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         if len(args) == 1:
             tape = args[0]
-            operations, observables, variable_deps = tape.operations, tape.observables, tape.graph.variable_deps
+            operations, observables, variable_deps = (
+                tape.operations,
+                tape.observables,
+                tape.graph.variable_deps,
+            )
         else:
             operations, observables, variable_deps = args
-
 
         requested_wires = observables[0].wires
 
