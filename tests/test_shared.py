@@ -65,7 +65,7 @@ def disp_sq_circuit(dev):
     """Quantum node for a displaced squeezed circuit"""
 
     @qml.qnode(dev)
-    def circuit(pars):
+    def circuit(*pars):
         qml.Squeezing(pars[0], pars[1], wires=0)
         qml.Displacement(pars[2], pars[3], wires=0)
         qml.Squeezing(pars[4], pars[5], wires=1)
@@ -135,7 +135,7 @@ class TestVarianceDisplacedSqueezed:
             )
             return squared_term
 
-        var = disp_sq_circuit(pars)
+        var = disp_sq_circuit(*pars)
 
         n0 = np.sinh(rs0) ** 2 + np.abs(alpha0) ** 2
         n1 = np.sinh(rs1) ** 2 + np.abs(alpha1) ** 2
@@ -192,12 +192,12 @@ class TestVarianceDisplacedSqueezed:
             )
 
         # differentiate wrt r of the first squeezing operation (rs0)
-        grad = qml.jacobian(disp_sq_circuit, argnum=0)(pars)
+        grad = qml.jacobian(disp_sq_circuit, argnum=0)(*pars)
         expected_gradient = pd_sr(*pars)
         assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
 
         # differentiate wrt r of the second squeezing operation (rs1)
-        grad = qml.jacobian(disp_sq_circuit, argnum=4)(pars)
+        grad = qml.jacobian(disp_sq_circuit, argnum=4)(*pars)
 
         #
         expected_gradient = pd_sr(*reverted_pars)
@@ -246,12 +246,12 @@ class TestVarianceDisplacedSqueezed:
             )
 
         # differentiate with respect to r of the first displacement operation (rd0)
-        grad = qml.jacobian(disp_sq_circuit, argnum=2)(pars)
+        grad = qml.jacobian(disp_sq_circuit, argnum=2)(*pars)
         expected_gradient = pd_dr(*pars)
         assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to r of the second squeezing operation (rd1)
-        grad = qml.jacobian(disp_sq_circuit, argnum=6)(pars)
+        grad = qml.jacobian(disp_sq_circuit, argnum=6)(*pars)
 
         expected_gradient = pd_dr(*reverted_pars)
         assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
