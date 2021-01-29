@@ -732,13 +732,16 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         circuit.qtape.trainable_params = {0}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flat
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         expected_gradient = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+        # re-construct tape to reset trainable_params
+        circuit.construct([a, phi], {})
+
         # differentiate with respect to parameter phi
         circuit.qtape.trainable_params = {1}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flat
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -746,6 +749,7 @@ class TestProbability:
         """Test that the jacobian of the probability for a squeezed states is
         approximated well with finite differences"""
         cutoff = 5
+        # import pdb; pdb.set_trace()
 
         dev = qml.device("strawberryfields.gaussian", wires=1, cutoff_dim=cutoff)
 
@@ -764,7 +768,7 @@ class TestProbability:
 
         # differentiate with respect to parameter r
         circuit.qtape.trainable_params = {0}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flat
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         assert res_F.shape == (cutoff,)
 
         expected_gradient = (
@@ -776,9 +780,12 @@ class TestProbability:
         expected_gradient[n % 2 != 0] = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+        # re-construct tape to reset trainable_params
+        circuit.construct([r, phi], {})
+
         # differentiate with respect to parameter phi
-        circuit.qtape.trainable_params = {0}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flat
+        circuit.qtape.trainable_params = {1}
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -807,14 +814,14 @@ class TestProbability:
         # get the classical jacobian, since `tape.jacobian` only calculates
         # the quantum jacobian and the reuse of parameters `a` and `phi` in
         # the circuit constitutes classical processing
-        classical_jac = get_classical_jacobian(circuit)(a, phi)
+        classical_jac = np.array([1, 1])
 
         # construct tape
         circuit.construct([a, phi], {})
 
         # differentiate with respect to parameter a
-        circuit.qtape.trainable_params = {0}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flat
+        circuit.qtape.trainable_params = {0, 2}
+        res_F = circuit.qtape.jacobian(dev, method="numeric")
         expected_gradient = (
             2
             * (a ** (-1 + 2 * n0 + 2 * n1))
@@ -824,11 +831,14 @@ class TestProbability:
         )
         assert np.allclose(res_F @ classical_jac, expected_gradient, atol=tol, rtol=0)
 
+        # re-construct tape to reset trainable_params
+        circuit.construct([a, phi], {})
+
         # differentiate with respect to parameter phi
-        circuit.qtape.trainable_params = {1}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flat
+        circuit.qtape.trainable_params = {1, 3}
+        res_F = circuit.qtape.jacobian(dev, method="numeric")
         expected_gradient = 0
-        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
+        assert np.allclose(res_F @ np.array([1, 1]), expected_gradient, atol=tol, rtol=0)
 
     def test_analytic_diff_error(self, tol):
         """Test that the analytic gradients are not supported when returning
@@ -847,7 +857,7 @@ class TestProbability:
         circuit.construct([a, phi], {})
 
         with pytest.raises(ValueError, match="The analytic gradient method cannot be used with"):
-            _ = circuit.qtape.jacobian(dev, method="analytic").flat
+            _ = circuit.qtape.jacobian(dev, method="analytic").flatten()
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
