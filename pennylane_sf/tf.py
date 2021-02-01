@@ -53,9 +53,7 @@ from strawberryfields.ops import (
     Interferometer,
 )
 
-from pennylane.operation import Operator
 from pennylane.wires import Wires
-from pennylane.variable import Variable
 
 from .expectations import mean_photon, number_expectation, homodyne, poly_xp
 from .simulator import StrawberryFieldsSimulator
