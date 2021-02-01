@@ -52,15 +52,6 @@ two_modes_single_real_parameter_gates = [
     ("ControlledPhase", qml.ControlledPhase),
 ]
 
-def get_classical_jacobian(qnode):
-    def classical_preprocessing(*args, **kwargs):
-        """Returns the trainable gate parameters for
-        a given QNode input"""
-        qnode.construct(args, kwargs)
-        return qml.math.stack(qnode.qtape.get_parameters())
-
-    return qml.jacobian(classical_preprocessing)
-
 
 # compare to reference SF engine
 def SF_gate_reference(sf_op, cutoff_dim, wires, *args):
@@ -821,14 +812,14 @@ class TestProbability:
 
         dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev)
+        @qml.qnode(dev, diff_method="finite-diff")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
             return qml.probs(wires=[0, 1])
 
-        a = 0.4
-        phi = -0.12
+        a = np.array(0.4, requires_grad=True)
+        phi = np.array(-0.12, requires_grad=False)
 
         c = np.arange(cutoff)
         d = np.arange(cutoff)
@@ -836,17 +827,8 @@ class TestProbability:
         n0 = n0.flatten()
         n1 = n1.flatten()
 
-        # get the classical jacobian, since `tape.jacobian` only calculates
-        # the quantum jacobian and the reuse of parameters `a` and `phi` in
-        # the circuit constitutes classical processing
-        classical_jac = np.array([1, 1])
-
-        # construct tape
-        circuit.construct([a, phi], {})
-
         # differentiate with respect to parameter a
-        circuit.qtape.trainable_params = {0, 2}
-        res_F = circuit.qtape.jacobian(dev, method="numeric")
+        res_F = qml.jacobian(circuit)(a, phi)
         expected_gradient = (
             2
             * (a ** (-1 + 2 * n0 + 2 * n1))
@@ -854,16 +836,15 @@ class TestProbability:
             * (-2 * a ** 2 + n0 + n1)
             / (fac(n0) * fac(n1))
         )
-        assert np.allclose(res_F @ classical_jac, expected_gradient, atol=tol, rtol=0)
-
-        # re-construct tape to reset trainable_params
-        circuit.construct([a, phi], {})
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to parameter phi
-        circuit.qtape.trainable_params = {1, 3}
-        res_F = circuit.qtape.jacobian(dev, method="numeric")
+        a = np.array(0.4, requires_grad=False)
+        phi = np.array(-0.12, requires_grad=True)
+
+        res_F = qml.jacobian(circuit)(a, phi)
         expected_gradient = 0
-        assert np.allclose(res_F @ np.array([1, 1]), expected_gradient, atol=tol, rtol=0)
+        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
     def test_analytic_diff_error(self, tol):
         """Test that the analytic gradients are not supported when returning
