@@ -50,13 +50,13 @@ Hence, QNodes bound to the ``strawberryfields.gbs`` device must consist solely o
 .. code-block:: python
 
     from pennylane_sf.ops import ParamGraphEmbed
-    import numpy as np
+    from pennylane import numpy as np
 
     A = np.array([
         [0.0, 1.0, 1.0, 1.0],
         [1.0, 0.0, 1.0, 0.0],
         [1.0, 1.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0, 0.0]])
+        [1.0, 0.0, 0.0, 0.0]], requires_grad=False)
     n_mean = 2.5
 
     @qml.qnode(dev)
@@ -113,7 +113,7 @@ has shown how to calculate the derivative of the output GBS probability distribu
 
 .. math::
 
-    \partial_{\mathbf{w}} P(\mathbf{n}, \mathbf{w}) = \frac{\mathbf{n} - \langle\mathbf{n}\rangle}{\mathbf{w}}P(\mathbf{n}, \mathbf{w}),,
+    \partial_{\mathbf{w}} P(\mathbf{n}, \mathbf{w}) = \frac{\mathbf{n} - \langle\mathbf{n}\rangle}{\mathbf{w}}P(\mathbf{n}, \mathbf{w}),
 
 where :math:`\mathbf{n}` is a sample given by counting the number of photons observed in each mode.
 

@@ -610,10 +610,9 @@ class TestVariance:
         var = circuit(r, phi)
         expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
         assert np.allclose(var, expected, atol=tol, rtol=0)
-
         # circuit jacobians
-        gradA = circuit.jacobian([r, phi], method="A")
-        gradF = circuit.jacobian([r, phi], method="F")
+        gradA = circuit.qtape.jacobian(dev, method="analytic")
+        gradF = circuit.qtape.jacobian(dev, method="numeric")
         expected = np.array(
             [
                 2 * np.exp(2 * r) * np.sin(phi) ** 2 - 2 * np.exp(-2 * r) * np.cos(phi) ** 2,
@@ -641,7 +640,7 @@ class TestVariance:
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.jacobian([n, a], method="F")
+        gradF = circuit.qtape.jacobian(dev, method="numeric")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
@@ -745,13 +744,21 @@ class TestProbability:
 
         n = np.arange(cutoff)
 
+        # construct tape
+        circuit.construct([a, phi], {})
+
         # differentiate with respect to parameter a
-        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        circuit.qtape.trainable_params = {0}
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         expected_gradient = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+        # re-construct tape to reset trainable_params
+        circuit.construct([a, phi], {})
+
         # differentiate with respect to parameter phi
-        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        circuit.qtape.trainable_params = {1}
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -772,8 +779,12 @@ class TestProbability:
 
         n = np.arange(cutoff)
 
-        # differentiate with respect to parameter r
-        res_F = circuit.jacobian([r, phi], wrt={0}, method="F").flatten()
+        # construct tape
+        circuit.construct([r, phi], {})
+
+        # differentiate with respect to parameter a
+        circuit.qtape.trainable_params = {0}
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         assert res_F.shape == (cutoff,)
 
         expected_gradient = (
@@ -785,8 +796,12 @@ class TestProbability:
         expected_gradient[n % 2 != 0] = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
+        # re-construct tape to reset trainable_params
+        circuit.construct([r, phi], {})
+
         # differentiate with respect to parameter phi
-        res_F = circuit.jacobian([r, phi], wrt={1}, method="F").flat
+        circuit.qtape.trainable_params = {1}
+        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -797,14 +812,14 @@ class TestProbability:
 
         dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev)
+        @qml.qnode(dev, diff_method="finite-diff")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
             return qml.probs(wires=[0, 1])
 
-        a = 0.4
-        phi = -0.12
+        a = np.array(0.4, requires_grad=True)
+        phi = np.array(-0.12, requires_grad=False)
 
         c = np.arange(cutoff)
         d = np.arange(cutoff)
@@ -813,7 +828,7 @@ class TestProbability:
         n1 = n1.flatten()
 
         # differentiate with respect to parameter a
-        res_F = circuit.jacobian([a, phi], wrt={0}, method="F").flat
+        res_F = qml.jacobian(circuit)(a, phi)
         expected_gradient = (
             2
             * (a ** (-1 + 2 * n0 + 2 * n1))
@@ -824,7 +839,10 @@ class TestProbability:
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
         # differentiate with respect to parameter phi
-        res_F = circuit.jacobian([a, phi], wrt={1}, method="F").flat
+        a = np.array(0.4, requires_grad=False)
+        phi = np.array(-0.12, requires_grad=True)
+
+        res_F = qml.jacobian(circuit)(a, phi)
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -842,8 +860,12 @@ class TestProbability:
 
         a = 0.4
         phi = -0.12
+
+        # construct tape
+        circuit.construct([a, phi], {})
+
         with pytest.raises(ValueError, match="The analytic gradient method cannot be used"):
-            res_F = circuit.jacobian([a, phi], wrt={0}, method="A").flat
+            circuit.qtape.jacobian(dev, method="analytic").flatten()
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
@@ -870,6 +892,6 @@ class TestProbability:
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.jacobian([n, a], method="F")
+        gradF = circuit.qtape.jacobian(dev, method="numeric")
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)

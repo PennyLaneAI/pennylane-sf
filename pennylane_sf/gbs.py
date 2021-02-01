@@ -28,6 +28,7 @@ from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
 from thewalrus.quantum import photon_number_mean_vector
 
 import pennylane as qml
+from pennylane.tape import QuantumTape
 from pennylane.operation import Probability
 from pennylane.wires import Wires
 
@@ -243,10 +244,15 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
-    def jacobian(self, operations, observables, variable_deps):
+    def jacobian(self, *args):
         """Calculates the Jacobian of the device.
 
+        Either takes a single QuantumTape or the operations, observables and
+        variable_deps individually.
+
         Args:
+            tape (.QuantumTape): the tape to get the operations, observables and variable_deps
+                from, instead of passing them individually
             operations (list[~pennylane.operation.Operation]): operations to be applied to the
                 device
             observables (list[~pennylane.operation.Operation]): observables to be measured
@@ -258,6 +264,25 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
+
+        not_a_tape = len(args) == 1 and not isinstance(args[0], QuantumTape)
+        wrong_number_of_args = len(args) != 1 and len(args) != 3
+
+        if not_a_tape or wrong_number_of_args:
+            raise TypeError(
+                "Arguments must either contain a single QuantumTape or the operations"
+                "observables and variable_deps."
+            )
+
+        if len(args) == 1:
+            tape = args[0]
+            operations, observables, variable_deps = (
+                tape.operations,
+                tape.observables,
+                tape.graph.variable_deps,
+            )
+        else:
+            operations, observables, variable_deps = args
 
         requested_wires = observables[0].wires
 

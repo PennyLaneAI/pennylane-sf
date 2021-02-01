@@ -53,9 +53,7 @@ from strawberryfields.ops import (
     Interferometer,
 )
 
-from pennylane.operation import Operator
 from pennylane.wires import Wires
-from pennylane.variable import Variable
 
 from .expectations import mean_photon, number_expectation, homodyne, poly_xp
 from .simulator import StrawberryFieldsSimulator
@@ -142,7 +140,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
     name = "Strawberry Fields TensorFlow PennyLane plugin"
     short_name = "strawberryfields.tf"
 
-    _capabilities = {"model": "cv", "passthru_interface": "tf", "provides_jacobian": True}
+    _capabilities = {"model": "cv", "passthru_interface": "tf"}
 
     _operation_map = {
         # Cannot yet support catstates, since they still accept complex parameter
@@ -272,80 +270,3 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
         ind = np.indices([cutoff] * N).reshape(N, -1).T
         probs = OrderedDict((tuple(k), v) for k, v in zip(ind, probs))
         return probs
-
-    def jacobian(self, queue, observables, parameters):
-        # pylint: disable=missing-function-docstring
-        op_params = {}
-        new_queue = []
-        variables = []
-
-        with tf.GradientTape(persistent=True) as tape:
-            for operation in queue:
-                # Copy the operation parameters to the op_params dictionary.
-                # Note that these are the unwrapped parameters, so PennyLane
-                # free parameters will be represented as Variable instances.
-                op_params[operation] = operation.data[:]
-
-            # Loop through the free parameter reference dictionary
-            for _, par_dep_list in parameters.items():
-                if not par_dep_list:
-                    # parameter is not used within circuit
-                    v = tf.Variable(0, dtype=tf.float64)
-                    variables.append(v)
-                    continue
-
-                # get the first parameter dependency for each free parameter
-                first = par_dep_list[0]
-
-                # For the above parameter dependency, get the corresponding
-                # operation parameter variable, and get the numeric value.
-                # Convert the resulting value to a TensorFlow tensor.
-                val = first.op.data[first.par_idx].val
-                mult = first.op.data[first.par_idx].mult
-                v = tf.Variable(val / mult, dtype=tf.float64)
-
-                # Mark the variable to be watched by the gradient tape,
-                # and append it to the variable list.
-                variables.append(v)
-
-                for p in par_dep_list:
-                    # Replace the existing Variable free parameter in the op_params dictionary
-                    # with the corresponding tf.Variable parameter.
-                    # Note that the free parameter might be scaled by the
-                    # variable.mult scaling factor.
-                    mult = p.op.data[p.par_idx].mult
-                    op_params[p.op][p.par_idx] = v * mult
-
-            # check that no Variables remain in the op_params dictionary
-            values = [item for sublist in op_params.values() for item in sublist]
-            assert not any(
-                isinstance(v, Variable) for v in values
-            ), "A pennylane.Variable instance was not correctly converted to a tf.Variable"
-
-            # flatten the variables list in case of nesting
-            variables = tf.nest.flatten(variables)
-            tape.watch(variables)
-
-            for operation in queue:
-                # Apply each operation, but instead of passing operation.parameters
-                # (which contains the evaluated numeric parameter values),
-                # pass op_params[operation], which contains numeric values
-                # for fixed parameters, and tf.Variable objects for free parameters.
-                try:
-                    # turn off domain checking since PassthruQNode qfuncs can take any class as input
-                    Operator.do_check_domain = False
-                    # generate the new operation
-                    new_op = operation.__class__(*op_params[operation], wires=operation.wires)
-                finally:
-                    Operator.do_check_domain = True
-
-                new_queue.append(new_op)
-
-            self.reset()
-
-            res = self.execute(new_queue, observables, parameters=parameters)
-            res = tf.cast(tf.squeeze(tf.stack(res)), dtype=tf.float64)
-
-        jac = tape.jacobian(res, variables, experimental_use_pfor=False)
-        jac = tf.stack([i if i is not None else tf.zeros(res.shape, dtype=tf.float64) for i in jac])
-        return jac.numpy().T

@@ -251,7 +251,7 @@ probs_dict_subset = {
 }
 
 A = np.array(
-    [[0.0, 1.0, 1.0, 1.0], [1.0, 0.0, 1.0, 0.0], [1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]]
+    [[0.0, 1.0, 1.0, 1.0], [1.0, 0.0, 1.0, 0.0], [1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]], requires_grad=False
 )
 
 jac_exp = np.array(
@@ -423,7 +423,7 @@ class TestStrawberryFieldsGBS:
         op = "ParamGraphEmbed"
         wires = list(range(4))
 
-        A = 0.1767767 * np.ones((4, 4))
+        A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = np.ones(3)
         n_mean = 1
         par = [params, A, n_mean]
@@ -437,7 +437,7 @@ class TestStrawberryFieldsGBS:
         op = "ParamGraphEmbed"
         wires = list(range(4))
 
-        A = 0.1767767 * np.ones((4, 4))
+        A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = 0.5 * np.ones(4)
         n_mean = 1
         par = [params, A, n_mean]
@@ -459,7 +459,7 @@ class TestStrawberryFieldsGBS:
         op = "ParamGraphEmbed"
         wires = list(range(4))
 
-        A = 0.1767767 * np.ones((4, 4))
+        A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = 0.5 * np.ones(4)
         n_mean = 1
         par = [params, A, n_mean]
@@ -709,7 +709,7 @@ class TestCachingStrawberryFieldsGBS:
         dev = qml.device(
             "strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True, analytic=False, shots=10
         )
-        A = 0.1767767 * np.ones((4, 4))
+        A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = np.ones(4)
 
         @qml.qnode(dev)
@@ -739,7 +739,7 @@ class TestCachingStrawberryFieldsGBS:
             analytic=False,
             samples=samples,
         )
-        A = 0.1767767 * np.ones((4, 4))
+        A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = np.ones(4)
 
         @qml.qnode(dev)
@@ -767,7 +767,7 @@ class TestIntegrationStrawberryFieldsGBS:
     def test_shape(self, wires, cutoff_dim):
         """Test that the probabilities and jacobian are returned with the expected shape"""
         dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim)
-        a = np.ones((wires, wires))
+        a = np.ones((wires, wires), requires_grad=False)
         params = np.ones(wires)
 
         @qml.qnode(dev)
@@ -792,7 +792,7 @@ class TestIntegrationStrawberryFieldsGBS:
         """Test that the probabilities and jacobian are returned with the expected shape when
         probabilities are measured on a subset of wires"""
         dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=cutoff_dim)
-        a = np.ones((wires, wires))
+        a = np.ones((wires, wires), requires_grad=False)
         params = np.ones(wires)
 
         @qml.qnode(dev)

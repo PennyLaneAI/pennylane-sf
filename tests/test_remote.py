@@ -285,7 +285,7 @@ class TestExpval:
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
         dev.samples = MOCK_SAMPLES
-        w = dev.wires[mode]
+        w = Wires(dev.wires[mode])
         result = dev.expval(qml.NumberOperator, w, None)
         assert np.allclose(result, expectation)
 
@@ -338,7 +338,7 @@ class TestVariance:
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
         dev.samples = MOCK_SAMPLES
-        w = dev.wires[mode]
+        w = Wires(dev.wires[mode])
         result = dev.var(qml.NumberOperator, w, None)
         assert np.allclose(result, var)
 
