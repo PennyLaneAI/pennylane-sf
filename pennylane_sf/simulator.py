@@ -64,7 +64,7 @@ class StrawberryFieldsSimulator(Device):
             relation :math:`[x, p] = i \hbar`
     """
     name = "Strawberry Fields Simulator PennyLane plugin"
-    pennylane_requires = ">=0.11.0"
+    pennylane_requires = ">=0.14.0"
     version = __version__
     author = "Josh Izaac"
 
