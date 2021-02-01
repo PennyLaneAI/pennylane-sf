@@ -865,7 +865,7 @@ class TestProbability:
         circuit.construct([a, phi], {})
 
         with pytest.raises(ValueError, match="The analytic gradient method cannot be used"):
-            _ = circuit.qtape.jacobian(dev, method="analytic").flatten()
+            circuit.qtape.jacobian(dev, method="analytic").flatten()
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
