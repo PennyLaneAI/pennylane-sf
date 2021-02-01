@@ -133,7 +133,7 @@ The Strawberry Fields TF device accepts additional arguments beyond the PennyLan
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 
-The Strawberry Fields Fock device supports all continuous-variable (CV) operations and observables
+The Strawberry Fields TF device supports all continuous-variable (CV) operations and observables
 provided by PennyLane, including both Gaussian and non-Gaussian operations.
 
 **Supported operations:**
