@@ -780,8 +780,8 @@ class TestProbability:
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
     def test_finite_diff_coherent_two_wires(self, tol):
-        """Test that the jacobian of the probability for a coherent states is
-        approximated well with finite differences"""
+        """Test that the jacobian of the probability for a coherent states is approximated well with
+        finite differences"""
         cutoff = 4
 
         dev = qml.device("strawberryfields.gaussian", wires=2, cutoff_dim=cutoff)
