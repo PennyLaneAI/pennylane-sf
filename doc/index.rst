@@ -100,6 +100,9 @@ such as ``'strawberryfields.gaussian'``:
 
     dev = qml.device('strawberryfields.gaussian', wires=XXX)
 
+.. raw:: html
+
+    <br/>
 
 .. toctree::
    :maxdepth: 2
