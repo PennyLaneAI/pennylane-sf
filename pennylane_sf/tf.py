@@ -128,12 +128,10 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
         wires (int, Iterable[Number, str]]): Number of subsystems accessible on the device,
             or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
             or strings (``['ancilla', 'q1', 'q2']``).
-        analytic (bool): indicates if the device should calculate expectations
-            and variances analytically
-        cutoff_dim (int): Fock-space truncation dimension
         shots (int): Number of circuit evaluations/random samples used
-            to estimate expectation values of observables. If ``analytic=True``,
-            this setting is ignored when calculating expectation values.
+            to estimate expectation values of observables. If ``None``,
+            the device calculates probability, expectation values, and variances analytically.
+        cutoff_dim (int): Fock-space truncation dimension
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
@@ -189,8 +187,8 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
     _circuits = {}
     _asarray = staticmethod(tf.convert_to_tensor)
 
-    def __init__(self, wires, *, cutoff_dim, analytic=True, shots=1000, hbar=2):
-        super().__init__(wires, analytic=analytic, shots=shots, hbar=hbar)
+    def __init__(self, wires, *, cutoff_dim, shots=None, hbar=2):
+        super().__init__(wires, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
         self.params = dict()
 

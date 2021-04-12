@@ -1,18 +1,17 @@
-# Release 0.15.0-dev
-
-### New features since last release
+# Release 0.15.0
 
 ### Breaking changes
 
-### Improvements
-
-### Documentation
-
-### Bug fixes
+* For compatibility with PennyLane v0.15, the `analytic` keyword argument
+  has been removed from all devices. Analytic expectation values can
+  still be computed by setting `shots=None`.
+  [(#62)](https://github.com/XanaduAI/pennylane-sf/pull/62)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Josh Izaac
 
 ---
 

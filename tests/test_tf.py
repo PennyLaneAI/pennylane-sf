@@ -90,7 +90,7 @@ class TestTF:
         assert dev.num_wires == 2
         assert dev.cutoff == 5
         assert dev.hbar == 2
-        assert dev.shots == 1000
+        assert dev.shots == None
         assert dev.short_name == "strawberryfields.tf"
 
     def test_tf_args(self):
@@ -119,7 +119,7 @@ class TestTF:
     def test_nonzero_shots(self):
         """Test that the tf plugin provides correct result for high shot number"""
         shots = 10 ** 2
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots, analytic=False)
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots)
 
         @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):

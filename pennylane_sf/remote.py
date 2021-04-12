@@ -92,6 +92,11 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
     }
 
     def __init__(self, *, backend, wires=None, cutoff_dim=5, shots=1000, hbar=2, sf_token=None):
+        if shots is None:
+            raise ValueError(
+                "The strawberryfields.remote device does not support analytic expectation values"
+            )
+
         self.backend = backend
         self.cutoff = cutoff_dim
         eng = sf.RemoteEngine(self.backend)
@@ -115,7 +120,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
                 "cannot be created with {} wires.".format(self.num_wires, len(wires))
             )
 
-        super().__init__(wires, analytic=False, shots=shots, hbar=hbar)
+        super().__init__(wires, shots=shots, hbar=hbar)
         self.eng = eng
 
         if sf_token is not None:
