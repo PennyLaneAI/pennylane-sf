@@ -5,7 +5,7 @@
 * For compatibility with PennyLane v0.15, the `analytic` keyword argument
   has been removed from all devices. Analytic expectation values can
   still be computed by setting `shots=None`.
-  [(#62)](https://github.com/XanaduAI/pennylane-sf/pull/62)
+  [(#65)](https://github.com/XanaduAI/pennylane-sf/pull/65)
 
 ### Contributors
 
