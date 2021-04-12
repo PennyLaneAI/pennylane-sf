@@ -113,7 +113,7 @@ def fock_state(state, device_wires, params):
         return ex, ex - ex ** 2
 
     dm = state.reduced_dm(modes=device_wires.tolist())
-    ex = tf.math.real(dm[tuple([n[i // 2] for i in range(len(n) * 2)])])
+    ex = tf.math.real(dm[tuple(n[i // 2] for i in range(len(n) * 2))])
 
     var = ex - ex ** 2
     return ex, var
