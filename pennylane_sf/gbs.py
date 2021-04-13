@@ -46,10 +46,10 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     Args:
         wires (int or Iterable[Number, str]]): the number of modes to initialize the device in
-        cutoff_dim (int): Fock-space truncation dimension
         shots (int): Number of circuit evaluations/random samples used
             to estimate expectation values of observables. If ``shots=None``,
             circuit evaluations are computed analytically.
+        cutoff_dim (int): Fock-space truncation dimension
         use_cache (bool): indicates whether to use samples from previous evaluations to speed up
             calculation of the probability distribution. If ``shots=None``, this setting is
             ignored.
@@ -73,7 +73,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(self, wires, *, cutoff_dim, shots=None, use_cache=False, samples=None):
+    def __init__(self, wires, *, shots=None, cutoff_dim, use_cache=False, samples=None):
         super().__init__(wires, shots=shots)
         self.cutoff = cutoff_dim
         self._use_cache = use_cache
