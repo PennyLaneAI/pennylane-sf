@@ -90,7 +90,7 @@ class TestTF:
         assert dev.num_wires == 2
         assert dev.cutoff == 5
         assert dev.hbar == 2
-        assert dev.shots == None
+        assert dev.shots is None
         assert dev.short_name == "strawberryfields.tf"
 
     def test_tf_args(self):
