@@ -61,13 +61,14 @@ The Strawberry Fields Gaussian device accepts additional arguments beyond the Pe
 ``cutoff_dim``
     the Fock basis truncation to be applied when computing quantities in the Fock basis (such as probabilities)
 
-``shots=0``
+``shots=None``
 	The number of circuit evaluations/random samples used to estimate expectation values of observables.
-	The default value of 0 means that the exact expectation value is returned.
+	The default value of ``None`` means that the exact expectation value is returned.
 
-	If shots is non-zero, the Gaussian device calculates the variance of the expectation value(s),
-	and use the `Berry-Esseen theorem <https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem>`_ to
-	estimate the sampled expectation value.
+    If shots is a positive integer or a list of integers, the Gaussian device calculates the
+    variance of the expectation value(s), and use the `Berry-Esseen theorem
+    <https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem>`_ to estimate the sampled
+    expectation value.
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~

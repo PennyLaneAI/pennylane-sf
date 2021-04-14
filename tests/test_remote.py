@@ -154,6 +154,11 @@ class TestDevice:
         with pytest.raises(ValueError, match="Device has a fixed number of"):
             qml.device("strawberryfields.remote", wires=range(9), backend="X8", shots=10)
 
+    def test_analytic_error(self):
+        """Test that instantiating the device with `shots=None` results in an error"""
+        with pytest.raises(ValueError, match="does not support analytic"):
+            dev = qml.device("strawberryfields.remote", wires=2, backend="X8", shots=None)
+
 
 class TestSample:
     """Tests that samples are correctly returned from the hardware device."""

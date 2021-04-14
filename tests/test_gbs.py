@@ -25,7 +25,6 @@ from strawberryfields.program import Program
 import pennylane as qml
 from pennylane import numpy as np
 from pennylane.operation import Probability
-from pennylane.qnodes.base import ParameterDependency
 from pennylane.wires import Wires
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
@@ -374,25 +373,25 @@ class TestStrawberryFieldsGBS:
     """Unit tests for StrawberryFieldsGBS."""
 
     @pytest.mark.parametrize("use_cache", [True, False])
-    @pytest.mark.parametrize("analytic", [True, False])
+    @pytest.mark.parametrize("shots", [None, 1000])
     @pytest.mark.parametrize("cutoff", [3, 6])
-    def test_load_device(self, cutoff, analytic, use_cache):
+    def test_load_device(self, cutoff, shots, use_cache):
         """Test that the device loads correctly"""
         dev = qml.device(
             "strawberryfields.gbs",
             wires=2,
             cutoff_dim=cutoff,
-            analytic=analytic,
+            shots=shots,
             use_cache=use_cache,
         )
         assert dev.cutoff == cutoff
-        assert dev.analytic is analytic
+        assert dev.analytic is (shots is None)
         assert dev.use_cache is use_cache
 
     def test_load_device_with_samples(self):
         """Test that the device loads correctly with input samples"""
         a = np.ones((10, 2))
-        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=False, samples=a)
+        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, shots=10, samples=a)
         assert np.allclose(dev.samples, a)
 
     def test_calculate_WAW(self):
@@ -454,7 +453,7 @@ class TestStrawberryFieldsGBS:
     def test_apply_non_analytic(self, use_cache):
         """Test that the apply method constructs the correct program when in non-analytic mode"""
         dev = qml.device(
-            "strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False, use_cache=use_cache
+            "strawberryfields.gbs", wires=4, cutoff_dim=3, shots=100, use_cache=use_cache
         )
         op = "ParamGraphEmbed"
         wires = list(range(4))
@@ -505,7 +504,7 @@ class TestStrawberryFieldsGBS:
     def test_pre_measure_state_and_samples_non_analytic(self, tol):
         """Test that the pre_measure method operates as expected in non-analytic mode by
         generating the correct output state and samples of the right shape"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False, shots=2)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=2)
         prog = Program(4)
         op1 = GraphEmbed(0.1767767 * np.ones((4, 4)), mean_photon_per_mode=0.25)
         op2 = MeasureFock()
@@ -526,7 +525,7 @@ class TestStrawberryFieldsGBS:
             "strawberryfields.gbs",
             wires=4,
             cutoff_dim=3,
-            analytic=False,
+            shots=10,
             samples=samples,
             use_cache=True,
         )
@@ -543,7 +542,7 @@ class TestStrawberryFieldsGBS:
 
     def test_reparametrize_probability(self):
         """Test the _reparametrize_probability method applied to a fixed 2-mode example"""
-        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, analytic=True)
+        dev = qml.device("strawberryfields.gbs", wires=2, cutoff_dim=3, shots=None)
         A = 0.35355339 * np.ones((2, 2))
         dev._WAW = 0.9 * A
         dev.Z_inv = 1 / np.sqrt(2)
@@ -563,7 +562,7 @@ class TestStrawberryFieldsGBS:
         """Test if the _marginal_over_wires operates correctly on a fixed example. Note that the
         need for a larger atol is because probs_exact_subset is calculated exactly from the
         reduced state, while p_marg is a sum over probabilities up to a cutoff."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=True)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=None)
         p_marg = dev._marginal_over_wires([0, 2], probs_exact)
         assert np.allclose(p_marg, probs_exact_subset, atol=0.05)
 
@@ -581,7 +580,7 @@ class TestStrawberryFieldsGBS:
         """Test that the probability method in non-analytic mode returns the expected dictionary
         mapping from samples to probabilities when a fixed set of pre-generated samples are
         input. The lexicographic order of the keys in the returned dictionary is also checked."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=4)
 
         dev.samples = samples
         dev_probs_dict = dev.probability()
@@ -600,7 +599,7 @@ class TestStrawberryFieldsGBS:
         mapping from samples to probabilities when a fixed set of pre-generated samples are
         input and a subset of wires are requested. The lexicographic order of the keys in the
         returned dictionary is also checked."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=4)
 
         dev.samples = samples
         dev_probs_dict = dev.probability(wires=[0, 2])
@@ -617,7 +616,7 @@ class TestStrawberryFieldsGBS:
     def test_probability_non_analytic_subset_wires_with_caching(self):
         """Test that a ValueError is raised when returning probabilities of a subset of wires in
         sampling and caching modes."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, analytic=False,
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=4,
                          use_cache=True)
 
         dev.samples = samples
@@ -664,15 +663,12 @@ class TestStrawberryFieldsGBS:
         """Test that the jacobian method returns correctly on a fixed example"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
-        op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
 
-        ob = qml.Identity(wires=range(4))
-        ob.return_type = Probability
-        obs = [ob]
+        with qml.tape.QuantumTape() as tape:
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            qml.probs(wires=range(4))
 
-        variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
-
-        jac = dev.jacobian(op, obs, variable_deps)
+        jac = dev.jacobian(tape)
         assert np.allclose(jac, jac_exp)
 
     @pytest.mark.parametrize("wires", jac_reduced)
@@ -681,16 +677,12 @@ class TestStrawberryFieldsGBS:
         wires"""
         dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
-        op = [ParamGraphEmbed(params, A, 1, wires=range(4))]
 
-        ob = qml.Identity(wires=wires)
-        ob.return_type = Probability
-        obs = [ob]
+        with qml.tape.QuantumTape() as tape:
+            ParamGraphEmbed(params, A, 1, wires=range(4))
+            qml.probs(wires=wires)
 
-        variable_deps = {i: ParameterDependency(op, i) for i in range(4)}
-
-        jac = dev.jacobian(op, obs, variable_deps)
-
+        jac = dev.jacobian(tape)
         assert np.allclose(jac, jac_reduced[wires])
 
     def test_calculate_z_inv(self):
@@ -707,7 +699,7 @@ class TestCachingStrawberryFieldsGBS:
         """Test caching in non-analytic mode. Samples should be generated upon first call and
         then not generated subsequently."""
         dev = qml.device(
-            "strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True, analytic=False, shots=10
+            "strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True, shots=10
         )
         A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = np.ones(4)
@@ -736,7 +728,7 @@ class TestCachingStrawberryFieldsGBS:
             wires=4,
             cutoff_dim=3,
             use_cache=True,
-            analytic=False,
+            shots=4,
             samples=samples,
         )
         A = 0.1767767 * np.ones((4, 4), requires_grad=False)
