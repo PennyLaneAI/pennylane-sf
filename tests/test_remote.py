@@ -154,6 +154,11 @@ class TestDevice:
         with pytest.raises(ValueError, match="Device has a fixed number of"):
             qml.device("strawberryfields.remote", wires=range(9), backend="X8", shots=10)
 
+    def test_analytic_error(self):
+        """Test that instantiating the device with `shots=None` results in an error"""
+        with pytest.raises(ValueError, match="does not support analytic"):
+            dev = qml.device("strawberryfields.remote", wires=2, backend="X8", shots=None)
+
 
 class TestSample:
     """Tests that samples are correctly returned from the hardware device."""
@@ -285,7 +290,7 @@ class TestExpval:
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
         dev.samples = MOCK_SAMPLES
-        w = dev.wires[mode]
+        w = Wires(dev.wires[mode])
         result = dev.expval(qml.NumberOperator, w, None)
         assert np.allclose(result, expectation)
 
@@ -338,7 +343,7 @@ class TestVariance:
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=shots)
         dev.samples = MOCK_SAMPLES
-        w = dev.wires[mode]
+        w = Wires(dev.wires[mode])
         result = dev.var(qml.NumberOperator, w, None)
         assert np.allclose(result, var)
 

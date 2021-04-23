@@ -74,13 +74,14 @@ The Strawberry Fields Fock device accepts additional arguments beyond the PennyL
 	The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
 	Default value is :math:`\hbar=2`.
 
-``shots=0``
+``shots=None``
 	The number of circuit evaluations/random samples used to estimate expectation values of observables.
-	The default value of 0 means that the exact expectation value is returned.
+	The default value of ``None`` means that the exact expectation value is returned.
 
-	If shots is non-zero, the Fock device calculates the variance of the expectation value(s),
-	and use the `Berry-Esseen theorem <https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem>`_ to
-	estimate the sampled expectation value.
+    If shots is a positive integer or a list of integers, the Fock device calculates the variance of
+    the expectation value(s), and use the `Berry-Esseen theorem
+    <https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem>`_ to estimate the sampled
+    expectation value.
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~

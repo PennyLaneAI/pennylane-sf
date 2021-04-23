@@ -113,7 +113,6 @@ Device options
 
 The Strawberry Fields TF device accepts additional arguments beyond the PennyLane default device arguments.
 
-
 ``cutoff_dim``
     the Fock basis truncation when applying quantum operations
 
@@ -121,19 +120,14 @@ The Strawberry Fields TF device accepts additional arguments beyond the PennyLan
     The convention chosen in the canonical commutation relation :math:`[x, p] = i \hbar`.
     Default value is :math:`\hbar=2`.
 
-``analytic=True``
-    Indicates if the device should calculate expectations and variances analytically.
-    Note that backpropagation is not supported when ``analytic=False``; returned gradients
-    and Jacobians will be ``None``.
-
-``shots=1000``
-    The number of shots used when returning samples. If ``analytic=False``, the number
-    of circuit evaluations/random samples used to estimate expectation values of observables.
+``shots=None``
+    The number of circuit evaluations/random samples used to estimate expectation values of observables.
+    The default value of ``None`` means that the exact expectation value is returned.
 
 Supported operations
 ~~~~~~~~~~~~~~~~~~~~~
 
-The Strawberry Fields Fock device supports all continuous-variable (CV) operations and observables
+The Strawberry Fields TF device supports all continuous-variable (CV) operations and observables
 provided by PennyLane, including both Gaussian and non-Gaussian operations.
 
 **Supported operations:**

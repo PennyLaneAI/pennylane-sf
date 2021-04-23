@@ -1,8 +1,10 @@
-# Release 0.13.0
+# Release 0.16.0-dev
 
-### New features since last release
+### New features
 
 ### Improvements
+
+### Breaking changes
 
 ### Bug fixes
 
@@ -12,7 +14,47 @@
 
 This release contains contributions from (in alphabetical order):
 
-Juan Miguel Arrazola, Thomas Bromley, Josh Izaac.
+---
+
+# Release 0.15.0
+
+### Breaking changes
+
+* For compatibility with PennyLane v0.15, the `analytic` keyword argument
+  has been removed from all devices. Analytic expectation values can
+  still be computed by setting `shots=None`.
+  [(#65)](https://github.com/XanaduAI/pennylane-sf/pull/65)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Josh Izaac
+
+---
+
+# Release 0.14.0
+
+### Improvements
+
+* Updated the tests to work with the new core of PennyLane.
+  [(#60)](https://github.com/PennyLaneAI/pennylane-sf/pull/60)
+
+### Bug fixes
+
+* Removed the device differentiation method from the TF device, and fixed it to
+  work with the latest PL release.
+  [(#62)](https://github.com/PennyLaneAI/pennylane-sf/pull/62)
+
+* Adjusted the `StrawberryFieldsGBS.jacobian` method to work with the new
+  core of PennyLane.
+  [(#60)](https://github.com/PennyLaneAI/pennylane-sf/pull/60)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Theodor Isacsson, Josh Izaac.
 
 # Release 0.12.0
 

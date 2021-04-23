@@ -50,13 +50,13 @@ Hence, QNodes bound to the ``strawberryfields.gbs`` device must consist solely o
 .. code-block:: python
 
     from pennylane_sf.ops import ParamGraphEmbed
-    import numpy as np
+    from pennylane import numpy as np
 
     A = np.array([
         [0.0, 1.0, 1.0, 1.0],
         [1.0, 0.0, 1.0, 0.0],
         [1.0, 1.0, 0.0, 0.0],
-        [1.0, 0.0, 0.0, 0.0]])
+        [1.0, 0.0, 0.0, 0.0]], requires_grad=False)
     n_mean = 2.5
 
     @qml.qnode(dev)
@@ -113,7 +113,7 @@ has shown how to calculate the derivative of the output GBS probability distribu
 
 .. math::
 
-    \partial_{\mathbf{w}} P(\mathbf{n}, \mathbf{w}) = \frac{\mathbf{n} - \langle\mathbf{n}\rangle}{\mathbf{w}}P(\mathbf{n}, \mathbf{w}),,
+    \partial_{\mathbf{w}} P(\mathbf{n}, \mathbf{w}) = \frac{\mathbf{n} - \langle\mathbf{n}\rangle}{\mathbf{w}}P(\mathbf{n}, \mathbf{w}),
 
 where :math:`\mathbf{n}` is a sample given by counting the number of photons observed in each mode.
 
@@ -137,8 +137,7 @@ the resulting probability distribution to give :math:`P(\mathbf{n}, \mathbf{w})`
 This behaviour can be realized in the GBS device by setting the ``use_cache=True`` argument (in
 non-analytic mode):
 
->>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4,
-...                  shots=10, use_cache=True, analytic=False)
+>>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4, shots=10, use_cache=True)
 
 When the probability distribution using this device and the above ``quantum_function()`` is first
 evaluated, samples will instead be generated from :math:`A` and cached (stored). Subsequent
@@ -148,8 +147,8 @@ generating new samples, resulting in a faster evaluation.
 It is also possible to input a NumPy array of pre-generated samples from :math:`A` when
 instantiating the GBS device using the ``samples`` argument:
 
->>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4,
-...                  samples=my_array, use_cache=True, analytic=False)
+>>> dev = qml.device('strawberryfields.gbs', wires=4, cutoff_dim=4, shots=10,
+...                  samples=my_array, use_cache=True)
 
 This allows the initial generation of samples during the first evaluation of the probability
 distribution to be skipped.
@@ -162,13 +161,13 @@ The GBS device accepts additional arguments beyond the PennyLane default device 
 ``cutoff_dim``
     the Fock basis truncation to be applied when computing probabilities in the Fock basis.
 
-``shots=1000``
-	The number of circuit evaluations/random samples used to estimate probabilities.
-	Only used when ``analytic=False``, otherwise probabilities are exact.
+``shots=None``
+    The number of circuit evaluations/random samples used to estimate probabilities.
+    The default value of ``None`` means that exact probabilities are returned.
 
 ``use_cache``
     Indicates whether to use samples from previous evaluations to speed up the calculation of the
-    probability distribution. Only used when ``analytic=False``.
+    probability distribution. Only used when ``shots`` is not ``None``.
 
 ``samples``
     Allows pre-generated samples of the input adjacency matrix to be provided in non-analytic mode.

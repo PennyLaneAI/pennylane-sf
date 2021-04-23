@@ -55,16 +55,14 @@ class StrawberryFieldsSimulator(Device):
         wires (int or Iterable[Number, str]]): Number of subsystems represented by the device,
             or iterable that contains unique labels for the subsystems as numbers (i.e., ``[-1, 0, 2]``)
             or strings (``['ancilla', 'q1', 'q2']``).
-        analytic (bool): indicates if the device should calculate expectations
-            and variances analytically
         shots (int): Number of circuit evaluations/random samples used
-            to estimate expectation values of observables. If ``analytic=True``,
-            this setting is ignored.
+            to estimate expectation values of observables. If ``None``,
+            the device calculates probability, expectation values, and variances analytically.
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
     name = "Strawberry Fields Simulator PennyLane plugin"
-    pennylane_requires = ">=0.11.0"
+    pennylane_requires = ">=0.15.0"
     version = __version__
     author = "Josh Izaac"
 
@@ -73,7 +71,7 @@ class StrawberryFieldsSimulator(Device):
     _observable_map = {}
     _capabilities = {"model": "cv"}
 
-    def __init__(self, wires, *, analytic=True, shots=1000, hbar=2):
+    def __init__(self, wires, *, shots=None, hbar=2):
         super().__init__(wires, shots)
         self.hbar = hbar
         self.prog = None
@@ -81,7 +79,6 @@ class StrawberryFieldsSimulator(Device):
         self.q = None
         self.state = None
         self.samples = None
-        self.analytic = analytic
 
     def execution_context(self):
         """Initialize the engine"""

@@ -90,7 +90,7 @@ class TestTF:
         assert dev.num_wires == 2
         assert dev.cutoff == 5
         assert dev.hbar == 2
-        assert dev.shots == 1000
+        assert dev.shots is None
         assert dev.short_name == "strawberryfields.tf"
 
     def test_tf_args(self):
@@ -109,21 +109,19 @@ class TestTF:
 
         @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):
-            qml.Displacement(x, 0, wires=0)
+            qml.Displacement(x, 0., wires=0)
             return qml.expval(qml.NumberOperator(0))
 
-        assert isinstance(circuit, qml.qnodes.PassthruQNode)
-
-        res = circuit(1)
+        res = circuit(1.)
         assert isinstance(res, tf.Tensor)
         assert np.allclose(res, 1, atol=tol, rtol=0)
 
     def test_nonzero_shots(self):
         """Test that the tf plugin provides correct result for high shot number"""
         shots = 10 ** 2
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots, analytic=False)
+        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
             return qml.expval(qml.NumberOperator(0))
@@ -159,7 +157,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -186,7 +184,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -213,7 +211,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -244,7 +242,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -273,7 +271,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -298,7 +296,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -324,7 +322,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -350,7 +348,7 @@ class TestGates:
 
         assert dev.supports_operation(gate_name)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
             operation(*args, wires=wires)
@@ -379,7 +377,7 @@ class TestExpectation:
         sf_expectation = dev._observable_map[gate_name]
         wires = [0]
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.Displacement(0.1, 0, wires=0)
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
@@ -403,7 +401,7 @@ class TestExpectation:
         sf_expectation = dev._observable_map[gate_name]
         wires = [0, 1]
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit():
             qml.Displacement(0.1, 0, wires=0)
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
@@ -427,7 +425,7 @@ class TestExpectation:
         sf_expectation = dev._observable_map[gate_name]
         wires = [0]
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.Displacement(0.1, 0, wires=0)
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
@@ -452,7 +450,7 @@ class TestExpectation:
         sf_expectation = dev._observable_map[gate_name]
         wires = [0]
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(*args):
             qml.Displacement(0.1, 0, wires=0)
             qml.TwoModeSqueezing(0.1, 0, wires=[0, 1])
@@ -475,7 +473,7 @@ class TestExpectation:
         dev = qml.device("strawberryfields.tf", wires=1, hbar=hbar, cutoff_dim=cutoff_dim)
         Q = np.array([0, 1, 0])  # x expectation
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
             return qml.expval(qml.PolyXP(Q, 0))
@@ -485,7 +483,7 @@ class TestExpectation:
 
         Q = np.diag([-0.5, 1 / (2 * hbar), 1 / (2 * hbar)])  # mean photon number
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):
             qml.ThermalState(nbar, wires=0)
             qml.Displacement(x, 0, wires=0)
@@ -504,7 +502,7 @@ class TestExpectation:
         dev = qml.device("strawberryfields.tf", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
 
         # test correct number state expectation |<n|a>|^2
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):
             qml.Displacement(x, 0, wires=0)
             return qml.expval(qml.FockStateProjector(np.array([2]), wires=0))
@@ -513,7 +511,7 @@ class TestExpectation:
         assert np.allclose(circuit(a), expected, atol=tol, rtol=0)
 
         # test correct number state expectation |<n|S(r)>|^2
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x):
             qml.Squeezing(x, 0, wires=0)
             return qml.expval(qml.FockStateProjector(np.array([2, 0]), wires=[0, 1]))
@@ -530,7 +528,7 @@ class TestExpectation:
         hbar = 2
         dev = qml.device("strawberryfields.tf", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x, y):
             qml.Squeezing(x, 0, wires=0)
             qml.Squeezing(y, 0, wires=1)
@@ -561,7 +559,7 @@ class TestExpectation:
         hbar = 2
         dev = qml.device("strawberryfields.tf", wires=2, hbar=hbar, cutoff_dim=cutoff_dim)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(x, y):
             qml.Squeezing(x, 0, wires=0)
             qml.Squeezing(y, 0, wires=1)
@@ -577,7 +575,7 @@ class TestVariance:
         """Test variance of a first order CV expectation value"""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
@@ -598,7 +596,7 @@ class TestVariance:
         """Test variance of a second order CV expectation value"""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(n, a):
             qml.ThermalState(n, wires=0)
             qml.Displacement(a, 0, wires=0)
@@ -617,7 +615,7 @@ class TestVariance:
         """Tests that variance for PolyXP measurement works"""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
@@ -639,7 +637,7 @@ class TestProbability:
         cutoff = 10
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             return qml.probs(wires=0)
@@ -659,7 +657,7 @@ class TestProbability:
         cutoff = 10
         dev = qml.device("strawberryfields.tf", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
@@ -681,7 +679,7 @@ class TestProbability:
         cutoff = 10
         dev = qml.device("strawberryfields.tf", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=1)
             return qml.probs(wires=1)
@@ -707,7 +705,7 @@ class TestPassthruGradients:
 
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             return qml.probs(wires=[0])
@@ -737,7 +735,7 @@ class TestPassthruGradients:
 
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(r, phi):
             qml.Squeezing(r, phi, wires=0)
             return qml.probs(wires=[0])
@@ -752,7 +750,7 @@ class TestPassthruGradients:
 
         # differentiate with respect to parameter r
         grad = tape.jacobian(res, r)
-        assert grad.shape == (1, cutoff)
+        assert grad.shape == (cutoff,)
 
         expected_gradient = (
             np.abs(tf.math.tanh(r)) ** n
@@ -776,7 +774,7 @@ class TestPassthruGradients:
 
         dev = qml.device("strawberryfields.tf", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
@@ -820,7 +818,7 @@ class TestPassthruGradients:
         # NumberOperator
         assert isinstance(op, qml.NumberOperator)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(n, a):
             qml.ThermalState(n, wires=0)
             qml.Displacement(a, 0, wires=0)
@@ -841,7 +839,7 @@ class TestPassthruGradients:
         """Test gradient of the photon variance of a squeezed state"""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
@@ -868,7 +866,7 @@ class TestPassthruGradients:
         """Test variance of a second order CV variance"""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(n, a):
             qml.ThermalState(n, wires=0)
             qml.Displacement(a, 0, wires=0)
@@ -893,7 +891,7 @@ class TestPassthruGradients:
         state vector is correct."""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a):
             qml.Displacement(a, 0, wires=0)
             return qml.expval(qml.Identity(0))
@@ -916,7 +914,7 @@ class TestPassthruGradients:
         density matrix is correct."""
         dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(a):
             qml.Displacement(a, 0, wires=0)
             return qml.expval(qml.Identity(0))
@@ -940,7 +938,7 @@ class TestPassthruGradients:
         cutoff = 15
         dev = qml.device("strawberryfields.tf", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, interface="tf", method="backprop")
+        @qml.qnode(dev, interface="tf", diff_method="backprop")
         def circuit(r, phi, input_state, output_state):
             qml.FockStateVector(input_state, wires=[0, 1])
             qml.TwoModeSqueezing(r, phi, wires=[0, 1])
@@ -969,102 +967,6 @@ class TestPassthruGradients:
             r_grad, 2 * (np.sinh(R) - np.sinh(R) ** 3) / np.cosh(R) ** 5, atol=tol, rtol=0
         )
         assert np.allclose(phi_grad, 0.0, atol=tol, rtol=0)
-
-
-class TestDeviceGradients:
-    """Test various gradients working correctly with the device diff method"""
-
-    def test_gradient_coherent(self, tol):
-        """Test that the jacobian of the probability for a coherent states is
-        approximated well with finite differences"""
-        cutoff = 10
-
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
-
-        @qml.qnode(dev, interface="autograd", method="device")
-        def circuit(a, phi):
-            qml.Displacement(a, phi, wires=0)
-            return qml.probs(wires=[0])
-
-        a = qml.numpy.array(0.4, requires_grad=True)
-        phi = qml.numpy.array(-0.12, requires_grad=True)
-
-        n = np.arange(cutoff)
-
-        grad = qml.jacobian(circuit)(a, phi)
-        expected_gradient = np.zeros_like(grad)
-        expected_gradient[:, 0] = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
-        assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
-
-    def test_gradient_squeezed(self, tol):
-        """Test that the jacobian of the probability for a squeezed states is
-        approximated well with finite differences"""
-        cutoff = 5
-
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=cutoff)
-
-        @qml.qnode(dev, interface="autograd", method="device")
-        def circuit(r, phi):
-            qml.Squeezing(r, phi, wires=0)
-            return qml.probs(wires=[0])
-
-        r = qml.numpy.array(0.4, requires_grad=True)
-        phi = qml.numpy.array(-0.12, requires_grad=True)
-
-        n = np.arange(cutoff)
-
-        # differentiate with respect to parameter r
-        grad = qml.jacobian(circuit)(r, phi)
-        assert grad.shape == (cutoff, 2)
-
-        expected_gradient = (
-            np.abs(np.tanh(r)) ** n
-            * (1 + 2 * n - np.cosh(2 * r))
-            * fac(n)
-            / (2 ** (n + 1) * np.cosh(r) ** 2 * np.sinh(r) * fac(n / 2) ** 2)
-        )
-        expected_gradient[n % 2 != 0] = 0
-        expected_gradient = np.vstack([expected_gradient, np.zeros([cutoff])]).T
-        assert np.allclose(grad, expected_gradient, atol=tol, rtol=0)
-
-    def test_gradient_second_order_cv(self, tol):
-        """Test gradient of a second order CV variance"""
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
-
-        @qml.qnode(dev, interface="autograd", method="device")
-        def circuit(weights):
-            qml.ThermalState(weights[0], wires=0)
-            qml.Displacement(weights[1], 0, wires=0)
-            return qml.var(qml.NumberOperator(0))
-
-        n = 0.12
-        a = 0.105
-        weights = qml.numpy.array([n, a], requires_grad=True)
-
-        # circuit jacobians
-        grad = qml.grad(circuit)(weights)
-        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
-        assert np.allclose(grad, expected, atol=tol, rtol=0)
-
-    def test_parameter_not_used_in_circuit(self, tol):
-        """Test gradient of a second order CV variance. Also check 0 is returned
-        for gradient of parameter not used in circuit"""
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=15)
-
-        @qml.qnode(dev, interface="autograd", method="device")
-        def circuit(weights):
-            qml.ThermalState(weights[0], wires=0)
-            qml.Displacement(weights[1], 0, wires=0)
-            return qml.var(qml.NumberOperator(0))
-
-        n = 0.12
-        a = 0.105
-        weights = qml.numpy.array([n, a, 0.543], requires_grad=True)
-
-        # circuit jacobians
-        grad = qml.grad(circuit)(weights)
-        expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1), 0])
-        assert np.allclose(grad, expected, atol=tol, rtol=0)
 
 
 class TestHighLevelIntegration:

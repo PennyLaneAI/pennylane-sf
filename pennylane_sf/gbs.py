@@ -24,7 +24,7 @@ import numpy as np
 import strawberryfields as sf
 from strawberryfields.ops import GraphEmbed, MeasureFock
 from strawberryfields.utils import all_fock_probs_pnr
-from thewalrus.quantum import find_scaling_adjacency_matrix as rescale
+from thewalrus.quantum import adj_scaling as rescale
 from thewalrus.quantum import photon_number_mean_vector
 
 import pennylane as qml
@@ -46,14 +46,12 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     Args:
         wires (int or Iterable[Number, str]]): the number of modes to initialize the device in
-        analytic (bool): indicates if the device should calculate expectations
-            and variances analytically
-        cutoff_dim (int): Fock-space truncation dimension
         shots (int): Number of circuit evaluations/random samples used
-            to estimate expectation values of observables. If ``analytic=True``,
-            this setting is ignored.
+            to estimate expectation values of observables. If ``shots=None``,
+            circuit evaluations are computed analytically.
+        cutoff_dim (int): Fock-space truncation dimension
         use_cache (bool): indicates whether to use samples from previous evaluations to speed up
-            calculation of the probability distribution. If ``analytic=True``, this setting is
+            calculation of the probability distribution. If ``shots=None``, this setting is
             ignored.
         samples (array): pre-generated samples using the input adjacency matrix specified by
             :class:`ParamGraphEmbed`. In non-analytic mode with ``use_cache=True``, probabilities
@@ -75,10 +73,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
     _capabilities = {"model": "cv", "provides_jacobian": True}
 
-    def __init__(
-        self, wires, *, analytic=True, cutoff_dim, shots=1000, use_cache=False, samples=None
-    ):
-        super().__init__(wires, analytic=analytic, shots=shots)
+    def __init__(self, wires, *, shots=None, cutoff_dim, use_cache=False, samples=None):
+        super().__init__(wires, shots=shots)
         self.cutoff = cutoff_dim
         self._use_cache = use_cache
         self.samples = samples
@@ -243,29 +239,23 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         probs = OrderedDict((tuple(i), probs[tuple(i)]) for i in ind)
         return probs
 
-    def jacobian(self, operations, observables, variable_deps):
+    def jacobian(self, tape):
         """Calculates the Jacobian of the device.
 
         Args:
-            operations (list[~pennylane.operation.Operation]): operations to be applied to the
-                device
-            observables (list[~pennylane.operation.Operation]): observables to be measured
-            variable_deps (dict[int, ParameterDependency]): reference dictionary
-                mapping free parameter values to the operations that
-                depend on them
+            tape (.QuantumTape): the tape to compute the Jacobian of.
 
         Returns:
             array[float]: Jacobian matrix of size (``len(probs)``, ``num_wires``)
         """
         self.reset()
-
+        operations, observables = (tape.operations, tape.observables)
         requested_wires = observables[0].wires
 
         # Create dummy observable to measure probabilities over all wires
         obs_all_wires = qml.Identity(wires=self.wires)
         obs_all_wires.return_type = Probability
-        prob = self.execute(operations, [obs_all_wires], parameters=variable_deps)[0]
-
+        prob = self.execute(operations, [obs_all_wires])[0]
         jac = self._jacobian_all_wires(prob)
 
         if requested_wires == self.wires:
@@ -330,5 +320,5 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     @property
     def use_cache(self):
         """Indicates whether to use samples from previous evaluations to speed up calculation of
-        the probability distribution. If ``analytic=True``, this setting is ignored."""
+        the probability distribution. If ``shots=None``, this setting is ignored."""
         return self._use_cache
