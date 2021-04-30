@@ -141,7 +141,7 @@ class StrawberryFieldsSimulator(Device):
         else:
             ex, var = self._observable_map[observable](self.state, device_wires, par)
 
-        if not self.analytic:
+        if self.shots is not None:
             # estimate the expectation value
             # use central limit theorem, sample normal distribution once, only ok
             # if shots is large (see https://en.wikipedia.org/wiki/Berry%E2%80%93Esseen_theorem)
