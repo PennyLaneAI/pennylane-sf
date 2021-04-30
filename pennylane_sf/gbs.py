@@ -141,7 +141,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         self._WAW = self.calculate_WAW(self._params, A)
 
-        if not self.analytic and self._use_cache:
+        if self.shots is not None and self._use_cache:
             op = GraphEmbed(A, mean_photon_per_mode=n_mean / len(A))
         else:
             n_mean_WAW = self.calculate_n_mean(self._WAW)
@@ -149,11 +149,11 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
 
         op | [self.q[wires.index(i)] for i in wires]
 
-        if not self.analytic:
+        if self.shots is not None:
             MeasureFock() | [self.q[wires.index(i)] for i in wires]
 
     def reset(self):
-        if not self.analytic and self._use_cache and self.samples is not None:
+        if self.shots is not None and self._use_cache and self.samples is not None:
             # In this case, we do not reset because we want to keep our samples
             return
         super().reset()
@@ -161,7 +161,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
     def pre_measure(self):
         self.eng = sf.Engine("gaussian", backend_options={"cutoff_dim": self.cutoff})
 
-        if self.analytic:
+        if self.shots is None:
             results = self.eng.run(self.prog)
         elif self._use_cache and self.samples is not None:  # use the cached samples
             return
@@ -217,7 +217,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         wires = wires or self.wires
         wires = Wires(wires)
 
-        if self.analytic:
+        if self.shots is None:
             return super().probability(wires=wires)
 
         samples = np.take(self.samples, self.wires.indices(wires), axis=1)
