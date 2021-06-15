@@ -1,18 +1,14 @@
-# Release 0.16.0-dev
-
-### New features
-
-### Improvements
-
-### Breaking changes
-
+# Release 0.16.0
 ### Bug fixes
 
-### Documentation
+* Replaced left-over references to the deprecated `analytic` attribute with `shots`.
+  [(#68)](https://github.com/PennyLaneAI/pennylane-sf/pull/68)
 
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Olivia Di Matteo
 
 ---
 
@@ -105,28 +101,28 @@ Theodor Isacsson, Josh Izaac.
   ```
 
   This device allows the adjacency matrix ``A`` of a graph to be trained. The QNode must have a
-  fixed structure: 
+  fixed structure:
 
   ```python
   from pennylane_sf.ops import ParamGraphEmbed
   import numpy as np
-  
+
   A = np.array([
       [0.0, 1.0, 1.0, 1.0],
       [1.0, 0.0, 1.0, 0.0],
       [1.0, 1.0, 0.0, 0.0],
       [1.0, 0.0, 0.0, 0.0]])
   n_mean = 2.5
-  
+
   @qml.qnode(dev)
   def quantum_function(x):
       ParamGraphEmbed(x, A, n_mean, wires=range(4))
       return qml.probs(wires=range(4))
   ```
-  
+
   Here, ``n_mean`` is the initial mean number of photons in the output GBS samples. The GBS
   probability distribution for a choice of trainable parameters ``x`` can then be accessed:
-  
+
   ```pycon
   >>> x = 0.9 * np.ones(4)
   >>> quantum_function(x)
