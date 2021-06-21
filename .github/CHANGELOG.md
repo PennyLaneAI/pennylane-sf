@@ -1,6 +1,6 @@
 # Release 0.16.0
 
-### Breaking changes
+### Improvements
 
 * Adds the compatibility tag and runs the tests on Python 3.9.
   [(#71)](https://github.com/PennyLaneAI/pennylane-sf/pull/71)
