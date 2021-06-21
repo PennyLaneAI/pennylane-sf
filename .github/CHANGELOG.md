@@ -1,4 +1,10 @@
 # Release 0.16.0
+
+### Breaking changes
+
+* Add support and tests for Python 3.9.
+  [(#71)](https://github.com/PennyLaneAI/pennylane-sf/pull/70)
+  
 ### Bug fixes
 
 * Replaced left-over references to the deprecated `analytic` attribute with `shots`.
@@ -8,7 +14,7 @@
 
 This release contains contributions from (in alphabetical order):
 
-Olivia Di Matteo
+Olivia Di Matteo, Romain Moyard
 
 ---
 
