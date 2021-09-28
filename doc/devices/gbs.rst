@@ -95,6 +95,11 @@ PennyLane. For example,
 The GBS probability distribution can also be post-processed and used as the input to other QNodes
 or classical nodes.
 
+.. note::
+
+    The ``qml.state``, ``qml.sample`` and ``qml.density_matrix`` measurements
+    are not supported on the ``strawberryfields.fock`` device.
+
 Background
 ~~~~~~~~~~
 

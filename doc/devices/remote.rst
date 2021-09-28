@@ -133,4 +133,5 @@ operations and observables provided by PennyLane.
   Please refer to the Strawberry Fields documentation for the chosen backend.
 
 * Supported observables: This device only supports Fock-based measurements, including
-  ``qml.probs()``, ``qml.NumberOperator``, and ``qml.TensorN``.
+  ``qml.probs()``, ``qml.NumberOperator``, and ``qml.TensorN``. The
+  ``qml.state`` and ``qml.density_matrix`` measurements are not supported.
