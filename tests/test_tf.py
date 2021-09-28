@@ -116,25 +116,6 @@ class TestTF:
         assert isinstance(res, tf.Tensor)
         assert np.allclose(res, 1, atol=tol, rtol=0)
 
-    def test_nonzero_shots(self):
-        """Test that the tf plugin provides correct result for high shot number"""
-        shots = 10 ** 2
-        dev = qml.device("strawberryfields.tf", wires=1, cutoff_dim=10, shots=shots)
-
-        @qml.qnode(dev, interface="tf", diff_method="backprop")
-        def circuit(x):
-            qml.Displacement(x, 0, wires=0)
-            return qml.expval(qml.NumberOperator(0))
-
-        x = 1
-
-        runs = []
-        for _ in range(100):
-            runs.append(circuit(x))
-
-        expected_var = np.sqrt(1 / shots)
-        assert np.allclose(np.mean(runs), x, atol=expected_var)
-
 
 class TestGates:
     """Tests the supported gates compared to the result from Strawberry
