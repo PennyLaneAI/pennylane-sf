@@ -98,7 +98,7 @@ or classical nodes.
 .. note::
 
     The ``qml.state``, ``qml.sample`` and ``qml.density_matrix`` measurements
-    are not supported on the ``strawberryfields.fock`` device.
+    are not supported on the ``strawberryfields.gbs`` device.
 
 Background
 ~~~~~~~~~~
