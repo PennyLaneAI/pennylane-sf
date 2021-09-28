@@ -45,6 +45,11 @@ We can also evaluate the derivative with respect to any parameter(s):
 >>> dqfunc(1., 0.543)
 1.4660265156190515
 
+.. note::
+
+    The ``qml.state``, ``qml.sample`` and ``qml.density_matrix`` measurements
+    are not supported on the ``strawberryfields.gaussian`` device.
+
 The continuous-variable QNodes available via Strawberry Fields can also be combined with qubit-based QNodes
 and classical nodes to build up a hybrid computational model. Such hybrid models can be optimized using
 the built-in optimizers provided by PennyLane.

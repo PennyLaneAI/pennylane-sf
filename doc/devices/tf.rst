@@ -66,6 +66,11 @@ array([[-7.0436597e-01,  1.8805575e-01,  3.2707882e-01,  1.4299491e-01,
          3.7763387e-02,  7.2306832e-03,  1.0900890e-03,  1.3535164e-04,
          1.3895189e-05,  9.9099987e-07]], dtype=float32)>
 
+.. note::
+
+    The ``qml.state``, ``qml.sample`` and ``qml.density_matrix`` measurements
+    are not supported on the ``strawberryfields.tf`` device.
+
 The continuous-variable QNodes available via Strawberry Fields can also be combined with qubit-based
 QNodes and classical nodes to build up a `hybrid computational model
 <https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html>`_. Such hybrid models can be optimized
