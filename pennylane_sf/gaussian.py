@@ -88,7 +88,7 @@ class StrawberryFieldsGaussian(StrawberryFieldsSimulator):
         "Rotation": Rgate,
         "TwoModeSqueezing": S2gate,
         "Squeezing": Sgate,
-        "Interferometer": Interferometer,
+        "InterferometerUnitary": Interferometer,
     }
 
     _observable_map = {
