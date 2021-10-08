@@ -225,8 +225,8 @@ class TestGates:
 
         wires = [0, 1]
 
-        gate_name = "Interferometer"
-        operation = qml.ops.Interferometer
+        gate_name = "InterferometerUnitary"
+        operation = qml.InterferometerUnitary
 
         dev = qml.device("strawberryfields.gaussian", wires=2)
 

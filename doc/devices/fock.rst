@@ -117,7 +117,7 @@ provided by PennyLane, including both Gaussian and non-Gaussian operations.
     ~pennylane.FockState
     ~pennylane.FockStateVector
     ~pennylane.GaussianState
-    ~pennylane.Interferometer
+    ~pennylane.InterferometerUnitary
     ~pennylane.Kerr
     ~pennylane.QuadraticPhase
     ~pennylane.Rotation
