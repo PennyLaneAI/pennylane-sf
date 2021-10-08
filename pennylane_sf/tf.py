@@ -180,7 +180,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
     matrix_gates = {
         "FockDensityMatrix",
         "GaussianState",
-        "Interferometer",
+        "InterferometerUnitary",
         "FockStateVector",
     }
 
@@ -190,7 +190,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
     def __init__(self, wires, *, cutoff_dim, shots=None, hbar=2):
         super().__init__(wires, shots=shots, hbar=hbar)
         self.cutoff = cutoff_dim
-        self.params = dict()
+        self.params = {}
 
     def apply(self, operation, wires, par):
         """Apply a quantum operation.
@@ -230,7 +230,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
 
     def reset(self):
         """Reset the device"""
-        self.params = dict()
+        self.params = {}
         super().reset()
 
     def probability(self, wires=None):
