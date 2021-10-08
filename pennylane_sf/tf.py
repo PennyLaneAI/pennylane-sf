@@ -163,7 +163,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
         "TwoModeSqueezing": S2gate,
         "Squeezing": Sgate,
         "CubicPhase": Vgate,
-        "Interferometer": Interferometer,
+        "InterferometerUnitary": Interferometer,
     }
 
     _observable_map = {

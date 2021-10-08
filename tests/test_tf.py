@@ -213,8 +213,8 @@ class TestGates:
 
         wires = [0, 1]
 
-        gate_name = "Interferometer"
-        operation = qml.Interferometer
+        gate_name = "InterferometerUnitary"
+        operation = qml.InterferometerUnitary
 
         cutoff_dim = 10
         dev = qml.device("strawberryfields.tf", wires=2, cutoff_dim=cutoff_dim)
