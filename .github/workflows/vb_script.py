@@ -13,7 +13,7 @@
 # limitations under the License.
 import argparse
 import pennylane as qml
-pl_version = '"' + qml.version() + '"\n'
+pl_version = '"' + qml.version() + '"\n'  # we expect PL v0.X.0 here if we're releasing v0.X.0 of the plugin 
 
 
 def bump_version(version_line, pre_release):
