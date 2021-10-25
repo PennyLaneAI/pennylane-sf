@@ -65,10 +65,10 @@ def remove_empty_headers(lines):
     Where a section begins with a header (### Header_Title).
 
     Args:
-        lines (list of strings): the paragraph containing the sections.
+        lines (list[string]): The paragraph containing the changelog sections.
 
     Returns:
-        cleaned_lines (list of strings): The paragraph with empty sections removed.
+        cleaned_lines (list[string]): The paragraph with empty sections removed.
     """
     cleaned_lines = []
     pntr1 = 0
@@ -98,16 +98,14 @@ def remove_empty_headers(lines):
 
 
 def update_changelog(path, new_version, pre_release=True):
-    """ Updates the Changelog file depending on the pre_release flag.
+    """ Updates the Changelog file depending on whether it's a pre-release
+    or post-release version bump.
 
     Args:
         path (str): The path to the changelog file.
         new_version (str): The bumped version string.
         pre_release (bool): A flag which determines if this is a
             pre-release or post-release version bump.
-
-    Returns:
-        None
     """
     with open(path, 'r', encoding="utf8") as f:
         lines = f.readlines()
@@ -140,7 +138,6 @@ def update_changelog(path, new_version, pre_release=True):
             # keep the rest of the changelog
             rest_of_changelog_lines = lines[end_of_section_index:]
             f.writelines(rest_of_changelog_lines)
-    return
 
 
 if __name__ == "__main__":
