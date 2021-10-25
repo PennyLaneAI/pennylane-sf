@@ -25,7 +25,7 @@ def bump_version(version_line, pre_release):
     curr_version = data[-1]
 
     if pre_release:
-        bumped_version = pl_version.replace("-dev", "")  # get current Pennylane version then remove -dev
+        bumped_version = pl_version  # get current Pennylane version
     else:
         split_version = curr_version.split(".")  # "0.17.0" --> ["0,17,0"]
         split_version[1] = str(int(split_version[1]) + 1)  # take middle value and cast as int and bump it by 1
