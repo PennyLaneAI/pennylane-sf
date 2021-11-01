@@ -13,10 +13,10 @@
 # limitations under the License.
 import argparse
 import pennylane as qml
-pl_version = '"' + qml.version() + '"\n'  # we expect PL v0.X.0 here if we're releasing v0.X.0 of the plugin 
+pl_version = '"' + qml.version() + '"'
 
 
-def bump_version(version_line, pre_release):
+def bump_version(version_line, pre_release, pl_release):
     """ A helper function which takes the current version string and
     replaces it with the bumped version depending on the pre/post
     release flag.
@@ -26,6 +26,8 @@ def bump_version(version_line, pre_release):
             version of the plugin.
          pre_release (bool): A flag which determines if this is a
             pre-release or post-release version bump.
+        pl_release (bool): A flag which determines if the new
+            version of PennyLane has already been released to Pypi
 
     Returns:
         resultant_line (string): A string of the same form as the version line
@@ -36,24 +38,32 @@ def bump_version(version_line, pre_release):
     curr_version = data[-1]
 
     if pre_release:
-        bumped_version = pl_version  # get current Pennylane version
-    else:
-        split_version = curr_version.split(".")  # "0.17.0" --> ["0,17,0"]
-        split_version[1] = str(int(split_version[1]) + 1)  # take middle value and cast as int and bump it by 1
-        split_version[2] = split_version[2].replace('"', '-dev"')  # add -dev, ["0,18,0"] --> ["0,18,0-dev"]
-        bumped_version = ".".join(split_version)
+        curr_version = pl_version  # get current Pennylane version
 
+        if pl_release:
+            data[-1] = curr_version
+            return " ".join(data), curr_version  # already bumped
+
+    split_version = curr_version.split(".")  # "0.17.0" --> ["0,17,0"]
+    split_version[1] = str(int(split_version[1]) + 1)  # take middle value and cast as int and bump it by 1
+
+    if not pre_release:
+        split_version[2] = split_version[2].replace('"', '-dev"')  # add -dev, ["0,18,0"] --> ["0,18,0-dev"]
+
+    bumped_version = ".".join(split_version)
     data[-1] = bumped_version
     return " ".join(data), bumped_version
 
 
-def update_version_file(path, pre_release=True):
+def update_version_file(path, pre_release=True, pl_release_status=False):
     """ Updates the __version__ attribute in a specific version file.
 
     Args:
         path (str): The path to the version file.
         pre_release (bool): A flag which determines if this is a
             pre-release or post-release version bump.
+        pl_release_status (bool): A flag which determines if the new
+            version of PennyLane has already been released to Pypi
 
     Return:
         new_version (str): The bumped version string.
@@ -64,7 +74,7 @@ def update_version_file(path, pre_release=True):
     with open(path, 'w', encoding="utf8") as f:
         for line in lines:
             if "__version__" in line.split(' '):
-                new_line, new_version = bump_version(line, pre_release)
+                new_line, new_version = bump_version(line, pre_release, pl_release_status)
                 f.write(new_line)
             else:
                 f.write(line)
@@ -159,7 +169,11 @@ if __name__ == "__main__":
                         help="True if this is a pre-release version bump, False if it is post release")
     parser.add_argument("--post_release", dest="release_status", action="store_false",
                         help="True if this is a pre-release version bump, False if it is post release")
+    parser.add_argument("--post_pl_release", dest="pl_release_status",
+                        action="store_true", help="True if PL has already been released")
+    parser.add_argument("--pre_pl_release", dest="pl_release_status",
+                        action="store_false", help="False if PL has not been released")
 
     args = parser.parse_args()
-    updated_version = update_version_file(args.version_path, args.release_status)
+    updated_version = update_version_file(args.version_path, args.release_status, args.pl_release_status)
     update_changelog(args.changelog_path, updated_version, args.release_status)

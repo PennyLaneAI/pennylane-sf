@@ -24,8 +24,8 @@ jobs:
       - name: Run version bump
         run: >
           python .github/workflows/vb_script.py
-          --version_path "./pennylane_sf/_version.py"
-          --changelog_path "./.github/workflows/CHANGELOG.md" --pre_release
+          --version_path "./pennylane-sf/_version.py"
+          --changelog_path "./.github/CHANGELOG.md" --pre_release --pre_pl_release
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
