@@ -1,17 +1,9 @@
-# Release 0.19.0-dev
-
-### New features since last release
-
-### Breaking changes
+# Release "0.19.0"
 
 ### Improvements
 
 * Change the name of `qml.Interferometer` to `qml.InterferometerUnitary` due to PennyLane deprecation
   [(#77)](https://github.com/PennyLaneAI/pennylane-sf/pull/77)
-
-### Documentation
-
-### Bug fixes
 
 ### Contributors
 
