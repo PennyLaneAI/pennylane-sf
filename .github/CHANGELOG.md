@@ -2,7 +2,7 @@
 
 ### Improvements
 
-* Change the name of `qml.Interferometer` to `qml.InterferometerUnitary` due to PennyLane deprecation
+* Changed the name of `qml.Interferometer` to `qml.InterferometerUnitary` due to PennyLane deprecation
   [(#77)](https://github.com/PennyLaneAI/pennylane-sf/pull/77)
 
 ### Contributors
