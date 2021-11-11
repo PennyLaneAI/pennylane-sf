@@ -575,7 +575,7 @@ class TestExpectation:
         def circuit(x, y):
             qml.Squeezing(x, 0, wires=0)
             qml.Squeezing(y, 0, wires=1)
-            return qml.expval(qml.Identity(wires=[0, 1]))
+            return qml.expval(qml.Identity(wires=[0])), qml.expval(qml.Identity(wires=[1]))
 
         assert np.allclose(circuit(r1, r2), 1, atol=tol, rtol=0)
 
