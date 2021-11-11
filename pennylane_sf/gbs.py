@@ -253,8 +253,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         requested_wires = observables[0].wires
 
         # Create dummy observable to measure probabilities over all wires
-        obs_all_wires = qml.Identity(wires=self.wires)
-        obs_all_wires.return_type = Probability
+        obs_all_wires = qml.probs(wires=self.wires)
         prob = self.execute(operations, [obs_all_wires])[0]
         jac = self._jacobian_all_wires(prob)
 
