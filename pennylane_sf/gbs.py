@@ -28,7 +28,6 @@ from thewalrus.quantum import adj_scaling as rescale
 from thewalrus.quantum import photon_number_mean_vector
 
 import pennylane as qml
-from pennylane.operation import Probability
 from pennylane.wires import Wires
 
 from .expectations import identity
