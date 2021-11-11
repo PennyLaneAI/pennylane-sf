@@ -6,6 +6,10 @@
 
 ### Improvements
 
+* The GBS device uses `qml.probs` (instead of the identity) to mark
+  basis state probability computations internally.
+  [(#84)](https://github.com/PennyLaneAI/pennylane-sf/pull/84)
+
 ### Documentation
 
 ### Bug fixes
@@ -13,6 +17,8 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Antal Száva
 
 ---
 
