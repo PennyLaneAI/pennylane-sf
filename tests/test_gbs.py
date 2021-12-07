@@ -767,10 +767,10 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, a, 1, wires=range(wires))
             return qml.probs(wires=range(wires))
 
-        d_vgbs = qml.jacobian(vgbs)
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
 
         p = vgbs(params)
-        dp = d_vgbs(params)[0]
+        dp = d_vgbs(params)
 
         assert p.shape == (cutoff_dim ** wires,)
         assert dp.shape == (cutoff_dim ** wires, wires)
@@ -792,10 +792,10 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, a, 1, wires=range(wires))
             return qml.probs(wires=[0, 1])
 
-        d_vgbs = qml.jacobian(vgbs)
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
 
         p = vgbs(params)
-        dp = d_vgbs(params)[0]
+        dp = d_vgbs(params)
 
         assert p.shape == (cutoff_dim ** 2,)
         assert dp.shape == (cutoff_dim ** 2, wires)
@@ -814,8 +814,8 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, A, 1, wires=wires)
             return qml.probs(wires=wires)
 
-        d_vgbs = qml.jacobian(vgbs)
-        dp = d_vgbs(params)[0]
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
+        dp = d_vgbs(params)
 
         assert np.allclose(dp, jac_exp)
 
@@ -831,8 +831,8 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, A, 1, wires=wires)
             return qml.probs(wires=[wires[subset_wires[0]], wires[subset_wires[1]]])
 
-        d_vgbs = qml.jacobian(vgbs)
-        dp = d_vgbs(params)[0]
+        d_vgbs = qml.jacobian(vgbs, argnum=0)
+        dp = d_vgbs(params)
 
         assert np.allclose(dp, jac_reduced[subset_wires])
 
