@@ -104,6 +104,16 @@ class MockEngine:
         spec["target"] = "X8"
         return DeviceSpec(spec=spec)
 
+class MockXccSettings:
+
+    settings = {}
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def save(self):
+        MockXccSettings.settings.update(self.kwargs)
+
 
 class TestDevice:
     """General tests for the HardwareDevice."""
@@ -113,6 +123,7 @@ class TestDevice:
         test_token = "SomeToken"
         recorder = []
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
+        monkeypatch.setattr("xcc.Settings", MockXccSettings)
         monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10, sf_token=test_token)
 
