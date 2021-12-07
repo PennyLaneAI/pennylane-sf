@@ -100,7 +100,9 @@ class MockEngine:
 
     @property
     def device_spec(self):
-        return DeviceSpec(target="X8", spec=mock_device_dict, connection=None)
+        spec = mock_device_dict.copy()
+        spec["target"] = "X8"
+        return DeviceSpec(spec=mock_device_dict)
 
 
 class TestDevice:
