@@ -121,13 +121,11 @@ class TestDevice:
     def test_token(self, monkeypatch):
         """Tests that the SF store_account function is called with token."""
         test_token = "SomeToken"
-        recorder = []
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
         monkeypatch.setattr("xcc.Settings", MockXccSettings)
-        monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10, sf_token=test_token)
 
-        assert recorder[0] == test_token
+        assert MockXccSettings.settings[0] == test_token
 
     def test_reset(self, monkeypatch):
         """Tests the reset method of the remote device."""
