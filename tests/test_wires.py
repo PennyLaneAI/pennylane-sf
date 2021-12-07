@@ -16,7 +16,8 @@
 import pennylane as qml
 import pytest
 from pennylane import numpy as np
-from strawberryfields.api import Result, DeviceSpec
+from strawberryfields.devicespec import DeviceSpec
+from strawberryfields.result import Result
 
 
 MOCK_SAMPLES = np.array(

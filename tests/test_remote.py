@@ -17,7 +17,8 @@ Unit tests for the Fock plugin.
 import pytest
 
 import strawberryfields as sf
-from strawberryfields.api import Result, DeviceSpec
+from strawberryfields.devicespec import DeviceSpec
+from strawberryfields.result import Result
 import pennylane_sf
 
 import pennylane as qml
