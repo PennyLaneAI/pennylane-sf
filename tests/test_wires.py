@@ -40,6 +40,7 @@ MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
 
 
 mock_device_dict = {
+    "target": "X8",
     "layout": "",
     "modes": 8,
     "compiler": ["fock"],
@@ -58,9 +59,7 @@ class MockEngine:
 
     @property
     def device_spec(self):
-        spec = mock_device_dict.copy()
-        spec["target"] = "X8"
-        return DeviceSpec(spec=spec)
+        return DeviceSpec(spec=mock_device_dict)
 
 
 # ===== Factories for circuits using arbitrary wire labels and numbers
