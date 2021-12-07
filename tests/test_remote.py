@@ -126,7 +126,7 @@ class TestDevice:
         monkeypatch.setattr("xcc.Settings", MockXccSettings)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10, sf_token=test_token)
 
-        assert MockXccSettings.settings[0] == test_token
+        assert MockXccSettings.settings["REFRESH_TOKEN"] == test_token
 
     def test_reset(self, monkeypatch):
         """Tests the reset method of the remote device."""
