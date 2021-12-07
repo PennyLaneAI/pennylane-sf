@@ -102,7 +102,7 @@ class MockEngine:
     def device_spec(self):
         spec = mock_device_dict.copy()
         spec["target"] = "X8"
-        return DeviceSpec(spec=mock_device_dict)
+        return DeviceSpec(spec=spec)
 
 
 class TestDevice:

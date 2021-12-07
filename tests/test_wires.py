@@ -60,7 +60,7 @@ class MockEngine:
     def device_spec(self):
         spec = mock_device_dict.copy()
         spec["target"] = "X8"
-        return DeviceSpec(spec=mock_device_dict)
+        return DeviceSpec(spec=spec)
 
 
 # ===== Factories for circuits using arbitrary wire labels and numbers
