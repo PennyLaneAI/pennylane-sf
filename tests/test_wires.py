@@ -54,7 +54,7 @@ class MockEngine:
         pass
 
     def run(*args, **kwargs):
-        return Result({"output": MOCK_SAMPLES})
+        return Result({"output": [MOCK_SAMPLES]})
 
     @property
     def device_spec(self):
