@@ -97,10 +97,11 @@ class StrawberryFieldsSimulator(Device):
         """
         # convert PennyLane parameter conventions to
         # Strawberry Fields conventions
-        if operation == "CatState":
-            sf_par = (par[0] * np.exp(par[1] * 1j), par[2])
-        else:
-            sf_par = par
+        # if operation == "CatState":
+        #     sf_par = (par[0] * np.exp(par[1] * 1j), par[2])
+        # else:
+        #     sf_par = par
+        sf_par = par
 
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)

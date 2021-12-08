@@ -378,7 +378,7 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a, b, c)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
 
