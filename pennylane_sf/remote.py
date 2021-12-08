@@ -125,7 +125,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         self.eng = eng
 
         if sf_token is not None:
-            xcc.Settings(REFRESH_TOKEN=sf_token)
+            xcc.Settings(REFRESH_TOKEN=sf_token).save()
 
     def reset(self):
         """Reset the device"""
