@@ -378,7 +378,7 @@ class TestGates:
             return qml.expval(qml.NumberOperator(0)), qml.expval(qml.NumberOperator(1))
 
         res = circuit(a, b, c)
-        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a * np.exp(1j * b), c)
+        sf_res = SF_gate_reference(sf_operation, cutoff_dim, wires, a, b, c)
         assert np.allclose(res, sf_res, atol=tol, rtol=0)
 
 
@@ -555,7 +555,7 @@ class TestExpectation:
         def circuit(x, y):
             qml.Squeezing(x, 0, wires=0)
             qml.Squeezing(y, 0, wires=1)
-            return qml.expval(qml.Identity(wires=[0, 1]))
+            return qml.expval(qml.Identity(wires=[0])), qml.expval(qml.Identity(wires=[1]))
 
         # reference SF circuit
         def SF_gate_reference_trace(x, y):
@@ -598,7 +598,7 @@ class TestVariance:
         """Test variance of a first order CV expectation value"""
         dev = qml.device("strawberryfields.fock", wires=1, cutoff_dim=15)
 
-        @qml.qnode(dev)
+        @qml.qnode_old.qnode(dev)
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
@@ -812,7 +812,7 @@ class TestProbability:
 
         dev = qml.device("strawberryfields.fock", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode(dev, diff_method="finite-diff")
+        @qml.qnode_old.qnode(dev, diff_method="finite-diff")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
