@@ -17,7 +17,8 @@ Unit tests for the Fock plugin.
 import pytest
 
 import strawberryfields as sf
-from strawberryfields.api import Result, DeviceSpec
+from strawberryfields.devicespec import DeviceSpec
+from strawberryfields.result import Result
 import pennylane_sf
 
 import pennylane as qml
@@ -81,6 +82,7 @@ MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
 
 
 mock_device_dict = {
+    "target": "X8",
     "layout": "",
     "modes": 8,
     "compiler": ["fock"],
@@ -95,11 +97,12 @@ class MockEngine:
         pass
 
     def run(*args, **kwargs):
-        return Result(MOCK_SAMPLES)
+        return Result({"output": [MOCK_SAMPLES]})
 
     @property
     def device_spec(self):
-        return DeviceSpec(target="X8", spec=mock_device_dict, connection=None)
+        return DeviceSpec(spec=mock_device_dict)
+
 
 
 class TestDevice:
@@ -108,12 +111,21 @@ class TestDevice:
     def test_token(self, monkeypatch):
         """Tests that the SF store_account function is called with token."""
         test_token = "SomeToken"
-        recorder = []
         monkeypatch.setattr("strawberryfields.RemoteEngine", MockEngine)
-        monkeypatch.setattr("strawberryfields.store_account", lambda arg: recorder.append(arg))
+
+        class MockXccSettings:
+            settings = {}
+
+            def __init__(self, **kwargs):
+                self.kwargs = kwargs
+
+            def save(self):
+                MockXccSettings.settings.update(self.kwargs)
+
+        monkeypatch.setattr("xcc.Settings", MockXccSettings)
         dev = qml.device("strawberryfields.remote", backend="X8", shots=10, sf_token=test_token)
 
-        assert recorder[0] == test_token
+        assert MockXccSettings.settings["REFRESH_TOKEN"] == test_token
 
     def test_reset(self, monkeypatch):
         """Tests the reset method of the remote device."""

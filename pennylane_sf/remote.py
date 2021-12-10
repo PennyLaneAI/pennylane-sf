@@ -24,6 +24,7 @@ import numpy as np
 import strawberryfields as sf
 
 # import state preparations, gates and measurements
+from strawberryfields.engine import xcc
 from strawberryfields import ops
 from strawberryfields.utils.post_processing import (
     all_fock_probs_pnr,
@@ -110,21 +111,21 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
 
         if isinstance(wires, int):
             raise ValueError(
-                "Device has a fixed number of {} modes. The wires argument can only be used "
-                "to specify an iterable of wire labels.".format(self.num_wires)
+                f"Device has a fixed number of {self.num_wires} modes. The wires argument can "
+                f"only be used to specify an iterable of wire labels."
             )
 
         if self.num_wires != len(wires):
             raise ValueError(
-                "Device has a fixed number of {} modes and "
-                "cannot be created with {} wires.".format(self.num_wires, len(wires))
+                f"Device has a fixed number of {self.num_wires} modes and "
+                f"cannot be created with {len(wires)} wires."
             )
 
         super().__init__(wires, shots=shots, hbar=hbar)
         self.eng = eng
 
         if sf_token is not None:
-            sf.store_account(sf_token)
+            xcc.Settings(REFRESH_TOKEN=sf_token).save()
 
     def reset(self):
         """Reset the device"""
