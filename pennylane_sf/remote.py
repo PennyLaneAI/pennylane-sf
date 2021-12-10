@@ -24,7 +24,7 @@ import numpy as np
 import strawberryfields as sf
 
 # import state preparations, gates and measurements
-import xcc
+from strawberryfields.engine import xcc
 from strawberryfields import ops
 from strawberryfields.utils.post_processing import (
     all_fock_probs_pnr,

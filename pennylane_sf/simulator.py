@@ -95,21 +95,11 @@ class StrawberryFieldsSimulator(Device):
             wires (Wires): subsystems the operation is applied on
             par (tuple): parameters for the operation
         """
-        # convert PennyLane parameter conventions to
-        # Strawberry Fields conventions
-        # if operation == "CatState":
-        #     sf_par = (par[0] * np.exp(par[1] * 1j), par[2])
-        # else:
-        #     sf_par = par
-        sf_par = par
 
         # translate to consecutive wires used by device
         device_wires = self.map_wires(wires)
 
-        # TODO: the following can be removed once tape-mode is the default in PennyLane
-        par = [p.unwrap() if hasattr(p, "unwrap") else p for p in par]
-
-        op = self._operation_map[operation](*sf_par)
+        op = self._operation_map[operation](*par)
         op | [self.q[i] for i in device_wires.labels]  # pylint: disable=pointless-statement
 
     @abc.abstractmethod
