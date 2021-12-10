@@ -762,7 +762,7 @@ class TestIntegrationStrawberryFieldsGBS:
         a = np.ones((wires, wires), requires_grad=False)
         params = np.ones(wires)
 
-        @qml.qnode(dev)
+        @qml.qnode_old.qnode(dev)
         def vgbs(params):
             ParamGraphEmbed(params, a, 1, wires=range(wires))
             return qml.probs(wires=range(wires))
@@ -787,7 +787,7 @@ class TestIntegrationStrawberryFieldsGBS:
         a = np.ones((wires, wires), requires_grad=False)
         params = np.ones(wires)
 
-        @qml.qnode(dev)
+        @qml.qnode_old.qnode(dev)
         def vgbs(params):
             ParamGraphEmbed(params, a, 1, wires=range(wires))
             return qml.probs(wires=[0, 1])
@@ -809,7 +809,7 @@ class TestIntegrationStrawberryFieldsGBS:
         dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
 
-        @qml.qnode(dev)
+        @qml.qnode_old.qnode(dev)
         def vgbs(params):
             ParamGraphEmbed(params, A, 1, wires=wires)
             return qml.probs(wires=wires)
@@ -826,7 +826,7 @@ class TestIntegrationStrawberryFieldsGBS:
         dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
         params = np.array([0.25, 0.5, 0.6, 1])
 
-        @qml.qnode(dev)
+        @qml.qnode_old.qnode(dev)
         def vgbs(params):
             ParamGraphEmbed(params, A, 1, wires=wires)
             return qml.probs(wires=[wires[subset_wires[0]], wires[subset_wires[1]]])
