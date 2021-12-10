@@ -62,11 +62,6 @@ def identity(state, device_wires, params):
     N = state.num_modes
     D = state.cutoff_dim
 
-    if N == len(device_wires):
-        # trace of the entire system
-        tr = state.trace()
-        return tr, tr - tr ** 2
-
     # get the reduced density matrix
     N = len(device_wires)
     dm = state.reduced_dm(modes=device_wires.tolist())
