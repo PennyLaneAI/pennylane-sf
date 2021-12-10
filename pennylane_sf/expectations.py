@@ -131,7 +131,7 @@ def fock_state(state, device_wires, params):
     if isinstance(state, BaseFockState):
         # fock state
         dm = state.reduced_dm(modes=device_wires.tolist())
-        ex = dm[tuple([n[i // 2] for i in range(len(n) * 2)])].real
+        ex = dm[tuple(n[i // 2] for i in range(len(n) * 2))].real
 
     elif isinstance(state, BaseGaussianState):
         # Reduced Gaussian state
