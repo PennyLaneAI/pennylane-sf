@@ -16,7 +16,8 @@
 import pennylane as qml
 import pytest
 from pennylane import numpy as np
-from strawberryfields.api import Result, DeviceSpec
+from strawberryfields.devicespec import DeviceSpec
+from strawberryfields.result import Result
 
 
 MOCK_SAMPLES = np.array(
@@ -39,6 +40,7 @@ MOCK_SAMPLES_PROD = np.array([0, 0, 864, 0, 0, 0, 0, 0, 0, 0])
 
 
 mock_device_dict = {
+    "target": "X8",
     "layout": "",
     "modes": 8,
     "compiler": ["fock"],
@@ -53,11 +55,11 @@ class MockEngine:
         pass
 
     def run(*args, **kwargs):
-        return Result(MOCK_SAMPLES)
+        return Result({"output": [MOCK_SAMPLES]})
 
     @property
     def device_spec(self):
-        return DeviceSpec(target="X8", spec=mock_device_dict, connection=None)
+        return DeviceSpec(spec=mock_device_dict)
 
 
 # ===== Factories for circuits using arbitrary wire labels and numbers

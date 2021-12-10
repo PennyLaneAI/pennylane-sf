@@ -513,7 +513,7 @@ class TestExpectation:
         def circuit(x, y):
             qml.Squeezing(x, 0, wires=0)
             qml.Squeezing(y, 0, wires=1)
-            return qml.expval(qml.Identity(wires=[0, 1]))
+            return qml.expval(qml.Identity(wires=[0])), qml.expval(qml.Identity(wires=[1]))
 
         # reference SF circuit
         def SF_gate_reference_trace(x, y):
@@ -965,6 +965,7 @@ class TestHighLevelIntegration:
             # NOTE: The interferometer template iterates over the weights.
             # Unfortunately, tf.Variable objects are not iterable; multiplying them
             # by '1.0' converts them into tf.Tensor objects, which *are* iterable.
+            
             qml.templates.Interferometer(
                 weights[0] * 1.0,
                 weights[1] * 1.0,
@@ -974,7 +975,11 @@ class TestHighLevelIntegration:
             )
             return qml.probs(wires=0)
 
-        weights = qml.init.interferometer_all(n_wires=3)
+        theta = np.random.uniform(low=0, high=3, size=(3,))
+        phi = np.random.uniform(low=0, high=2, size=(3,))
+        varphi = np.random.uniform(low=0, high=2, size=(3,))
+
+        weights = [theta, phi, varphi]
         weights = [tf.Variable(w) for w in weights]
 
         with tf.GradientTape() as tape:
