@@ -22,7 +22,7 @@ with open("pennylane_sf/_version.py") as f:
 
 
 requirements = [
-    "strawberryfields>=0.19",
+    "strawberryfields>=0.20",
     "pennylane>=0.19"
 ]
 
@@ -68,7 +68,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',

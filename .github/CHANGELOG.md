@@ -2,6 +2,16 @@
 
 ### Improvements
 
+* Updated how cat states are handled in the plugin.
+  [(#86)](https://github.com/PennyLaneAI/pennylane-sf/pull/86)
+
+* Switched to the latest remote API used by Strawberry Fields.
+  [(#86)](https://github.com/PennyLaneAI/pennylane-sf/pull/86)
+
+* Updated how the expectation value of the identity operator is computed as
+  `qml.Identity` only takes a single wire.
+  [(#86)](https://github.com/PennyLaneAI/pennylane-sf/pull/86)
+
 * The GBS device uses `qml.probs` (instead of the identity) to mark
   basis state probability computations internally.
   [(#84)](https://github.com/PennyLaneAI/pennylane-sf/pull/84)
@@ -10,7 +20,7 @@
 
 This release contains contributions from (in alphabetical order):
 
-Antal Száva
+Samuel Banning, Antal Száva
 
 ---
 
