@@ -8,7 +8,7 @@
 * Switched to the latest remote API used by Strawberry Fields.
   [(#86)](https://github.com/PennyLaneAI/pennylane-sf/pull/86)
 
-* Updated the computing the expectation value of the identity operator as
+* Updated how the expectation value of the identity operator is computed as
   `qml.Identity` only takes a single wire.
   [(#86)](https://github.com/PennyLaneAI/pennylane-sf/pull/86)
 
