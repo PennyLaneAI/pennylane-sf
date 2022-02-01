@@ -78,7 +78,7 @@ def identity(state, device_wires, params):
     if N == len(device_wires):
         # trace of the entire system
         tr = state.trace()
-        return tr, tr - tr ** 2
+        return tr, tr - tr**2
 
     # get the reduced density matrix
     N = len(device_wires)
@@ -86,9 +86,9 @@ def identity(state, device_wires, params):
 
     # construct the standard 2D density matrix, and take the trace
     new_ax = np.arange(2 * N).reshape([N, 2]).T.flatten()
-    tr = tf.math.real(tf.linalg.trace(tf.reshape(tf.transpose(dm, new_ax), [D ** N, D ** N])))
+    tr = tf.math.real(tf.linalg.trace(tf.reshape(tf.transpose(dm, new_ax), [D**N, D**N])))
 
-    return tr, tr - tr ** 2
+    return tr, tr - tr**2
 
 
 def fock_state(state, device_wires, params):
@@ -110,12 +110,12 @@ def fock_state(state, device_wires, params):
     if N == len(device_wires):
         # expectation value of the entire system
         ex = state.fock_prob(n)
-        return ex, ex - ex ** 2
+        return ex, ex - ex**2
 
     dm = state.reduced_dm(modes=device_wires.tolist())
     ex = tf.math.real(dm[tuple(n[i // 2] for i in range(len(n) * 2))])
 
-    var = ex - ex ** 2
+    var = ex - ex**2
     return ex, var
 
 
