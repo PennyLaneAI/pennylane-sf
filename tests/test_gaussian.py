@@ -857,7 +857,7 @@ class TestProbability:
             return qml.var(op)
 
         n = np.array(0.12, requires_grad=True)
-        a = np.array(0.765,requires_grad=True)
+        a = np.array(0.765, requires_grad=True)
 
         var = circuit(n, a)
         expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
