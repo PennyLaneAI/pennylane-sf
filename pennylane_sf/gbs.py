@@ -116,7 +116,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         if not all(singular_values < 1):
             raise ValueError("Singular values of matrix A must be less than 1")
 
-        return np.sum(singular_values ** 2 / (1 - singular_values ** 2))
+        return np.sum(singular_values**2 / (1 - singular_values**2))
 
     # pylint: disable=missing-function-docstring
     def execute(self, queue, observables, parameters=None, **kwargs):
@@ -202,7 +202,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         Returns:
             array: the traced-over array
         """
-        trailing = int(array.size / self.cutoff ** self.num_wires)
+        trailing = int(array.size / self.cutoff**self.num_wires)
 
         array = array.reshape([self.cutoff] * self.num_wires + [trailing])
 

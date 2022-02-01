@@ -23,7 +23,7 @@ with open("pennylane_sf/_version.py") as f:
 
 requirements = [
     "strawberryfields>=0.20",
-    "pennylane>=0.19"
+    "pennylane @ git+https://github.com/PennyLaneAI/pennylane.git"
 ]
 
 info = {
