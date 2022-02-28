@@ -632,8 +632,8 @@ class TestVariance:
             qml.Displacement(a, 0, wires=0)
             return qml.var(qml.NumberOperator(0))
 
-        n = 0.12
-        a = 0.105
+        n = np.array(0.12, requires_grad=True)
+        a = np.array(0.105, requires_grad=True)
 
         var = circuit(n, a)
         expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
@@ -858,8 +858,8 @@ class TestProbability:
             qml.Displacement(a, phi, wires=0)
             return qml.probs(wires=[0])
 
-        a = 0.4
-        phi = -0.12
+        a = np.array(0.4, requires_grad=True)
+        phi = np.array(-0.12, requires_grad=True)
 
         # construct tape
         circuit.construct([a, phi], {})
@@ -884,8 +884,8 @@ class TestProbability:
             qml.Displacement(a, 0, wires=0)
             return qml.var(op)
 
-        n = 0.12
-        a = 0.105
+        n = np.array(0.12, requires_grad=True)
+        a = np.array(0.105, requires_grad=True)
 
         var = circuit(n, a)
         expected = n ** 2 + n + np.abs(a) ** 2 * (1 + 2 * n)
