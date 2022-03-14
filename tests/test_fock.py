@@ -611,8 +611,11 @@ class TestVariance:
         expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
         assert np.allclose(var, expected, atol=tol, rtol=0)
         # circuit jacobians
-        gradA = circuit.qtape.jacobian(dev, method="analytic")
-        gradF = circuit.qtape.jacobian(dev, method="numeric")
+        tapes, fn = qml.gradients.param_shift_cv(circuit.qtape, dev)
+        gradA = fn(dev.batch_execute(tapes))
+
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        gradF = fn(dev.batch_execute(tapes))
         expected = np.array(
             [
                 2 * np.exp(2 * r) * np.sin(phi) ** 2 - 2 * np.exp(-2 * r) * np.cos(phi) ** 2,
@@ -640,7 +643,8 @@ class TestVariance:
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.qtape.jacobian(dev, method="numeric")
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        gradF = fn(dev.batch_execute(tapes))
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
 
@@ -749,7 +753,9 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         circuit.qtape.trainable_params = {0}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
+
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        res_F = fn(dev.batch_execute(tapes)).flatten()
         expected_gradient = 2 * np.exp(-(a ** 2)) * a ** (2 * n - 1) * (n - a ** 2) / fac(n)
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -758,7 +764,8 @@ class TestProbability:
 
         # differentiate with respect to parameter phi
         circuit.qtape.trainable_params = {1}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        res_F = fn(dev.batch_execute(tapes)).flatten()
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -784,7 +791,8 @@ class TestProbability:
 
         # differentiate with respect to parameter a
         circuit.qtape.trainable_params = {0}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        res_F = fn(dev.batch_execute(tapes)).flatten()
         assert res_F.shape == (cutoff,)
 
         expected_gradient = (
@@ -801,7 +809,9 @@ class TestProbability:
 
         # differentiate with respect to parameter phi
         circuit.qtape.trainable_params = {1}
-        res_F = circuit.qtape.jacobian(dev, method="numeric").flatten()
+
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        res_F = fn(dev.batch_execute(tapes)).flatten()
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
@@ -865,7 +875,8 @@ class TestProbability:
         circuit.construct([a, phi], {})
 
         with pytest.raises(ValueError, match="The analytic gradient method cannot be used"):
-            circuit.qtape.jacobian(dev, method="analytic").flatten()
+            tapes, fn = qml.gradients.param_shift_cv(circuit.qtape, dev)
+            gradA = fn(dev.batch_execute(tapes))
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
         """Test variance of TensorN for a single mode, which resorts to
@@ -892,6 +903,7 @@ class TestProbability:
         assert np.allclose(var, expected, atol=tol, rtol=0)
 
         # circuit jacobians
-        gradF = circuit.qtape.jacobian(dev, method="numeric")
+        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+        gradF = fn(dev.batch_execute(tapes)).flatten()
         expected = np.array([2 * a ** 2 + 2 * n + 1, 2 * a * (2 * n + 1)])
         assert np.allclose(gradF, expected, atol=tol, rtol=0)
