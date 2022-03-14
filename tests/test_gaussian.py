@@ -845,7 +845,7 @@ class TestProbability:
         circuit.construct([a, phi], {})
 
         with pytest.raises(ValueError, match="The analytic gradient method cannot be used with"):
-            tapes, fn = qml.gradients.finite_diff(circuit.qtape)
+            tapes, fn = qml.gradients.param_shift_cv(circuit.qtape, dev)
             _ = fn(dev.batch_execute(tapes))
 
     def test_tensorn_one_mode_is_mean_photon(self, tol):
