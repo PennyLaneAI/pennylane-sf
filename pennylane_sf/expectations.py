@@ -68,9 +68,9 @@ def identity(state, device_wires, params):
 
     # construct the standard 2D density matrix, and take the trace
     new_ax = np.arange(2 * N).reshape([N, 2]).T.flatten()
-    tr = np.trace(dm.transpose(new_ax).reshape([D ** N, D ** N])).real
+    tr = np.trace(dm.transpose(new_ax).reshape([D**N, D**N])).real
 
-    return tr, tr - tr ** 2
+    return tr, tr - tr**2
 
 
 def mean_photon(state, device_wires, params):
@@ -125,7 +125,7 @@ def fock_state(state, device_wires, params):
     if N == len(device_wires):
         # expectation value of the entire system
         ex = state.fock_prob(n)
-        return ex, ex - ex ** 2
+        return ex, ex - ex**2
 
     # otherwise, we must trace out remaining systems.
     if isinstance(state, BaseFockState):
@@ -145,7 +145,7 @@ def fock_state(state, device_wires, params):
         new_state = BaseGaussianState((mu, cov), len(device_wires))
         ex = new_state.fock_prob(n)
 
-    var = ex - ex ** 2
+    var = ex - ex**2
     return ex, var
 
 
