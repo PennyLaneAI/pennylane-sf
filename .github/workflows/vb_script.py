@@ -13,7 +13,16 @@
 # limitations under the License.
 import argparse
 import pennylane as qml
-pl_version = '"' + qml.version() + '"' # we expect PL v0.X.0 here if we're releasing v0.X+1.0 of the plugin
+pl_version = '"' + qml.version() + '"'
+
+
+def remove_quotes(my_str):
+    """ A helper function to remove the quote chars (',")
+    from the provided str.
+    """
+    clean_str = my_str.replace('"', '')  # remove "
+    clean_str = clean_str.replace("'", "")  # remove '
+    return clean_str
 
 
 def bump_version(version_line, pre_release):
@@ -45,7 +54,7 @@ def bump_version(version_line, pre_release):
         bumped_version (string): The bumped version string.
     """
     data = version_line.split(" ")
-    curr_version = data[-1]
+    curr_version = data[-1].replace('\n', '')  # remove any newline characters
 
     if pre_release:
         curr_version = pl_version  # get current Pennylane version
@@ -58,7 +67,9 @@ def bump_version(version_line, pre_release):
 
     bumped_version = ".".join(split_version)
     data[-1] = bumped_version
-    return " ".join(data), bumped_version
+    clean_bumped_version = remove_quotes(bumped_version)
+
+    return " ".join(data), clean_bumped_version
 
 
 def update_version_file(path, pre_release=True):
@@ -79,7 +90,7 @@ def update_version_file(path, pre_release=True):
         for line in lines:
             if "__version__" in line.split(' '):
                 new_line, new_version = bump_version(line, pre_release)
-                f.write(new_line)
+                f.write(new_line + '\n')
             else:
                 f.write(line)
     return new_version
