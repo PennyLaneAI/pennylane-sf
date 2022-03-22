@@ -9,16 +9,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repository
+      - name: Clone repository and Run pre-release version bump
         uses: actions/checkout@v2
-
-      - name: Run pre-release version bump
-        uses: PennyLaneAI/automation@v0.3
-      - uses: ./version_bump_action
-        with:
-          version_path: "./pennylane_sf/_version.py"
-          changelog_path: "./.github/CHANGELOG.md"
-          release_status: "pre_release"
+        - uses: PennyLaneAI/automation@v0.3
+        - uses: ./version_bump_action
+          with:
+            version_path: "./pennylane_sf/_version.py"
+            changelog_path: "./.github/CHANGELOG.md"
+            release_status: "pre_release"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
