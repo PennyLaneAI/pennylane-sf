@@ -12,7 +12,7 @@
 ### Bug fixes
 
 * Changed `DeviceSpec` to `Device` due to a breaking change in Strawberry Fields.
-  [(#)](https://github.com/PennyLaneAI/pennylane-sf/pull/)
+  [(#102)](https://github.com/PennyLaneAI/pennylane-sf/pull/102)
 
 ### Contributors
 
