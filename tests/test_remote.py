@@ -17,7 +17,7 @@ Unit tests for the Fock plugin.
 import pytest
 
 import strawberryfields as sf
-from strawberryfields.devicespec import DeviceSpec
+from strawberryfields.device import Device
 from strawberryfields.result import Result
 import pennylane_sf
 
@@ -100,8 +100,8 @@ class MockEngine:
         return Result({"output": [MOCK_SAMPLES]})
 
     @property
-    def device_spec(self):
-        return DeviceSpec(spec=mock_device_dict)
+    def device(self):
+        return Device(spec=mock_device_dict)
 
 
 

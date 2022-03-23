@@ -16,7 +16,7 @@
 import pennylane as qml
 import pytest
 from pennylane import numpy as np
-from strawberryfields.devicespec import DeviceSpec
+from strawberryfields.device import Device
 from strawberryfields.result import Result
 
 
@@ -58,8 +58,8 @@ class MockEngine:
         return Result({"output": [MOCK_SAMPLES]})
 
     @property
-    def device_spec(self):
-        return DeviceSpec(spec=mock_device_dict)
+    def device(self):
+        return Device(spec=mock_device_dict)
 
 
 # ===== Factories for circuits using arbitrary wire labels and numbers
