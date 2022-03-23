@@ -11,6 +11,9 @@
 
 ### Bug fixes
 
+* Changed `DeviceSpec` to `Device` due to a breaking change in Strawberry Fields.
+  [(#)](https://github.com/PennyLaneAI/pennylane-sf/pull/)
+
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
@@ -63,7 +66,7 @@ Romain Moyard
 
 * Adds the compatibility tag for Python 3.9.
   [(#71)](https://github.com/PennyLaneAI/pennylane-sf/pull/71)
-  
+
 ### Bug fixes
 
 * Replaced left-over references to the deprecated `analytic` attribute with `shots`.
