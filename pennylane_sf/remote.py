@@ -102,7 +102,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
         self.cutoff = cutoff_dim
         eng = sf.RemoteEngine(self.backend)
 
-        self.num_wires = eng.device_spec.modes
+        self.num_wires = eng.device.modes
 
         if wires is None:
             # infer the number of modes from the device specs
