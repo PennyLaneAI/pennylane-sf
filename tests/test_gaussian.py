@@ -587,7 +587,7 @@ class TestVariance:
         """Test variance of a first order CV expectation value"""
         dev = qml.device("strawberryfields.gaussian", wires=1)
 
-        @qml.qnode_old.qnode(dev)
+        @qml.qnode(dev)
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
