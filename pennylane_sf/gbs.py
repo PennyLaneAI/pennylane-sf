@@ -20,7 +20,6 @@ distribution is accessible.
 """
 from collections import OrderedDict
 import warnings
-warnings.simplefilter('default')
 
 import numpy as np
 import strawberryfields as sf
@@ -34,6 +33,8 @@ from pennylane.wires import Wires
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
+
+warnings.simplefilter('default')
 
 
 # pylint: disable=too-many-instance-attributes
