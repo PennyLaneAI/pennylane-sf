@@ -19,6 +19,8 @@ variational parameters into GBS so that the gradient with respect to the output 
 distribution is accessible.
 """
 from collections import OrderedDict
+import warnings
+warnings.simplefilter('default')
 
 import numpy as np
 import strawberryfields as sf
@@ -81,6 +83,9 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._params = None
         self._WAW = None
         self.Z_inv = None
+
+        warnings.warn("strawberryfields.gbs will be deprecated for pennylane>=v0.23.0."
+                      "If you would like to use pennylane must be <=v022.0", DeprecationWarning)
 
     @staticmethod
     def calculate_WAW(params, A):
