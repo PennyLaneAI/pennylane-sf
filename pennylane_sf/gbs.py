@@ -85,7 +85,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = None
         self.Z_inv = None
 
-        warnings.warn("strawberryfields.gbs will be deprecated for pennylane>=v0.23.0."
+        warnings.warn("strawberryfields.gbs is being deprecated and won't work as expected with PennyLane>=v0.23.0."
                       "If you would like to use pennylane must be <=v022.0", DeprecationWarning)
 
     @staticmethod
