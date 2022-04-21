@@ -583,38 +583,6 @@ class TestExpectation:
 class TestVariance:
     """Test for the device variance"""
 
-    def test_first_order_cv(self, tol):
-        """Test variance of a first order CV expectation value"""
-        dev = qml.device("strawberryfields.gaussian", wires=1)
-
-        @qml.qnode_old.qnode(dev)
-        def circuit(r, phi):
-            qml.Squeezing(r, 0, wires=0)
-            qml.Rotation(phi, wires=0)
-            return qml.var(qml.X(0))
-
-        r = 0.543
-        phi = -0.654
-
-        var = circuit(r, phi)
-        expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
-        assert np.allclose(var, expected, atol=tol, rtol=0)
-
-        # circuit jacobians
-        tapes, fn = qml.gradients.param_shift_cv(circuit.qtape, dev)
-        gradA = fn(dev.batch_execute(tapes))
-
-        tapes, fn = qml.gradients.finite_diff(circuit.qtape)
-        gradF = fn(dev.batch_execute(tapes))
-        expected = np.array(
-            [
-                2 * np.exp(2 * r) * np.sin(phi) ** 2 - 2 * np.exp(-2 * r) * np.cos(phi) ** 2,
-                2 * np.sinh(2 * r) * np.sin(2 * phi),
-            ]
-        )
-        assert np.allclose(gradA, expected, atol=tol, rtol=0)
-        assert np.allclose(gradF, expected, atol=tol, rtol=0)
-
     def test_second_order_cv(self, tol):
         """Test variance of a second order CV expectation value"""
         dev = qml.device("strawberryfields.gaussian", wires=1)
@@ -787,46 +755,6 @@ class TestProbability:
         expected_gradient = 0
         assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
-    def test_finite_diff_coherent_two_wires(self, tol):
-        """Test that the jacobian of the probability for a coherent states is approximated well with
-        finite differences"""
-        cutoff = 4
-
-        dev = qml.device("strawberryfields.gaussian", wires=2, cutoff_dim=cutoff)
-
-        @qml.qnode_old.qnode(dev, diff_method="finite-diff")
-        def circuit(a, phi):
-            qml.Displacement(a, phi, wires=0)
-            qml.Displacement(a, phi, wires=1)
-            return qml.probs(wires=[0, 1])
-
-        a = np.array(0.4, requires_grad=True)
-        phi = np.array(-0.12, requires_grad=False)
-
-        c = np.arange(cutoff)
-        d = np.arange(cutoff)
-        n0, n1 = np.meshgrid(c, d)
-        n0 = n0.flatten()
-        n1 = n1.flatten()
-
-        # differentiate with respect to parameter a
-        res_F = qml.jacobian(circuit)(a, phi)
-        expected_gradient = (
-            2
-            * (a ** (-1 + 2 * n0 + 2 * n1))
-            * np.exp(-2 * a**2)
-            * (-2 * a**2 + n0 + n1)
-            / (fac(n0) * fac(n1))
-        )
-        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
-
-        # differentiate with respect to parameter phi
-        a = np.array(0.4, requires_grad=False)
-        phi = np.array(-0.12, requires_grad=True)
-
-        res_F = qml.jacobian(circuit)(a, phi)
-        expected_gradient = 0
-        assert np.allclose(res_F, expected_gradient, atol=tol, rtol=0)
 
     def test_analytic_diff_error(self, tol):
         """Test that the analytic gradients are not supported when returning

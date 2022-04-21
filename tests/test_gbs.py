@@ -24,7 +24,6 @@ from strawberryfields.program import Program
 
 import pennylane as qml
 from pennylane import numpy as np
-from pennylane.operation import Probability
 from pennylane.wires import Wires
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
@@ -251,92 +250,6 @@ probs_dict_subset = {
 
 A = np.array(
     [[0.0, 1.0, 1.0, 1.0], [1.0, 0.0, 1.0, 0.0], [1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]], requires_grad=False
-)
-
-jac_exp = np.array(
-    [
-        [-1.766373e-01, -7.129473e-02, -6.295893e-02, -2.073651e-02],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [-4.510550e-03, 4.569179e-02, 3.798593e-02, -5.295200e-04],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [-1.151800e-04, 2.380030e-03, 1.981050e-03, -1.352000e-05],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [7.542846e-02, -1.517130e-03, -1.339750e-03, 1.935555e-02],
-        [0, 0, 0, 0],
-        [4.525708e-02, -9.102800e-04, 1.899296e-02, -2.647600e-04],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [3.771423e-02, 1.903825e-02, -6.698700e-04, -2.206300e-04],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [1.926120e-03, 9.723100e-04, 8.083300e-04, 4.942600e-04],
-        [0, 0, 0, 0],
-        [2.311340e-03, 1.166770e-03, 1.981050e-03, -1.352000e-05],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [1.926120e-03, 1.983360e-03, 8.083300e-04, -1.127000e-05],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [4.918000e-05, 5.065000e-05, 4.216000e-05, 1.262000e-05],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [3.290180e-03, -3.228000e-05, -2.851000e-05, 8.331500e-04],
-        [0, 0, 0, 0],
-        [3.948220e-03, -3.874000e-05, 8.083300e-04, 4.942600e-04],
-        [0, 0, 0, 0],
-        [1.184470e-03, -1.162000e-05, 4.952600e-04, -3.380000e-06],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [3.290180e-03, 8.102600e-04, -2.851000e-05, 4.118800e-04],
-        [0, 0, 0, 0],
-        [1.974110e-03, 4.861500e-04, 4.041700e-04, -5.630000e-06],
-        [0, 0, 0, 0],
-        [8.402000e-05, 2.069000e-05, 1.720000e-05, 2.128000e-05],
-        [0, 0, 0, 0],
-        [2.016400e-04, 4.966000e-05, 8.431000e-05, 2.524000e-05],
-        [0, 0, 0, 0],
-        [8.225500e-04, 4.132000e-04, -7.130000e-06, -2.350000e-06],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [1.680300e-04, 8.441000e-05, 3.440000e-05, 2.104000e-05],
-        [0, 0, 0, 0],
-        [2.016400e-04, 1.012900e-04, 8.431000e-05, -5.800000e-07],
-        [0, 0, 0, 0],
-        [2.150000e-06, 1.080000e-06, 9.000000e-07, 5.400000e-07],
-    ]
 )
 
 jac_reduced = {
@@ -659,18 +572,6 @@ class TestStrawberryFieldsGBS:
         jac = dev._jacobian_all_wires(probs)
         assert np.allclose(jac, jac_expected)
 
-    def test_jacobian(self):
-        """Test that the jacobian method returns correctly on a fixed example"""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3)
-        params = np.array([0.25, 0.5, 0.6, 1])
-
-        with qml.tape.QuantumTape() as tape:
-            ParamGraphEmbed(params, A, 1, wires=range(4))
-            qml.probs(wires=range(4))
-
-        jac = dev.jacobian(tape)
-        assert np.allclose(jac, jac_exp)
-
     @pytest.mark.parametrize("wires", jac_reduced)
     def test_jacobian_wires_reduced(self, wires):
         """Test that the jacobian method returns correctly on a fixed example on a subset of
@@ -768,13 +669,9 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, a, 1, wires=range(wires))
             return qml.probs(wires=range(wires))
 
-        d_vgbs = qml.jacobian(vgbs, argnum=0)
-
         p = vgbs(params)
-        dp = d_vgbs(params)
 
         assert p.shape == (cutoff_dim ** wires,)
-        assert dp.shape == (cutoff_dim ** wires, wires)
         assert (p >= 0).all()
         assert (p <= 1).all()
         assert np.sum(p) <= 1
@@ -793,49 +690,13 @@ class TestIntegrationStrawberryFieldsGBS:
             ParamGraphEmbed(params, a, 1, wires=range(wires))
             return qml.probs(wires=[0, 1])
 
-        d_vgbs = qml.jacobian(vgbs, argnum=0)
-
         p = vgbs(params)
-        dp = d_vgbs(params)
 
         assert p.shape == (cutoff_dim ** 2,)
-        assert dp.shape == (cutoff_dim ** 2, wires)
         assert (p >= 0).all()
         assert (p <= 1).all()
         assert np.sum(p) <= 1
 
-    @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
-    def test_example_jacobian(self, wires):
-        """Test that the jacobian is correct on the fixed example"""
-        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
-        params = np.array([0.25, 0.5, 0.6, 1])
-
-        @qnode_decorator(dev)
-        def vgbs(params):
-            ParamGraphEmbed(params, A, 1, wires=wires)
-            return qml.probs(wires=wires)
-
-        d_vgbs = qml.jacobian(vgbs, argnum=0)
-        dp = d_vgbs(params)
-
-        assert np.allclose(dp, jac_exp)
-
-    @pytest.mark.parametrize("wires", [range(4), Wires(["a", 42, "bob", 3])])
-    @pytest.mark.parametrize("subset_wires", jac_reduced)
-    def test_example_jacobian_reduced_wires(self, subset_wires, wires):
-        """Test that the jacobian is correct on the fixed example with a subset of wires"""
-        dev = qml.device("strawberryfields.gbs", wires=wires, cutoff_dim=3)
-        params = np.array([0.25, 0.5, 0.6, 1])
-
-        @qnode_decorator(dev)
-        def vgbs(params):
-            ParamGraphEmbed(params, A, 1, wires=wires)
-            return qml.probs(wires=[wires[subset_wires[0]], wires[subset_wires[1]]])
-
-        d_vgbs = qml.jacobian(vgbs, argnum=0)
-        dp = d_vgbs(params)
-
-        assert np.allclose(dp, jac_reduced[subset_wires])
 
     def test_two_embed(self):
         """Test that the device raises an error if more than one ParamGraphEmbed is used"""
