@@ -20,7 +20,6 @@ distribution is accessible.
 """
 from collections import OrderedDict
 import warnings
-warnings.simplefilter('default')
 
 import numpy as np
 import strawberryfields as sf
@@ -34,6 +33,8 @@ from pennylane.wires import Wires
 
 from .expectations import identity
 from .simulator import StrawberryFieldsSimulator
+
+warnings.simplefilter('default')
 
 
 # pylint: disable=too-many-instance-attributes
@@ -84,8 +85,8 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
         self._WAW = None
         self.Z_inv = None
 
-        warnings.warn("strawberryfields.gbs will be deprecated for pennylane>=v0.23.0."
-                      "If you would like to use pennylane must be <=v022.0", DeprecationWarning)
+        warnings.warn("strawberryfields.gbs is being deprecated and won't work as expected with PennyLane>=v0.23.0."
+                      "If you would like to use this device now and in the future, downgrade PennyLane to <=v022.0 and create a related issue on the GitHub page of PennyLane-SF.", DeprecationWarning)
 
     @staticmethod
     def calculate_WAW(params, A):
