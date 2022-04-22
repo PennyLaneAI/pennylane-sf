@@ -593,8 +593,8 @@ class TestVariance:
             qml.Rotation(phi, wires=0)
             return qml.var(qml.X(0))
 
-        r = 0.543
-        phi = -0.654
+        r = np.array(0.105, requires_grad=True)
+        phi = np.array(-0.654, requires_grad=True)
 
         var = circuit(r, phi)
         expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
