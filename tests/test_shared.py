@@ -35,7 +35,7 @@ class TestVariance:
     def test_tensor_number_displaced(self, dev, tol):
         """Test the variance of the TensorN observable for a displaced state"""
 
-        @qml.qnode_old.qnode(dev)
+        @qml.qnode(dev)
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
@@ -64,7 +64,7 @@ class TestVariance:
 def disp_sq_circuit(dev):
     """Quantum node for a displaced squeezed circuit"""
 
-    @qml.qnode_old.qnode(dev)
+    @qml.qnode(dev)
     def circuit(*pars):
         qml.Squeezing(pars[0], pars[1], wires=0)
         qml.Displacement(pars[2], pars[3], wires=0)
