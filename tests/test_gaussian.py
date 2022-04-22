@@ -794,7 +794,7 @@ class TestProbability:
 
         dev = qml.device("strawberryfields.gaussian", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode_old.qnode(dev, diff_method="finite-diff")
+        @qml.qnode(dev, diff_method="finite-diff")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)
