@@ -587,14 +587,14 @@ class TestVariance:
         """Test variance of a first order CV expectation value"""
         dev = qml.device("strawberryfields.gaussian", wires=1)
 
-        @qml.qnode_old.qnode(dev)
+        @qml.qnode(dev)
         def circuit(r, phi):
             qml.Squeezing(r, 0, wires=0)
             qml.Rotation(phi, wires=0)
             return qml.var(qml.X(0))
 
-        r = 0.543
-        phi = -0.654
+        r = np.array(0.105, requires_grad=True)
+        phi = np.array(-0.654, requires_grad=True)
 
         var = circuit(r, phi)
         expected = np.exp(2 * r) * np.sin(phi) ** 2 + np.exp(-2 * r) * np.cos(phi) ** 2
@@ -794,7 +794,7 @@ class TestProbability:
 
         dev = qml.device("strawberryfields.gaussian", wires=2, cutoff_dim=cutoff)
 
-        @qml.qnode_old.qnode(dev, diff_method="finite-diff")
+        @qml.qnode(dev, diff_method="finite-diff")
         def circuit(a, phi):
             qml.Displacement(a, phi, wires=0)
             qml.Displacement(a, phi, wires=1)

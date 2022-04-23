@@ -24,7 +24,6 @@ from strawberryfields.program import Program
 
 import pennylane as qml
 from pennylane import numpy as np
-from pennylane.operation import Probability
 from pennylane.wires import Wires
 from pennylane_sf import StrawberryFieldsGBS
 from pennylane_sf.ops import ParamGraphEmbed
