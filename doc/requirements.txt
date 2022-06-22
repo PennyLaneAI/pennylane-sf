@@ -106,6 +106,7 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 stack-data==0.3.0
+StrawberryFields==0.23.0
 sympy==1.10.1
 tensorboard==2.9.1
 tensorboard-data-server==0.6.1
@@ -127,4 +128,3 @@ webencodings==0.5.1
 Werkzeug==2.1.2
 wrapt==1.14.1
 xanadu-cloud-client==0.2.1
-git+https://github.com/XanaduAI/strawberryfields
