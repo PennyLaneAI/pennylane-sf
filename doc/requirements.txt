@@ -106,6 +106,7 @@ sphinxcontrib-jsmath==1.0.1
 sphinxcontrib-qthelp==1.0.3
 sphinxcontrib-serializinghtml==1.1.5
 stack-data==0.3.0
+StrawberryFields==0.23.0
 sympy==1.10.1
 tensorboard==2.9.1
 tensorboard-data-server==0.6.1
