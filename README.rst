@@ -15,7 +15,7 @@ PennyLane Strawberry Fields Plugin
 
 .. image:: https://img.shields.io/readthedocs/pennylane-sf.svg?logo=read-the-docs&style=flat-square
     :alt: Read the Docs
-    :target: https://pennylane-sf.readthedocs.io
+    :target: https://docs.pennylane.ai/projects/strawberryfields
 
 .. image:: https://img.shields.io/pypi/v/PennyLane-sf.svg?style=flat-square
     :alt: PyPI
@@ -39,7 +39,7 @@ for designing, simulating, and optimizing photonic quantum circuits.
 
 .. header-end-inclusion-marker-do-not-remove
 
-The plugin documentation can be found here: `PennyLane-Strawberry Fields <https://pennylane-sf.readthedocs.io/en/latest/>`__.
+The plugin documentation can be found here: `PennyLane-Strawberry Fields <https://docs.pennylane.ai/projects/strawberryfields>`__.
 
 
 Features
