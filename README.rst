@@ -13,9 +13,9 @@ PennyLane Strawberry Fields Plugin
     :alt: CodeFactor Grade
     :target: https://www.codefactor.io/repository/github/pennylaneai/pennylane-sf
 
-.. image:: https://img.shields.io/readthedocs/pennylane-sf.svg?logo=read-the-docs&style=flat-square
+.. image:: https://readthedocs.com/projects/xanaduai-pennylane-sf/badge/?version=latest&style=flat-square
     :alt: Read the Docs
-    :target: https://pennylane-sf.readthedocs.io
+    :target: https://docs.pennylane.ai/projects/strawberryfields
 
 .. image:: https://img.shields.io/pypi/v/PennyLane-sf.svg?style=flat-square
     :alt: PyPI
