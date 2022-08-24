@@ -128,3 +128,4 @@ webencodings==0.5.1
 Werkzeug==2.1.2
 wrapt==1.14.1
 xanadu-cloud-client==0.2.1
+xanadu-sphinx-theme==0.1.0
