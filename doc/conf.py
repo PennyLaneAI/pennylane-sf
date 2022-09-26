@@ -232,6 +232,7 @@ html_theme = 'pennylane'
 
 # xanadu theme options (see theme.conf for more information)
 html_theme_options = {
+    "navbar_name": "PennyLane-SF",
     "extra_copyrights": [
         "TensorFlow, the TensorFlow logo, and any related marks are trademarks "
         "of Google Inc."
