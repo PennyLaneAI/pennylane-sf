@@ -249,7 +249,8 @@ probs_dict_subset = {
 }
 
 A = np.array(
-    [[0.0, 1.0, 1.0, 1.0], [1.0, 0.0, 1.0, 0.0], [1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]], requires_grad=False
+    [[0.0, 1.0, 1.0, 1.0], [1.0, 0.0, 1.0, 0.0], [1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]],
+    requires_grad=False,
 )
 
 jac_exp = np.array(
@@ -384,7 +385,6 @@ class TestStrawberryFieldsGBS:
             use_cache=use_cache,
         )
         assert dev.cutoff == cutoff
-        assert dev.analytic is (shots is None)
         assert dev.use_cache is use_cache
 
     def test_load_device_with_samples(self):
@@ -615,8 +615,7 @@ class TestStrawberryFieldsGBS:
     def test_probability_non_analytic_subset_wires_with_caching(self):
         """Test that a ValueError is raised when returning probabilities of a subset of wires in
         sampling and caching modes."""
-        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=4,
-                         use_cache=True)
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, shots=4, use_cache=True)
 
         dev.samples = samples
 
@@ -649,8 +648,8 @@ class TestStrawberryFieldsGBS:
         dev._params = params
 
         indices = np.indices([3, 3, 3, 3]).reshape(4, -1).T
-        probs = np.arange(3 ** 4)
-        jac_expected = np.zeros((3 ** 4, 4))
+        probs = np.arange(3**4)
+        jac_expected = np.zeros((3**4, 4))
 
         for i, ind in enumerate(indices):
             jac_expected[i] = probs[i] * (ind - n_mean) / params
@@ -697,9 +696,7 @@ class TestCachingStrawberryFieldsGBS:
     def test_caching_samples(self, mocker):
         """Test caching in non-analytic mode. Samples should be generated upon first call and
         then not generated subsequently."""
-        dev = qml.device(
-            "strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True, shots=10
-        )
+        dev = qml.device("strawberryfields.gbs", wires=4, cutoff_dim=3, use_cache=True, shots=10)
         A = 0.1767767 * np.ones((4, 4), requires_grad=False)
         params = np.ones(4)
 
@@ -749,7 +746,9 @@ class TestCachingStrawberryFieldsGBS:
         assert np.allclose(p2_expected, p2)
         spy.assert_not_called()
 
+
 qnode_decorator = qml.qnode if not hasattr(qml, "qnode_old") else qml.qnode_old.qnode
+
 
 class TestIntegrationStrawberryFieldsGBS:
     """Integration tests for StrawberryFieldsGBS."""
@@ -772,8 +771,8 @@ class TestIntegrationStrawberryFieldsGBS:
         p = vgbs(params)
         dp = d_vgbs(params)
 
-        assert p.shape == (cutoff_dim ** wires,)
-        assert dp.shape == (cutoff_dim ** wires, wires)
+        assert p.shape == (cutoff_dim**wires,)
+        assert dp.shape == (cutoff_dim**wires, wires)
         assert (p >= 0).all()
         assert (p <= 1).all()
         assert np.sum(p) <= 1
@@ -797,8 +796,8 @@ class TestIntegrationStrawberryFieldsGBS:
         p = vgbs(params)
         dp = d_vgbs(params)
 
-        assert p.shape == (cutoff_dim ** 2,)
-        assert dp.shape == (cutoff_dim ** 2, wires)
+        assert p.shape == (cutoff_dim**2,)
+        assert dp.shape == (cutoff_dim**2, wires)
         assert (p >= 0).all()
         assert (p <= 1).all()
         assert np.sum(p) <= 1
