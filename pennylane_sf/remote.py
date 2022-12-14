@@ -191,7 +191,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
                 else:
                     sl.append(slice(self.cutoff))
 
-            all_probs = fock_probs[sl]
+            all_probs = fock_probs[tuple(sl)]
         else:
             diff = self.cutoff - cutoff
             all_probs = np.pad(fock_probs, [(0, diff)] * self.num_wires)
