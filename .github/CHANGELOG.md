@@ -4,6 +4,8 @@
 
 ### Breaking changes
 
+* Remove python 3.7 support.
+
 ### Improvements
 
 ### Documentation
@@ -13,6 +15,8 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+Matthew Silverman
 
 ---
 
