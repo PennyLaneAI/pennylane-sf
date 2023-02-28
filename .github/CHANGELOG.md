@@ -1,15 +1,9 @@
-# Release 0.23.0-dev
-
-### New features since last release
+# Release 0.30.0
 
 ### Breaking changes
 
 * Remove python 3.7 support.
   [(#129)](https://github.com/PennyLaneAI/pennylane-sf/pull/129)
-
-### Improvements
-
-### Documentation
 
 ### Bug fixes
 
