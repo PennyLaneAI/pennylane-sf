@@ -13,11 +13,14 @@
 
 ### Bug fixes
 
+* Fixed a bug where `StrawberryFieldsRemote.probability` fails with newer numpy versions.
+  [(#125)](https://github.com/PennyLaneAI/pennylane-sf/pull/125)
+
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
 
-Matthew Silverman
+Matthew Silverman, Antal Száva
 
 ---
 
