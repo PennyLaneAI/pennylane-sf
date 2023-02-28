@@ -9,7 +9,7 @@ cloudpickle==2.1.0
 dask==2022.6.0
 fire==0.4.0
 fsspec==2022.5.0
-future==0.18.2
+future==0.18.3
 idna==3.3
 lark-parser==0.12.0
 llvmlite==0.39.1
