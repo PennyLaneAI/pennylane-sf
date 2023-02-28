@@ -5,6 +5,7 @@
 ### Breaking changes
 
 * Remove python 3.7 support.
+  [(#129)](https://github.com/PennyLaneAI/pennylane-sf/pull/129)
 
 ### Improvements
 
