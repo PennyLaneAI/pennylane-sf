@@ -37,6 +37,10 @@ automatic differentiation of hybrid quantum-classical computations.
 `Strawberry Fields <https://strawberryfields.readthedocs.io>`__ is a full-stack Python library
 for designing, simulating, and optimizing photonic quantum circuits.
 
+> 🚧 Warning
+>
+> This plugin will not be supported in newer versions of Pennylane. It is compatible with versions of PennyLane up to and including 0.29.
+
 .. header-end-inclusion-marker-do-not-remove
 
 The plugin documentation can be found here: `PennyLane-Strawberry Fields <https://pennylane-sf.readthedocs.io/en/latest/>`__.
