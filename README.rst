@@ -38,8 +38,8 @@ automatic differentiation of hybrid quantum-classical computations.
 for designing, simulating, and optimizing photonic quantum circuits.
 
 .. warning::
-    This plugin will not be supported in newer versions of PennyLane. It is compatible with versions
-    of PennyLane up to and including 0.29.
+    This plugin is no longer maintained and is not compatible with the latest version of PennyLane.
+    It is supported for version 0.29 of PennyLane and below.
 
 .. header-end-inclusion-marker-do-not-remove
 
