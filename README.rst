@@ -82,7 +82,7 @@ PennyLane-SF requires the following libraries be installed:
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >=0.19
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >=0.19, <0.30
 * `StrawberryFields <https://strawberryfields.readthedocs.io/>`__ >=0.22
 
 
