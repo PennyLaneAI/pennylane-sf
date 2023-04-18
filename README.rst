@@ -27,6 +27,9 @@ PennyLane Strawberry Fields Plugin
 
 .. header-start-inclusion-marker-do-not-remove
 
+.. warning::
+    This plugin will not be supported in newer versions of Pennylane. It is compatible with versions
+    of PennyLane up to and including 0.29.
 
 The PennyLane-SF plugin integrates the StrawberryFields photonic quantum computing framework with PennyLane's
 quantum machine learning capabilities.
@@ -36,6 +39,7 @@ automatic differentiation of hybrid quantum-classical computations.
 
 `Strawberry Fields <https://strawberryfields.readthedocs.io>`__ is a full-stack Python library
 for designing, simulating, and optimizing photonic quantum circuits.
+
 
 .. header-end-inclusion-marker-do-not-remove
 
@@ -78,7 +82,7 @@ PennyLane-SF requires the following libraries be installed:
 
 as well as the following Python packages:
 
-* `PennyLane <http://pennylane.readthedocs.io/>`__ >=0.19
+* `PennyLane <http://pennylane.readthedocs.io/>`__ >=0.19, <0.30
 * `StrawberryFields <https://strawberryfields.readthedocs.io/>`__ >=0.22
 
 
