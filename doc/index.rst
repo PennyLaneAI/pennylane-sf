@@ -3,6 +3,11 @@ PennyLane-Strawberry Fields Plugin
 
 :Release: |release|
 
+.. warning::
+
+    This plugin will not be supported in newer versions of Pennylane. It is compatible with versions
+    of PennyLane up to and including 0.29.
+
 .. include:: ../README.rst
   :start-after:	header-start-inclusion-marker-do-not-remove
   :end-before: header-end-inclusion-marker-do-not-remove
