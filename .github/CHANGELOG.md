@@ -1,14 +1,9 @@
-# Release 0.30.0-dev
-
-### New features since last release
+# Release 29.1
 
 ### Breaking changes
 
-### Improvements
-
-### Documentation
-
-### Bug fixes
+* Pins package to working with PennyLane less than version 0.30.
+  [(#134)](https://github.com/PennyLaneAI/pennylane-sf/pull/134)
 
 ### Contributors
 
