@@ -43,7 +43,7 @@ extensions = [
     "sphinx_automodapi.automodapi"
 ]
 
-intersphinx_mapping = {"https://pennylane.readthedocs.io/en/stable/": None}
+intersphinx_mapping = {"https://docs.pennylane.ai/en/stable/": None}
 
 # nbsphinx settings
 
@@ -59,7 +59,8 @@ automodapi_toctreedirnm = "code/api"
 automodsumm_inherited_members = True
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates', 'xanadu_theme']
+from pennylane_sphinx_theme import templates_dir
+templates_path = [templates_dir()]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -93,7 +94,7 @@ version = re.match(r'^(\d+\.\d+)', release).expand(r'\1')
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # today_fmt is used as the format for a strftime call.
 today_fmt = '%Y-%m-%d'
@@ -177,14 +178,6 @@ html_static_path = ['_static']
 #        'donate.html',
 #    ]
 #}
-html_sidebars = {
-    '**' : [
-        'logo-text.html',
-        'searchbox.html',
-        'globaltoc.html',
-        # 'sourcelink.html'
-    ]
-}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
@@ -232,55 +225,24 @@ html_sidebars = {
 
 
 # -- Xanadu theme ---------------------------------------------------------
-html_theme = 'xanadu_theme'
-html_theme_path = ['.']
+html_theme = 'pennylane'
 
 # Register the theme as an extension to generate a sitemap.xml
 # extensions.append("guzzle_sphinx_theme")
 
 # xanadu theme options (see theme.conf for more information)
 html_theme_options = {
-
-    # Set the path to a special layout to include for the homepage
-    # "index_template": "special_index.html",
-
-    # Set the name of the project to appear in the left sidebar.
-    "project_nav_name": "PennyLane-SF",
-
-    # Set your Disqus short name to enable comments
-    # "disqus_comments_shortname": "pennylane-1",
-
-    # Set you GA account ID to enable tracking
-    "google_analytics_account": "UA-130507810-2",
-
-    # Path to a touch icon
-    "touch_icon": "logo_new.png",
-
-    # Specify a base_url used to generate sitemap.xml links. If not
-    # specified, then no sitemap will be built.
-    # "base_url": ""
-
-    # Allow a separate homepage from the master_doc
-    # "homepage": "index",
-
-    # Allow the project link to be overriden to a custom URL.
-    # "projectlink": "http://myproject.url",
-
-    "large_toc": True,
-    # colors
-    "navigation_button": "#19b37b",
-    "navigation_button_hover": "#0e714d",
-    "toc_caption": "#19b37b",
-    "toc_hover": "#19b37b",
-    "table_header_bg": "#edf7f4",
-    "table_header_border": "#19b37b",
-    "download_button": "#19b37b",
-    # gallery options
-    # "github_repo": "XanaduAI/PennyLane",
-    # "gallery_dirs": "tutorials",
+    "navbar_name": "PennyLane-SF",
+    "navbar_active_link": 3,
+    "extra_copyrights": [
+        "TensorFlow, the TensorFlow logo, and any related marks are trademarks "
+        "of Google Inc."
+    ],
+    "google_analytics_tracking_id": "UA-130507810-1",
+    "toc_overview": True
 }
 
-edit_on_github_project = 'XanaduAI/pennylane-sf'
+edit_on_github_project = 'PennyLaneAI/pennylane-sf'
 edit_on_github_branch = 'master/doc'
 
 # -- Options for HTMLHelp output ------------------------------------------
@@ -360,9 +322,3 @@ inheritance_node_attrs = dict(color='lightskyblue1', style='filled')
 
 #autodoc_default_flags = ['members']
 autosummary_generate = True
-
-from directives import CustomDeviceGalleryItemDirective, CustomDemoGalleryItemDirective
-
-def setup(app):
-    app.add_directive('devicegalleryitem', CustomDeviceGalleryItemDirective)
-    app.add_directive('demogalleryitem', CustomDemoGalleryItemDirective)

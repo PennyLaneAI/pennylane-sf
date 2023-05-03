@@ -12,13 +12,13 @@ fsspec==2022.5.0
 future==0.18.2
 idna==3.3
 lark-parser==0.12.0
-llvmlite==0.38.1
+llvmlite==0.39.1
 locket==1.0.0
 mpmath==1.2.1
 networkx==2.8.4
 ninja==1.10.2.3
-numba==0.55.2
-numpy==1.22.4
+numba==0.56.4
+numpy==1.23.5
 packaging==21.3
 partd==1.2.0
 PennyLane==0.24.0

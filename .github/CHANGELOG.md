@@ -1,4 +1,4 @@
-# Release 0.23.0-dev
+# Release 0.30.0-dev
 
 ### New features since last release
 
@@ -13,6 +13,25 @@
 ### Contributors
 
 This release contains contributions from (in alphabetical order):
+
+---
+# Release 0.29.0
+
+### Breaking changes
+
+* Remove python 3.7 support.
+  [(#129)](https://github.com/PennyLaneAI/pennylane-sf/pull/129)
+
+### Bug fixes
+
+* Fixed a bug where `StrawberryFieldsRemote.probability` fails with newer numpy versions.
+  [(#125)](https://github.com/PennyLaneAI/pennylane-sf/pull/125)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Matthew Silverman, Antal Száva
 
 ---
 

@@ -3,6 +3,11 @@ PennyLane-Strawberry Fields Plugin
 
 :Release: |release|
 
+.. warning::
+
+    This plugin will not be supported in newer versions of Pennylane. It is compatible with versions
+    of PennyLane up to and including 0.29.
+
 .. include:: ../README.rst
   :start-after:	header-start-inclusion-marker-do-not-remove
   :end-before: header-end-inclusion-marker-do-not-remove
@@ -16,17 +21,17 @@ Devices
 
 PennyLane-SF provides various Strawberry Fields devices for PennyLane:
 
-.. devicegalleryitem::
+.. title-card::
     :name: 'strawberryfields.fock'
     :description: Full simulator that supports all continuous-variable operations.
     :link: devices/fock.html
 
-.. devicegalleryitem::
+.. title-card::
     :name: 'strawberryfields.gaussian'
     :description: Optimized simulator that supports only Gaussian operations and photon number resolving measurements.
     :link: devices/gaussian.html
 
-.. devicegalleryitem::
+.. title-card::
     :name: 'strawberryfields.remote'
     :description: Remote backends including access to continuous-variable hardware.
     :link: devices/remote.html
@@ -36,12 +41,12 @@ PennyLane-SF provides various Strawberry Fields devices for PennyLane:
     <div style='clear:both'></div>
     </br>
 
-.. devicegalleryitem::
+.. title-card::
     :name: 'strawberryfields.gbs'
     :description: Specialized simulator giving access to analytic gradients in Gaussian boson sampling.
     :link: devices/gbs.html
 
-.. devicegalleryitem::
+.. title-card::
     :name: 'strawberryfields.tf'
     :description: TensorFlow simulator that supports backpropagation and all continuous-variable operations.
     :link: devices/tf.html
@@ -67,23 +72,20 @@ Check out these demos to see the PennyLane-SF plugin in action:
 
     <div class="row">
 
-.. demogalleryitem::
+.. title-card::
     :name: Plugins and Hybrid computation
-    :figure: https://pennylane.ai/qml/_images/photon_redirection.png
-    :link:  https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html
-    :tooltip: Use quantum machine learning in a multi-device quantum algorithm.
+    :description: <img src="https://pennylane.ai/qml/_images/photon_redirection.png" width="100%"/>
+    :link: https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html
 
-.. demogalleryitem::
+.. title-card::
     :name: Function fitting with a photonic quantum neural network
-    :figure: https://pennylane.ai/qml/_images/qnn_output_28_0.png
-    :link:  https://pennylane.ai/qml/demos/quantum_neural_net.html
-    :tooltip: Fit one-dimensional noisy data with a quantum neural network.
+    :description: <img src="https://pennylane.ai/qml/_images/qnn_output_28_0.png" width="100%"/>
+    :link: https://pennylane.ai/qml/demos/quantum_neural_net.html
 
-.. demogalleryitem::
+.. title-card::
     :name: Quantum advantage with Gaussian Boson Sampling
-    :figure: https://pennylane.ai/qml/_images/tutorial_gbs_thumbnail.png
+    :description: <img src="https://pennylane.ai/qml/_images/tutorial_gbs_thumbnail.png" width="100%"/>
     :link: https://pennylane.ai/qml/demos/tutorial_gbs.html
-    :tooltip: Construct and simulate a Gaussian Boson Sampler.
 
 .. raw:: html
 
