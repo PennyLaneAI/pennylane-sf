@@ -6,6 +6,7 @@ sphinx:
 python:
     version: 3.8
     install:
+        - requirements: ci_build_requirements.txt
         - requirements: doc/requirements.txt
         - method: pip
           path: .
@@ -13,3 +14,6 @@ python:
 
 build:
     image: latest
+  jobs:
+    pre_install:
+      - echo "setuptools~=66.0\npip~=22.0" >> ci_build_requirements.txt
