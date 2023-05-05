@@ -5,7 +5,7 @@ sphinx:
 
 python:
     install:
-        - requirements: ci_build_requirements
+        - requirements: ci_build_requirements.txt
         - requirements: doc/requirements.txt
         - method: pip
           path: .
