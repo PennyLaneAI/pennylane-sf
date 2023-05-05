@@ -12,7 +12,7 @@ python:
     system_packages: true
 
 build:
-    image: latest
+    os: ubuntu-22.04
     tools:
         python: "3.8"
     jobs:
