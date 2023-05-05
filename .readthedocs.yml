@@ -14,6 +14,6 @@ python:
 
 build:
     image: latest
-  jobs:
-    pre_install:
-      - echo "setuptools~=66.0\npip~=22.0" >> ci_build_requirements.txt
+    jobs:
+      pre_install:
+        - echo "setuptools~=66.0\npip~=22.0" >> ci_build_requirements.txt
