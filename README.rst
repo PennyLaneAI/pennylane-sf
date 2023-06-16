@@ -27,7 +27,7 @@ PennyLane Strawberry Fields Plugin
 
 \
 
-    **❗ This plugin will not be supported in newer versions of Pennylane. It is compatible with versions
+    **❗ This plugin will not be supported in newer versions of PennyLane. It is compatible with versions
     of PennyLane up to and including 0.29❗** Please use 
     `Strawberry Fields <https://strawberryfields.readthedocs.io>`__ instead.
 
