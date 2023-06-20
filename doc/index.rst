@@ -85,8 +85,8 @@ Check out these demos to see the PennyLane-SF plugin in action:
 
 .. title-card::
     :name: Quantum advantage with Gaussian Boson Sampling
-    :description: <img src="https://pennylane.ai/_images/tutorial_gbs_thumbnail.png" width="100%"/>
-    :link: https://pennylane.ai/qml/demos/tutorial_gbs.html
+    :description: <img src="https://pennylane.ai/_images/gbs_thumbnail.png" width="100%"/>
+    :link: https://pennylane.ai/qml/demos/gbs.html
 
 .. raw:: html
 
