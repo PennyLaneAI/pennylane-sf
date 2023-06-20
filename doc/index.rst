@@ -76,7 +76,7 @@ Check out these demos to see the PennyLane-SF plugin in action:
 .. title-card::
     :name: Plugins and Hybrid computation
     :description: <img src="https://pennylane.ai/_images/photon_redirection.png" width="100%"/>
-    :link: https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html
+    :link: https://pennylane.ai/qml/demos/plugins_hybrid.html
 
 .. title-card::
     :name: Function fitting with a photonic quantum neural network
