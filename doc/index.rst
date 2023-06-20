@@ -75,18 +75,18 @@ Check out these demos to see the PennyLane-SF plugin in action:
 
 .. title-card::
     :name: Plugins and Hybrid computation
-    :description: <img src="https://pennylane.ai/qml/_images/photon_redirection.png" width="100%"/>
-    :link: https://pennylane.ai/qml/demos/tutorial_plugins_hybrid.html
+    :description: <img src="https://pennylane.ai/_images/photon_redirection.png" width="100%"/>
+    :link: https://pennylane.ai/qml/demos/plugins_hybrid.html
 
 .. title-card::
     :name: Function fitting with a photonic quantum neural network
-    :description: <img src="https://pennylane.ai/qml/_images/qnn_output_28_0.png" width="100%"/>
+    :description: <img src="https://pennylane.ai/_images/qnn_output_28_0.png" width="100%"/>
     :link: https://pennylane.ai/qml/demos/quantum_neural_net.html
 
 .. title-card::
     :name: Quantum advantage with Gaussian Boson Sampling
-    :description: <img src="https://pennylane.ai/qml/_images/tutorial_gbs_thumbnail.png" width="100%"/>
-    :link: https://pennylane.ai/qml/demos/tutorial_gbs.html
+    :description: <img src="https://pennylane.ai/_images/gbs_thumbnail.png" width="100%"/>
+    :link: https://pennylane.ai/qml/demos/gbs.html
 
 .. raw:: html
 
