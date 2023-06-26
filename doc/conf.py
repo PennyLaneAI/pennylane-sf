@@ -73,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'PennyLane-StrawberryFields'
-copyright = "Copyright 2018-2020"
+copyright = "Copyright 2018-2023"
 author = 'Xanadu Inc.'
 
 add_module_names = False
@@ -238,7 +238,7 @@ html_theme_options = {
         "TensorFlow, the TensorFlow logo, and any related marks are trademarks "
         "of Google Inc."
     ],
-    "google_analytics_tracking_id": "UA-130507810-1",
+    "google_analytics_tracking_id": "G-C480Z9JL0D",
     "toc_overview": True
 }
 
