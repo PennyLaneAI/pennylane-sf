@@ -1,7 +1,7 @@
 PennyLane Strawberry Fields Plugin
 ##################################
 
-.. image:: https://img.shields.io/github/workflow/status/PennyLaneAI/pennylane-sf/Tests/master?logo=github&style=flat-square
+.. image:: https://img.shields.io/github/actions/workflow/status/PennyLaneAI/pennylane-sf/tests.yml?branch=master&logo=github&style=flat-square
     :alt: GitHub Workflow Status (branch)
     :target: https://github.com/PennyLaneAI/pennylane-sf/actions?query=workflow%3ATests
 
