@@ -3,7 +3,7 @@ appdirs==1.4.4
 autograd==1.4
 autoray==0.3.2
 cachetools==5.2.0
-certifi==2022.12.7
+certifi==2023.7.22
 charset-normalizer==2.0.12
 cloudpickle==2.1.0
 dask==2022.6.0
