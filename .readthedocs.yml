@@ -1,14 +1,14 @@
 version: 2
 
 sphinx:
-  configuration: doc/conf.py
+    configuration: doc/conf.py
 
 python:
     install:
         - requirements: requirements-ci.txt
         - requirements: doc/requirements.txt
         - method: pip
-          path: .
+        path: .
 
 build:
     os: ubuntu-22.04
