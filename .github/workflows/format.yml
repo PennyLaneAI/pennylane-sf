@@ -1,14 +1,6 @@
 name: Formatting check
 on:
-  pull_request:
-    paths:
-      - pennylane_sf/**
-      - tests/**
-      - .pylintrc
-      - Makefile
-      - requirements-ci.txt
-      - requirements.txt
-      - setup.py
+  - pull_request
 
 jobs:
   black:
