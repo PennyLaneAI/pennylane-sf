@@ -4,14 +4,6 @@ on:
     branches:
       - master
   pull_request:
-    paths:
-      - pennylane_sf/**
-      - tests/**
-      - .pylintrc
-      - Makefile
-      - requirements-ci.txt
-      - requirements.txt
-      - setup.py
 
 jobs:
   tests:
@@ -29,18 +21,34 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            sf:
+              - pennylane_sf/**
+              - tests/**
+              - .pylintrc
+              - Makefile
+              - requirements-ci.txt
+              - requirements.txt
+              - setup.py
       - name: Install dependencies
+        if: steps.filter.outputs.sf == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-ci.txt
           pip install wheel pytest pytest-cov pytest-mock --upgrade
       - name: Install Plugin
+        if: steps.filter.outputs.sf == 'true'
         run: |
           python setup.py bdist_wheel
           pip install dist/PennyLane*.whl
       - name: Run tests
+        if: steps.filter.outputs.sf == 'true'
         run: python -m pytest tests --cov=pennylane_sf --cov-report=term-missing --cov-report=xml -p no:warnings --tb=native
       - name: Upload coverage to Codecov
+        if: steps.filter.outputs.sf == 'true'
         uses: codecov/codecov-action@v1
         with:
           file: ./coverage.xml
