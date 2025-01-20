@@ -3,7 +3,31 @@ on:
   - pull_request
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    # Required permissions
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      sf: ${{ steps.filter.outputs.sf }}
+    steps:
+    # For pull requests it's not necessary to checkout the code
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          sf:
+            - pennylane_sf/**
+            - tests/**
+            - .pylintrc
+            - Makefile
+            - requirements-ci.txt
+            - requirements.txt
+            - setup.py  
   black:
+    needs: changes
+    if: ${{ needs.changes.outputs.sf == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: dorny/paths-filter@v3
