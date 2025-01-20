@@ -4,6 +4,14 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - pennylane_sf/**
+      - tests/**
+      - .pylintrc
+      - Makefile
+      - requirements-ci.txt
+      - requirements.txt
+      - setup.py
 
 jobs:
   tests:
