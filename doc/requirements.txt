@@ -9,14 +9,14 @@ numpy
 pygments-github-lexers
 semantic_version==2.10
 scipy
-docutils==0.16
+docutils==0.20
 StrawberryFields==0.23.0
 sphinx==8.1
-sphinxcontrib-applehelp==1.0.4
-sphinxcontrib-devhelp==1.0.2
-sphinxcontrib-htmlhelp==2.0.1
-sphinxcontrib-qthelp==1.0.3
-sphinxcontrib-serializinghtml==1.1.5
+sphinxcontrib-applehelp==2.0.0
+sphinxcontrib-devhelp==2.0.0
+sphinxcontrib-htmlhelp==2.1.0
+sphinxcontrib-qthelp==2.0.0
+sphinxcontrib-serializinghtml==2.0.0
 sphinx-automodapi==0.13
 sphinx-copybutton
 sphinxcontrib-bibtex==2.4.2
@@ -25,7 +25,7 @@ toml
 jinja2==3.1.6
 rustworkx==0.12.1
 networkx==2.6
-requests~=2.28.1
+requests~=2.32
 # we do not pin the sphinx theme, to allow the
 # navbar and header data to be updated at the source
 pennylane-sphinx-theme
