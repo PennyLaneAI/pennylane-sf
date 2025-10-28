@@ -21,8 +21,8 @@ numba==0.56.4
 numpy==1.23.5
 packaging==21.3
 partd==1.2.0
-PennyLane==0.24.0
-PennyLane-Lightning==0.24.0
+PennyLane #==0.24.0
+PennyLane-Lightning #==0.24.0
 pydantic==1.9.1
 pyparsing==3.0.9
 python-dateutil==2.8.2
