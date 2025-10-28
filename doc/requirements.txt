@@ -23,7 +23,7 @@ sphinxcontrib-bibtex==2.4.2
 tensornetwork==0.3
 toml
 jinja2==3.1.6
-rustworkx==0.12.1
+rustworkx==0.14.0
 networkx==2.6
 requests~=2.32
 # we do not pin the sphinx theme, to allow the
