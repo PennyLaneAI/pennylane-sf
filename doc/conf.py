@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath('.')), 'doc'))
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '8.1'
+autodoc_mock_imports = ["strawberryfields", "pennylane"]
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -82,7 +83,7 @@ add_module_names = False
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-import pennylane_sf
+# import pennylane_sf
 # The full version, including alpha/beta/rc tags.
 release = "0.29.1" #pennylane_sf.__version__
 
@@ -316,7 +317,6 @@ texinfo_documents = [
 
 # the order in which autodoc lists the documented members
 autodoc_member_order = 'bysource'
-autodoc_mock_imports = ["strawberryfields", "pennylane"]
 
 # inheritance_diagram graphviz attributes
 inheritance_node_attrs = dict(color='lightskyblue1', style='filled')

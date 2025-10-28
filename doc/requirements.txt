@@ -8,7 +8,7 @@ m2r2
 numpy
 pygments-github-lexers
 semantic_version==2.10
-scipy
+scipy<1.14
 docutils==0.20
 StrawberryFields==0.23.0
 sphinx==8.1
@@ -29,3 +29,4 @@ requests~=2.32
 # we do not pin the sphinx theme, to allow the
 # navbar and header data to be updated at the source
 pennylane-sphinx-theme
+pennylane
