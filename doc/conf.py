@@ -316,6 +316,7 @@ texinfo_documents = [
 
 # the order in which autodoc lists the documented members
 autodoc_member_order = 'bysource'
+autodoc_mock_imports = ["strawberryfields", "pennylane"]
 
 # inheritance_diagram graphviz attributes
 inheritance_node_attrs = dict(color='lightskyblue1', style='filled')
