@@ -43,7 +43,7 @@ extensions = [
     "sphinx_automodapi.automodapi"
 ]
 
-intersphinx_mapping = {"https://docs.pennylane.ai/en/stable/": None}
+intersphinx_mapping = {'pennylane':("https://docs.pennylane.ai/en/stable/", None)}
 
 # nbsphinx settings
 
