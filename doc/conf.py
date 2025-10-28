@@ -84,7 +84,7 @@ add_module_names = False
 
 import pennylane_sf
 # The full version, including alpha/beta/rc tags.
-release = pennylane_sf.__version__
+release = "0.29.1" #pennylane_sf.__version__
 
 # The short X.Y version.
 version = re.match(r'^(\d+\.\d+)', release).expand(r'\1')
