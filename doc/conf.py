@@ -83,9 +83,9 @@ add_module_names = False
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-# import pennylane_sf
+import pennylane_sf
 # The full version, including alpha/beta/rc tags.
-release = "0.29.1" #pennylane_sf.__version__
+release = pennylane_sf.__version__
 
 # The short X.Y version.
 version = re.match(r'^(\d+\.\d+)', release).expand(r'\1')
