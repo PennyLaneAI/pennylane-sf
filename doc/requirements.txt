@@ -2,7 +2,7 @@
 pip
 appdirs
 autograd
-autoray
+autoray==0.3.2
 mistune==0.8.4
 m2r2
 numpy
