@@ -59,6 +59,7 @@ class StrawberryFieldsRemote(StrawberryFieldsSimulator):
             relation :math:`[x, p] = i \hbar`
         sf_token (str): the SF API token used for remote access
     """
+
     name = "Strawberry Fields Hardware PennyLane plugin"
     short_name = "strawberryfields.remote"
 

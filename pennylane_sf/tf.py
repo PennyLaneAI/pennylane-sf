@@ -135,6 +135,7 @@ class StrawberryFieldsTF(StrawberryFieldsSimulator):
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
+
     name = "Strawberry Fields TensorFlow PennyLane plugin"
     short_name = "strawberryfields.tf"
 

@@ -82,6 +82,7 @@ class StrawberryFieldsFock(StrawberryFieldsSimulator):
         hbar (float): the convention chosen in the canonical commutation
             relation :math:`[x, p] = i \hbar`
     """
+
     name = "Strawberry Fields Fock PennyLane plugin"
     short_name = "strawberryfields.fock"
 
