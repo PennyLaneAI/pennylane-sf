@@ -57,6 +57,7 @@ class StrawberryFieldsGBS(StrawberryFieldsSimulator):
             will be inferred from these samples rather than generating new samples, resulting in
             faster evaluation of the circuit and its derivative.
     """
+
     name = "Strawberry Fields variational GBS PennyLane plugin"
     short_name = "strawberryfields.gbs"
 
