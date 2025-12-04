@@ -1,3 +1,22 @@
+# Release 0.29.2
+
+### Bug fixes
+
+* Fixed documentation build issue by pinning `autoray==0.3.2` to resolve 
+  `AttributeError: module 'autoray.autoray' has no attribute 'NumpyMimic'`.
+  [(#156)](https://github.com/PennyLaneAI/pennylane-sf/pull/156)
+
+* Updated demo thumbnails and URLs in documentation.
+  [(#156)](https://github.com/PennyLaneAI/pennylane-sf/pull/156)
+
+### Contributors
+
+This release contains contributions from (in alphabetical order):
+
+Ashish Singh
+
+---
+
 # Release 0.29.1
 
 ### Breaking changes
