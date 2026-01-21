@@ -14,7 +14,7 @@ idna==3.3
 lark-parser==0.12.0
 llvmlite==0.39.1
 locket==1.0.0
-mpmath==1.2.1
+mpmath==1.3.0
 networkx==2.8.4
 ninja==1.10.2.3
 numba==0.56.4
