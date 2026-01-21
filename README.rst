@@ -45,7 +45,7 @@ for designing, simulating, and optimizing photonic quantum circuits.
 
 .. header-end-inclusion-marker-do-not-remove
 
-The plugin documentation can be found here: `PennyLane-Strawberry Fields <https://pennylane-sf.readthedocs.io/en/latest/>`__.
+The plugin documentation can be found here: `PennyLane-Strawberry Fields <https://docs.pennylane.ai/projects/strawberryfields>`__.
 
 
 Features
